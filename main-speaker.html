@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="main_files/libs/clipboard/clipboard.min.js"></script>
+<script src="main_files/libs/quarto-html/tabby.min.js"></script>
+<script src="main_files/libs/quarto-html/popper.min.js"></script>
+<script src="main_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="main_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="main_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="main_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.31">
+
+  <meta name="author" content="Masatoshi Katabuchi">
+  <meta name="dcterms.date" content="2025-06-14">
+  <title>Bayesian estimation for ecology</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="main_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="main_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="main_files/libs/revealjs/dist/theme/quarto-c346f62bff77774e7d13b34f0c4b0ef3.css">
+  <link rel="stylesheet" href="assets/custom.css">
+  <link href="main_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="main_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="main_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="main_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="main_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="main_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="main_files/libs/kePrint/kePrint.js"></script>
+  <link href="main_files/libs/lightable/lightable.css" rel="stylesheet">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="title-slide" class="slide level2 center" data-background="images/priors.png" data-background-size="50%" data-background-position="50% 20%">
+<h2></h2>
+<div class="title-box">
+<h2>
+<p>Bayesian estimation for ecology</p>
+</h2>
+<h3>
+<p>🧑🏻‍💻 <span class="author">Masatoshi Katabuchi @ XTBG, CAS</span></p>
+<div style="overflow: hidden; height: 1.2em;">
+<ul class="content__container__list center" style="text-align: center">
+<li class="content__container__list__item">
+<i class="fa-solid fa-envelope"></i> mattocci27@gmail.com
+</li>
+<li class="content__container__list__item">
+<i class="fa-brands fa-twitter"></i> <span class="citation" data-cites="mattocci">@mattocci</span>
+</li>
+<li class="content__container__list__item">
+<i class="fa-brands fa-github"></i> github.com/mattocci27/bayes-afec
+</li>
+<li class="content__container__list__item">
+<i class="fa-solid fa-globe"></i> https://mattocci27.github.io
+</li>
+</ul>
+</div>
+</h3>
+</div>
+<p><br><br></p>
+<div class="absolute top-0 w-100" style="">
+<p><span class="fl">June 14, 2025</span> <span class="fr">The 8th Advanced Statistics Workshop Course 2025, XTBG</span></p>
+</div>
+<aside class="notes">
+<p>hoge</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="objectives" class="slide level2">
+<h2>Objectives</h2>
+<div class="large">
+<ul>
+<li class="fragment"><p>We Learn</p>
+<ul>
+<li class="fragment"><p>Why Bayesian estimation is useful</p></li>
+<li class="fragment"><p>Why multilevel models are important</p></li>
+<li class="fragment"><p>How to use and code Bayesian models in Stan and R</p></li>
+</ul></li>
+</ul>
+</div>
+<aside class="notes">
+<ul>
+<li>coding exercises are not the focus of this workshop</li>
+<li>it will take a couple of days</li>
+<li>idea of Bayesian in ecology</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="outline-from-likelihood-to-hierarchical-bayesian-models-in-ecology" class="slide level2">
+<h2>Outline: From Likelihood to Hierarchical Bayesian Models in Ecology</h2>
+<div class="columns">
+<div class="column">
+<h3 id="bayesian-foundations">🧠Bayesian Foundations</h3>
+<ul>
+<li><p>Likelihood</p></li>
+<li><p>Multilevel Models (Conceptual Motivation)</p></li>
+<li><p>Conditional Probability and Bayes’ Theorem</p></li>
+<li><p>Prior</p></li>
+<li><p>Multilevel Model Revisited</p></li>
+</ul>
+</div><div class="column">
+<h3 id="modeling-with-stan">🧑🏻‍💻Modeling with Stan</h3>
+<ul>
+<li><p>Tools for Bayesian Modeling</p></li>
+<li><p>Stan Coding Session (separate HTML material)</p></li>
+</ul>
+</div></div>
+</section>
+<section>
+<section id="likelihood" class="title-slide slide level1 center">
+<h1>Likelihood</h1>
+<div class="fragment">
+<div class="large">
+<p>Assuming everyone knows the concept of likelihood</p>
+</div>
+</div>
+<aside class="notes">
+<p>correct?</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="likelihood-and-probability-density-distribution" class="slide level2">
+<h2>Likelihood and probability density distribution</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-1-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="small">
+<p><span class="math inline">\(f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac{1}{2}\bigl\{\frac{x-\mu}{\sigma}}\bigr\}^2\bigr]\)</span></p>
+</div>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment"><p><strong>P(data | parameters)</strong>: Probability of observing the data given the parameters.</p></li>
+<li class="fragment"><p>e.g., when your model is <span class="math inline">\(x_i \sim \mathcal{N}(\mu = 0, \sigma^2 = 1)\)</span> (normal distribution with mean 0 and variance 1), what is the probability density at x = 1.96?</p></li>
+</ul>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="dv">1</span> <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">*</span> (<span class="fl">1.96</span> <span class="sc">-</span> <span class="dv">0</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0.05844094</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<ul>
+<li><span class="math inline">\(P(x = 1.96 \mid \mu = 0, \sigma = 1)\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">dnorm</span>(<span class="fl">1.96</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0.05844094</code></pre>
+</div>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<ul>
+<li>likelihood is all about probability density (mass) function (normal, log-normal, poisson, beta, gamma, binomial, negative-binomial…)</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="likelihood-1" class="slide level2">
+<h2>Likelihood</h2>
+<p>When your data is x = {-1.5, 0, 1.5} and your model is <span class="math inline">\(x \sim \mathcal{N}(0, 1)\)</span>, what is the probability of observing x?</p>
+<div class="small">
+<ul>
+<li class="fragment"><span class="math inline">\(L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)\)</span></li>
+<li class="fragment"><span class="math inline">\(\mathrm{ln}\;L = \mathrm{ln}\;P(-1.5 \mid 0, 1) + \mathrm{ln}\;P(0 \mid 0, 1) +  \mathrm{ln}\;P(1.5 \mid 0, 1)\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="fu">dnorm</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="dv">0</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">dnorm</span>(<span class="fl">1.5</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">log =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] -5.006816</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-5-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="likelihood-2" class="slide level2">
+<h2>Likelihood</h2>
+<ul>
+<li class="fragment"><p>Because we usually don’t know the true parameters (<span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>), we need to find the parameters that maximize the likelihood function (<strong>MLE: Maximum Likelihood Estimation</strong>).</p>
+<ul>
+<li class="fragment">e.g., for a liner model <span class="math inline">\(y_i = ax_i + b\)</span>, we usually assume that <span class="math inline">\(y_i \sim \mathcal{N}(\mu_i = ax_i + b, \sigma^2)\)</span>, and we want to find the parameters <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(\sigma\)</span> that maximize the likelihood function: <span class="math inline">\(P(y_i \mid ax_i + b, \sigma)\)</span></li>
+</ul></li>
+</ul>
+</section>
+<section id="maximum-likelihood-estimation-mle" class="slide level2">
+<h2>Maximum Likelihood Estimation (MLE)</h2>
+<ul>
+<li>2 survivors out of 5 seedlings: What is the survival probability of seedlings?</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/seedling.png"></p>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment"><p><span class="math inline">\(p\)</span>: survival rates, <span class="math inline">\(1-p\)</span>: mortality rate</p></li>
+<li class="fragment"><p><span class="math inline">\(L = {}_5C_2 p^2(1-p)^3\)</span> (Binomial distribution)</p></li>
+<li class="fragment"><p><span class="math inline">\(\mathrm{ln}\;L = \mathrm{ln}\;{}_5C_2 + 2\mathrm{ln}\;p + 3\mathrm{ln}(1-p)\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\frac{d}{dp}\mathrm{ln}\;L = \frac{2}{p} - \frac{3}{1-p} = 0\)</span></p></li>
+<li class="fragment"><p>Solve: <span class="math inline">\(p = \frac{2}{5}\)</span></p></li>
+</ul>
+</div></div>
+</section></section>
+<section>
+<section id="multilevel-models-conceptual-motivation" class="title-slide slide level1 center">
+<h1>Multilevel Models (Conceptual Motivation)</h1>
+
+</section>
+<section class="slide level2">
+
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/comita_cover.jpg"></p>
+</div><div class="column" style="width:60%;">
+<h3 id="negative-density-dependence-ndd">Negative density dependence (NDD)</h3>
+<p>“…rare species suffered more from the presence of conspecific neighbors than common species did, suggesting that conspecific density dependence shapes species abundances in diverse communities.”</p>
+<p>- Comita et al.&nbsp;2010 -</p>
+</div></div>
+<div class="fragment">
+<p>NDD can maintain diversity in communities by preventing common species from dominating the community.</p>
+</div>
+<div class="footer">
+<p><a href="https://doi.org/10.1126/science.1190772">Comita <em>et al.</em> 2010 <em>Science</em></a></p>
+</div>
+</section>
+<section id="multilevel-model-verbal-model-ndd-example" class="slide level2">
+<h2>Multilevel model (verbal model: NDD example)</h2>
+<div class="footer">
+<p>Example inspired by <a href="https://doi.org/10.1126/science.1190772">Comita <em>et al.</em> 2010 <em>Science</em></a> and <a href="https://doi.org/10.1002/ecy.4382">Song &amp; Katabuchi <em>et al.</em> 2024 <em>Ecology</em></a></p>
+<p>Conspecific density and species abundance are scaled (mean = 0, sd = 1).</p>
+</div>
+<div class="small">
+<p><em>H: Rare species tend to be rare because they suffer stronger conspecific NDD than common species.</em></p>
+<div class="fragment">
+<p>There is negative density dependence (NDD) of seedling survival rate, and the strength of NDD varies among species. The strength of NDD depends on species abundance.</p>
+</div>
+<div class="fragment">
+<ul>
+<li>Survival rates <em>p</em> ~ conspecific density <em>x</em> (individual-level, logistic regression).</li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li>Slopes <em>a</em> ~ species abundance (species-level).</li>
+</ul>
+</div>
+</div>
+
+<img data-src="figure/unnamed-chunk-6-1.png" class="quarto-figure quarto-figure-center r-stretch" width="1440"></section>
+<section id="multilevel-model-verbal-model-tree-allometry-example" class="slide level2">
+<h2>Multilevel model (verbal model: tree allometry example)</h2>
+<div class="footer">
+<p>Example inspired by Nguyen &amp; Katabuchi <em>Journal of Forestry Research</em> (accepted)</p>
+<p>Wood density is scaled (mean = 0, sd = 1).</p>
+</div>
+<div class="small">
+<p><em>H: Dense wood can support taller trees than less dense wood.</em></p>
+<div class="fragment">
+<p>There is a power-law relationship (<span class="math inline">\(y =ax^b\)</span>) between tree diameter (DBH) and tree maximum height, and the power-law exponent varies among species. Those relationships depend on wood density.</p>
+</div>
+<ul>
+<li class="fragment"><p>Tree height <em>y</em> ~ DBH <em>x</em> (individual-level)</p></li>
+<li class="fragment"><p>Slope <em>b</em> ~ wood density (species-level)</p></li>
+</ul>
+</div>
+
+<img data-src="figure/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" width="1440"></section>
+<section id="code-implementation-two-stage-mle" class="slide level2">
+<h2>Code implementation: two-stage MLE</h2>
+<div class="footer">
+<p>e.g., <a href="https://doi.org/10.1111/1365-2745.13497">Song <em>et al.</em> 2021 <em>Journal of Ecology</em></a>, <a href="https://doi.org/10.1002/ecy.3808">Jevon <em>et al.</em> 2022 <em>Ecology</em></a></p>
+</div>
+<h3 id="individual-level-model-glmm">Individual-level model: GLMM</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>fit_ind <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb7-2"><a href=""></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
+<span id="cb7-3"><a href=""></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We need to extract the slope coefficients for each species from <code>fit_ind</code> and make <code>new_data</code>.</p>
+<div class="fragment">
+<h3 id="group-level-model-lm">Group-level model: LM</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a>fit_gr <span class="ot">&lt;-</span> <span class="fu">lm</span>(slope_coef <span class="sc">~</span>  abund, <span class="at">data =</span> new_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<ul>
+<li class="fragment">This method has low statistical power.</li>
+</ul>
+</section>
+<section id="code-implementation-simultaneous-mle-approach" class="slide level2">
+<h2>Code implementation: Simultaneous MLE approach</h2>
+<div class="footer">
+<p>e.g., <a href="https://doi.org/10.1126/science.aau1361">Chen <em>et al.</em> 2019 <em>Science</em></a></p>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>fit_mle <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">glmer</span>(</span>
+<span id="cb9-2"><a href=""></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> abund <span class="sc">+</span> cons<span class="sc">:</span>abund <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
+<span id="cb9-3"><a href=""></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">Combines both levels into a single model.</li>
+<li class="fragment">Often work for simple models and data.</li>
+</ul>
+</section>
+<section id="code-implementation-bayesian-glmm-with-brms" class="slide level2">
+<h2>Code implementation: Bayesian GLMM with <code>brms</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>fit_bayes <span class="ot">&lt;-</span> brms<span class="sc">::</span><span class="fu">brms</span>(</span>
+<span id="cb10-2"><a href=""></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> abund <span class="sc">+</span> cons<span class="sc">:</span>abund <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
+<span id="cb10-3"><a href=""></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> <span class="fu">binomial</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">Syntax is similar to <code>lme4::glmer()</code>.</li>
+<li class="fragment">Works well for most cases.</li>
+</ul>
+</section>
+<section id="looking-ahead-full-bayesian-implementation-in-stan" class="slide level2">
+<h2>Looking ahead: full Bayesian implementation in Stan</h2>
+<div class="footer">
+<p>e.g., <a href="https://doi.org/10.1126/science.1190772">Comita <em>et al.</em> 2010 <em>Science</em></a>, <a href="https://doi.org/10.1002/ecy.4382">Song &amp; Katabuchi <em>et al.</em> 2024 <em>Ecology</em></a>, Nguyen &amp; Katabuchi <em>Journal of Forestry Research</em> (accepted)</p>
+</div>
+<div class="footer">
+
+</div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center" data-output.var="mv_logistic">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb11-1"><a href=""></a><span class="kw">data</span>{</span>
+<span id="cb11-2"><a href=""></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; N; <span class="co">// number of samples</span></span>
+<span id="cb11-3"><a href=""></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; J; <span class="co">// number of sp</span></span>
+<span id="cb11-4"><a href=""></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; K; <span class="co">// number of tree-level preditors (i.e, CONS, HETS,...)</span></span>
+<span id="cb11-5"><a href=""></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; L; <span class="co">// number of sp-level predictors (i.e., interecept, SLA,...)</span></span>
+<span id="cb11-6"><a href=""></a>  <span class="dt">matrix</span>[N, K] x; <span class="co">// tree-level predictor</span></span>
+<span id="cb11-7"><a href=""></a>  <span class="dt">matrix</span>[L, J] u; <span class="co">// sp-level predictor</span></span>
+<span id="cb11-8"><a href=""></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=<span class="dv">1</span>&gt; suv; <span class="co">// 1 or 0</span></span>
+<span id="cb11-9"><a href=""></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>, <span class="kw">upper</span>=J&gt; sp; <span class="co">// integer</span></span>
+<span id="cb11-10"><a href=""></a>}</span>
+<span id="cb11-11"><a href=""></a></span>
+<span id="cb11-12"><a href=""></a><span class="kw">parameters</span>{</span>
+<span id="cb11-13"><a href=""></a>  <span class="dt">matrix</span>[K, L] gamma;</span>
+<span id="cb11-14"><a href=""></a>  <span class="dt">matrix</span>[K, J] z;</span>
+<span id="cb11-15"><a href=""></a>  <span class="dt">cholesky_factor_corr</span>[K] L_Omega;</span>
+<span id="cb11-16"><a href=""></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=pi() / <span class="dv">2</span>&gt;[K] tau_unif;</span>
+<span id="cb11-17"><a href=""></a>}</span>
+<span id="cb11-18"><a href=""></a></span>
+<span id="cb11-19"><a href=""></a><span class="kw">transformed parameters</span>{</span>
+<span id="cb11-20"><a href=""></a>  <span class="dt">matrix</span>[K, J] beta;</span>
+<span id="cb11-21"><a href=""></a>  <span class="dt">vector</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt;[K] tau;</span>
+<span id="cb11-22"><a href=""></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span>:K) tau[k] = <span class="fl">2.5</span> * tan(tau_unif[k]);</span>
+<span id="cb11-23"><a href=""></a>  beta = gamma * u + diag_pre_multiply(tau, L_Omega) * z;</span>
+<span id="cb11-24"><a href=""></a>}</span>
+<span id="cb11-25"><a href=""></a></span>
+<span id="cb11-26"><a href=""></a><span class="kw">model</span> {</span>
+<span id="cb11-27"><a href=""></a>  <span class="dt">vector</span>[N] mu;</span>
+<span id="cb11-28"><a href=""></a>  to_vector(z) ~ std_normal();</span>
+<span id="cb11-29"><a href=""></a>  L_Omega ~ lkj_corr_cholesky(<span class="dv">2</span>);</span>
+<span id="cb11-30"><a href=""></a>  to_vector(gamma) ~ normal(<span class="dv">0</span>, <span class="fl">2.5</span>);</span>
+<span id="cb11-31"><a href=""></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
+<span id="cb11-32"><a href=""></a>    mu[n] = x[n, ] * beta[, sp[n]];</span>
+<span id="cb11-33"><a href=""></a>  }</span>
+<span id="cb11-34"><a href=""></a>  suv ~ bernoulli_logit(mu);</span>
+<span id="cb11-35"><a href=""></a>}</span>
+<span id="cb11-36"><a href=""></a></span>
+<span id="cb11-37"><a href=""></a><span class="kw">generated quantities</span> {</span>
+<span id="cb11-38"><a href=""></a>  <span class="dt">vector</span>[N] log_lik;</span>
+<span id="cb11-39"><a href=""></a>  <span class="dt">corr_matrix</span>[K] Omega;</span>
+<span id="cb11-40"><a href=""></a>  Omega = multiply_lower_tri_self_transpose(L_Omega);</span>
+<span id="cb11-41"><a href=""></a>  <span class="cf">for</span> (n <span class="cf">in</span> <span class="dv">1</span>:N) {</span>
+<span id="cb11-42"><a href=""></a>    log_lik[n] = bernoulli_logit_lpmf(suv[n] | x[n, ] * beta[, sp[n]] +</span>
+<span id="cb11-43"><a href=""></a>      phi[plot[n]] + xi[census[n]] + psi[tag[n]]);</span>
+<span id="cb11-44"><a href=""></a>  }</span>
+<span id="cb11-45"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="small">
+<ul>
+<li><p><span class="math inline">\(s_{i,j} \sim \mathcal{B}(p_{i, j})\)</span>: <span class="orange">likelihood</span></p></li>
+<li><p><span class="math inline">\(\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}\)</span>: individual-level model</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}\)</span>: species-level model</p></li>
+<li><p><span class="math inline">\(L \sim \mathrm{LkjCholesky}(\eta)\)</span>: <span class="blue">prior (?)</span></p></li>
+<li><p><span class="math inline">\(z_j \sim \mathcal{N}(0, 1)\)</span>: <span class="blue">prior (?)</span></p></li>
+<li><p><span class="math inline">\(\tau \sim \mathrm{Cauchy}(0, 2.5)\)</span>: <span class="blue">prior (?)</span></p></li>
+<li><p><span class="math inline">\(\gamma_k \sim \mathcal{N}(0, 2.5)\)</span>: <span class="blue">prior (?)</span></p></li>
+</ul>
+</div>
+</div><p>I won’t explain this now — but this is the kind of model we’ll build after learning Bayes’s theorem, priors, and a bit of linear algebra.</p>
+</div>
+</section></section>
+<section>
+<section id="conditional-probability-and-bayes-theorem" class="title-slide slide level1 center">
+<h1>Conditional Probability and Bayes’ Theorem</h1>
+
+</section>
+<section id="conditional-probability-and-bayes-theorem-1" class="slide level2">
+<h2>Conditional Probability and Bayes’ Theorem</h2>
+<p><span class="math display">\[
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+\]</span></p>
+<ul>
+<li><p>Conditional probability</p></li>
+<li><p>Bayes’ Theorem</p></li>
+<li><p>Forward / inverse problems</p></li>
+<li><p>Revisiting Bayes</p></li>
+</ul>
+</section>
+<section id="probability" class="slide level2">
+<h2>Probability</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-14-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<p>Probility of A:</p>
+<p><span class="math display">\[
+P(A) = \frac{A}{U}
+\]</span></p>
+<p>e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2</p>
+</div></div>
+</section>
+<section id="conditional-probability" class="slide level2">
+<h2>Conditional Probability</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-16-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<p>Probability of A occurring given B has already occurred:</p>
+<p><span class="math display">\[
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+\]</span></p>
+<p>e.g.,</p>
+<ul>
+<li class="fragment">P(hangover) = 4%</li>
+<li class="fragment">P(baiju) = 1.5%</li>
+<li class="fragment">P(hangover | baiju) = 85%.</li>
+</ul>
+</div></div>
+<aside class="notes">
+<ul>
+<li>probability A occurs given B</li>
+<li>vertical bar = given</li>
+<li>at least 1 day for each month</li>
+<li>the next day after I had beer</li>
+<li>the next day after I had baiju</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="bayes-theorem" class="slide level2">
+<h2>Bayes’ Theorem</h2>
+<p><span class="math display">\[
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+\]</span></p>
+<p><span class="math display">\[
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+\]</span></p>
+<div class="fragment">
+<p><span class="math display">\[
+P(A \mid B) \times P(B) =  P(B \mid A) \times P(A)
+\]</span></p>
+</div>
+<div class="fragment">
+<div class="box">
+<p><span class="math display">\[
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<h3 id="why-is-this-useful">Why is this useful?</h3>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img src="images/fip_1.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section class="slide level2">
+
+
+<img src="images/fip_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section class="slide level2">
+
+
+<img src="images/fip_3.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section class="slide level2">
+
+
+<img src="images/fip_4.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section class="slide level2">
+
+
+<img src="images/fip_5.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section class="slide level2">
+
+
+<img src="images/fip_6.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section id="forward-and-inverse-problems-pcr-and-disease-example" class="slide level2">
+<h2>Forward and Inverse Problems: PCR and disease example</h2>
+<div class="footer">
+<ul>
+<li><span class="math inline">\(P(\text{Positive})\)</span>: 2%, <span class="math inline">\(P(\text{Infected})\)</span>: 0.05%</li>
+</ul>
+</div>
+<p><strong>➡️Forward problem:</strong> If you are infected, what is the probability that PCR test is positive?</p>
+<p><br></p>
+<div class="fragment">
+<p><span class="math inline">\(P(\text{Positive} \mid \text{Infected})\)</span>: 95%</p>
+</div>
+<p><br></p>
+<div class="fragment">
+<p>This is what the lab test is designed to estimate — how likely we are to observe a positive signal given the known infection status (e.g., 95 out of 100 infected samples test positive).</p>
+</div>
+</section>
+<section id="forward-and-inverse-problems-pcr-and-disease-example-1" class="slide level2">
+<h2>Forward and Inverse Problems: PCR and disease example</h2>
+<div class="footer">
+<ul>
+<li><span class="math inline">\(P(\text{Positive})\)</span>: 2%, <span class="math inline">\(P(\text{Infected})\)</span>: 0.05%</li>
+</ul>
+</div>
+<p><strong>🔁Inverse problem (Bayesian):</strong> If the PCR test is positive, what is the probability that you are infected?</p>
+<p><br></p>
+<div class="fragment">
+<ul>
+<li><span class="math inline">\(P(\text{Infected} \mid \text{Positive}) = \frac{P(\text{Positive} \mid \text{Infected}) \cdot  P(\text{Infected})}{P(\text{Positive})} \approx 2.4\%\)</span></li>
+</ul>
+</div>
+<p><br></p>
+<div class="fragment">
+<p>This isn’t intuitive, but it’s the probability we actually care about — how likely someone is to be infected, given a positive test result.</p>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img src="images/bayes_re.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section id="bayes-theorem-1" class="slide level2">
+<h2>Bayes’ theorem</h2>
+<p><span class="math display">\[
+\textcolor{#d95f02}{
+  P(\mathrm{Parameter} \mid \mathrm{Data})
+}
+=
+\frac{
+\textcolor{#1b9e77} {
+  P(\mathrm{Data} \mid \mathrm{Parameter})
+} \times
+\textcolor{#7570b3} {
+  P(\mathrm{Parameter})}
+}
+{P(\mathrm{Data})}
+\]</span></p>
+<div class="small">
+<ul>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#d95f02}{P(\mathrm{Parameter} \mid \mathrm{Data})}\)</span></p>
+<ul>
+<li class="fragment"><strong>What we want to estimate (<span class="orange">posterior</span>)</strong>: When we got our data, what were the parameters behind the data (e.g., coefficients of regressions)?</li>
+</ul></li>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#1b9e77}{P(\mathrm{Data} \mid \mathrm{Parameter})}\)</span></p>
+<ul>
+<li class="fragment">When we know our parameters, what is the probability of getting our data? (i.e., <strong><span class="teal">likelihood</span></strong>)</li>
+</ul></li>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#7570b3}{P(\mathrm{Parameter})}\)</span></p>
+<ul>
+<li class="fragment">Probability to get our parameters. This is what we assume for our parameter before we see any data (i.e., <strong><span class="purple">prior??</span></strong> — next section).</li>
+</ul></li>
+<li class="fragment"><p><span class="math inline">\(P(\mathrm{Data})\)</span></p>
+<ul>
+<li class="fragment">Independent with parameters (i.e., constant)</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;" class="r-stretch"></section></section>
+<section>
+<section id="prior" class="title-slide slide level1 center">
+<h1>Prior</h1>
+
+<img data-src="figure/unnamed-chunk-17-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="prior-vs.-data-mle-and-bayesian-comparison-coin-toss" class="slide level2">
+<h2>Prior vs.&nbsp;Data: MLE and Bayesian comparison (Coin Toss)</h2>
+<p>We compare two coins, A and B, with the same prior but different likelihood (due to data sizes) to illustrate how prior beliefs influence posterior estimates.</p>
+<h3 id="mle">MLE</h3>
+<ul>
+<li class="fragment">A: 2 head out of 3 tosses -&gt; P(H) = 2/3 = 0.666</li>
+<li class="fragment">B: 60 heads out of 100 tosses -&gt; P(H) = 60/100 = 0.6</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<h3 id="bayesian">Bayesian</h3>
+<ul>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#1b9e77}{L_A = {}_3C_2 p^2 (1-p)^1}\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#1b9e77}{L_B = {}_{100}C_{60} p^{60} (1-p)^{40}}\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\textcolor{#7570b3}{\mathrm{Prior} \propto  p^{50} (1-p)^{50}}\)</span></p>
+<ul>
+<li class="fragment">Beta distribution with mean 0.5 and small variance</li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="bayesian-update-with-prior-coin-toss" class="slide level2">
+<h2>Bayesian Update with Prior (Coin Toss)</h2>
+<p><span class="orange">Posterior</span> <span class="math inline">\(\propto\)</span> <span class="teal">Likelihood</span> <span class="math inline">\(\times\)</span> <span class="purple">Prior</span></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="fragment">
+<p>Parameter <em>p</em> that maximizes the posterior of coin A. <span class="math inline">\(\textcolor{#d95f02}{Post_A}\propto\textcolor{#1b9e77}{p^2 (1-p)^1} \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}\)</span> <span class="math inline">\(p = 52/103 \approx 0.505\)</span></p>
+</div>
+<div class="fragment">
+<ul>
+<li><span class="math inline">\(Post_A\)</span>: With only 3 coin tosses, the likelihood is weak, so the posterior stays close to the prior.</li>
+</ul>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="fragment">
+<p>Parameter <em>p</em> that maximizes the posterior of coin B. <span class="math inline">\(\textcolor{#d95f02}{Post_B} \propto \textcolor{#1b9e77}{p^{60} (1-p)^{40}} \times \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}\)</span> <span class="math inline">\(p = 110/200 = 0.55\)</span></p>
+</div>
+<div class="fragment">
+<ul>
+<li><span class="math inline">\(Post_B\)</span>: With 100 coin tosses, the likelihood dominates, so the posterior shifts more towards the data.</li>
+</ul>
+</div>
+</div></div>
+<ul>
+<li class="fragment">The same prior can have a strong or weak influence depending on how much data we have.</li>
+<li class="fragment">We usually have some sense of a scale about parameters, we can legally use that information.</li>
+</ul>
+</section>
+<section id="priors-in-ecology-why-scale-matters" class="slide level2">
+<h2>Priors in ecology: Why scale matters</h2>
+<div class="footer">
+<p>We often use weakly informative priors in ecology.</p>
+</div>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-19-1.png" class="quarto-figure quarto-figure-center" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment">We consider variables <em>x</em> = {-3, …, 3} and <em>y</em> = {-6, …, 4}. We don’t yet know if there is a correlation (<em>y = ax + b</em>).</li>
+<li class="fragment">However, given the similar scales of <em>x</em> and <em>y</em>, it’s reasonable to guess that <em>a</em> falls within a narrow range (e.g., <strong>strongly informative prior</strong>: -5 to 5, <strong>weakly informative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  2.5)\)</span>).</li>
+<li class="fragment">In contrast, a slope like <em>a</em> = 100 (blue line) clearly doesn’t match the data (i.e., <strong>uninformative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  10^4)\)</span>).</li>
+</ul>
+</div></div>
+</section>
+<section id="priors-and-ecology-multilevel-structure-for-group-level-effects" class="slide level2">
+<h2>Priors and ecology: multilevel structure for group-level effects</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-20-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="footer">
+<p><em>i</em> indexes samples (e.g., individuals), and <em>j</em> indexes groups (e.g., species, sites).</p>
+</div>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(ax_i + b_j, \sigma)\)</span></li>
+<li class="fragment">If the parameter <span class="math inline">\(b_j\)</span> is similar within each group (e.g., species differences, site differences), it makes sense to model:</li>
+<li class="fragment">Prior: <span class="math inline">\(b_j \sim \mathcal{N}(\mu_b, \tau)\)</span>
+<ul>
+<li class="fragment"><span class="math inline">\(\mu_b\)</span>: global means across all groups</li>
+<li class="fragment"><span class="math inline">\(\tau\)</span>: variation among groups</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="priors-and-ecology-multilevel-structure-for-spatial-autocorrelation" class="slide level2">
+<h2>Priors and ecology: multilevel structure for spatial autocorrelation</h2>
+<div class="footer">
+<p>Each observation <em>i</em> is associated with a grid cell (<span class="math inline">\(m,n\)</span>), so <span class="math inline">\(\tilde{r}i = r_{m,n}\)</span>.</p>
+</div>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/spatial.png"></p>
+</div><div class="column" style="width:70%;">
+<ul>
+<li>When the data <span class="math inline">\(y_i\)</span> is similar to the surrounding samples (e.g., temporal / spatial autocorrelation):</li>
+</ul>
+<ul>
+<li class="fragment">Likelihood: <span class="math inline">\(y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)\)</span></li>
+<li class="fragment">Prior (spatial effect): <span class="math inline">\(\tilde{r_i} = r_{m, n} \sim \mathcal{N}(\phi_{m,n}, \tau)\)</span></li>
+<li class="fragment"><span class="math inline">\(\phi_{m,n}\)</span> = average of 8 neighbors around <span class="math inline">\(r_{m,n}\)</span></li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\[
+\begin{align*}
+\phi_{m,n} = \frac{1}{8} (&amp;
+r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
+&amp; r_{m,n-1} + r_{m,n+1} + \\
+&amp; r_{m+1,n-1} + r_{m+1,n} + r_{m+1,n+1})
+\end{align*}
+\]</span></p>
+</div>
+</div></div>
+</section>
+<section id="summary-priors" class="slide level2">
+<h2>Summary: Priors</h2>
+<ul>
+<li><p>Using weakly informative priors, we don’t have to explore the entire parameter space.</p></li>
+<li><p>Bayesian methods are inherently designed for hierarchical (multilevel) modeling through priors.</p></li>
+</ul>
+</section></section>
+<section>
+<section id="multilevel-model-revisit" class="title-slide slide level1 center">
+<h1>Multilevel model Revisit</h1>
+
+</section>
+<section id="eight-schools-problem" class="slide level2">
+<h2>Eight schools problem</h2>
+<p>Coaching effects in eight schools.</p>
+<div class="footer">
+<p>[1] Rubin, D. B. Estimation in parallel randomized experiments. Journal of Educational Statistics 6, 377–401 (1981).</p>
+<p>[2] Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013).</p>
+</div>
+
+<img data-src="images/eight_schools.png" class="r-stretch"><aside class="notes">
+<ul>
+<li>s a t</li>
+<li>data has 8 rows with mean effects and sd of the effects</li>
+<li>not straightforward</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="eight-mother-trees-problem" class="slide level2">
+<h2>Eight mother trees problem</h2>
+<p>What is the survival rate?</p>
+<div class="columns">
+<div class="column" style="width:30%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="lightable-material lightable-striped lightable-hover caption-top" data-quarto-postprocess="true" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">id</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">suv</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">18</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">G</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><div class="column" style="width:70%;">
+<ul>
+<li class="fragment"><p>suv <span class="math inline">\(\sim\)</span> B(n, p) (Binomial distribution)</p></li>
+<li class="fragment"><p>p = suv / n (Maximum likelihood estimation: MLE)</p></li>
+</ul>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="fu">sum</span>(dummy_simple<span class="sc">$</span>suv) <span class="sc">/</span> <span class="fu">sum</span>(dummy_simple<span class="sc">$</span>n)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1] 0.2840467</code></pre>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">If we pool all the data, the survival rate will be about 0.284</li>
+</ul>
+</div></div>
+</section>
+<section id="eight-mother-trees-problem-separate-estimates" class="slide level2">
+<h2>Eight mother trees problem (separate estimates)</h2>
+<p>What is the survival rate?</p>
+<div class="columns">
+<div class="column" style="width:35%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="lightable-material lightable-striped lightable-hover caption-top" data-quarto-postprocess="true" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">id</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">suv</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_like</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.22</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.19</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.28</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">G</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><div class="column" style="width:65%;">
+<ul>
+<li class="fragment">If we estimate each species separately, survival rates will be <code>p_like</code></li>
+</ul>
+</div></div>
+</section>
+<section id="eight-mother-trees-problem-separate-estimates-1" class="slide level2">
+<h2>Eight mother trees problem (separate estimates)</h2>
+<p>What is the survival rate?</p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="lightable-material lightable-striped lightable-hover caption-top" data-quarto-postprocess="true" style="font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">sp</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">suv</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_like</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_true</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">0.30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.19</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">0.36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: right;">0.23</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">G</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">0.34</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<div class="small">
+<ul>
+<li class="fragment"><p><code>p_true</code> ranges [0.23, 0.36]</p></li>
+<li class="fragment"><p><code>p_like</code> ranges [0.19, 0.5]</p></li>
+<li class="fragment"><p>The estimate shows the larger variation</p></li>
+<li class="fragment"><p>Because of the small sample size (common in ecological studies)</p></li>
+</ul>
+</div>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-26-1.png" class="quarto-figure quarto-figure-center" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<ul>
+<li>These data were simulated based on <code>p_true</code>, but the ML estimates are slightly different</li>
+<li>we want to improve the estimates</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="footer">
+<p>We know <code>p_true</code> because we generated this data using <code>p_true</code> as a known parameter. In practical scenarios, we don’t know <code>p_true</code>.</p>
+</div>
+</section>
+<section id="extreme-case-1-pooled-estimates" class="slide level2">
+<h2>Extreme case 1: Pooled estimates</h2>
+<div class="columns">
+<div class="column">
+<ul>
+<li><span class="math inline">\(S_i \sim \mathcal{B}(N_i, p)\)</span>: Likelihood</li>
+<li><span class="math inline">\(\mathrm{logit}(p) \sim \mathcal{N}(0, 2.5)\)</span>: Prior</li>
+</ul>
+<p><img data-src="images/pool.png"></p>
+</div><div class="column">
+<ul>
+<li class="fragment">This model assumes all mother trees share the exact same survival rate.</li>
+</ul>
+</div></div>
+</section>
+<section id="extreme-case-2-separate-estimates" class="slide level2">
+<h2>Extreme case 2: Separate estimates</h2>
+<div class="columns">
+<div class="column">
+<ul>
+<li><span class="math inline">\(S_i \sim \mathcal{B}(N_i, p_i)\)</span>: Likelihood</li>
+<li><span class="math inline">\(\mathrm{logit}(p_i) \sim \mathcal{N}(0, 2.5)\)</span>: Prior</li>
+</ul>
+<p><img data-src="images/separate.png"></p>
+</div><div class="column">
+<ul>
+<li class="fragment">This model assumes each mother tree has a completely independent survival rate.</li>
+<li class="fragment">With limited data per tree, this model tends to overfit and produces noisy estimates.</li>
+<li class="fragment">We need to find a balance between these two extremes.</li>
+</ul>
+</div></div>
+<aside class="notes">
+<ul>
+<li>if we have infinite amount of data, we can estimate survival rates separately</li>
+<li>usually, we don’t have enough data (model tends to overfit)</li>
+<li>We need to find a balance between these two extremes</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="more-realistic-estimates-multilevel-models-partial-pooling" class="slide level2">
+<h2>More realistic estimates: Multilevel models — partial pooling</h2>
+<ul>
+<li><p><span class="math inline">\(S_i \sim \mathcal{B}(N_i, p_i)\)</span>: Likelihood</p></li>
+<li><p><span class="math inline">\(\mathrm{logit}(p_i) \sim \mathcal{N}(\mu, \sigma)\)</span>: Group-level model (hierarchical prior)</p></li>
+<li><p><span class="math inline">\(\mu \sim \mathcal{N}(0, 2.5)\)</span>: Hyperprior</p></li>
+<li><p><span class="math inline">\(\sigma \sim \text{Half-Cauchy}(0, 1)\)</span>: Hyperprior</p></li>
+</ul>
+
+<img src="images/multilevel.png" width="80%" style="display: block; margin: auto;" class="r-stretch"></section>
+<section id="sigma-determines-group-level-variation" class="slide level2">
+<h2><span class="math inline">\(\sigma\)</span> determines group-level variation</h2>
+<p>The overall survival rate is 0.5 in this figure. We have some sense of a scale for <span class="math inline">\(\sigma\)</span>.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<aside class="notes">
+<ul>
+<li>on the logit scale</li>
+<li>we have some sense of a scale for sigma</li>
+<li>sigma = 0.3 -&gt; +/- 7%</li>
+<li>sigma = 3 -&gt; +/- 45%</li>
+<li>sigma = 10 -&gt; +/- 49.99%</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="better-estimates-via-partial-pooling-bayesian-multilevel-model-vs.-mle-separate-fits" class="slide level2">
+<h2>Better estimates via partial pooling (Bayesian multilevel model vs.&nbsp;MLE separate fits)</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="lightable-material lightable-striped lightable-hover caption-top" data-quarto-postprocess="true" style="font-size: 30px; font-family: &quot;Source Sans Pro&quot;, helvetica, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">sp</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">suv</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_like</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_true</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p_bayes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.26</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">0.30</td>
+<td style="text-align: right;">0.32</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.19</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: right;">0.28</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.27</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.31</td>
+<td style="text-align: right;">0.23</td>
+<td style="text-align: right;">0.29</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">G</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.27</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">H</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.32</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div><div class="column" style="width:60%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figure/unnamed-chunk-30-1.png" class="quarto-figure quarto-figure-center" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="small">
+<ul>
+<li class="fragment"><p>Closed symbols (<code class="small">p_bayes</code>) align more closely with the 1:1 line, indicating more accurate estimates.</p></li>
+<li class="fragment"><p>This model compensates for limited data by using <strong>prior</strong> knowledge that tree responses are somehow similar and compensates for limited data.</p></li>
+</ul>
+</div>
+</div></div>
+<aside class="notes">
+<ul>
+<li><p>less influenced by overfitting for each species</p></li>
+<li><p>to understand prior, we need to understand Bayes’s theorem a bit more</p></li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="mle-vs.-bayesian-estimation" class="slide level2">
+<h2>MLE vs.&nbsp;Bayesian estimation</h2>
+<h3 id="mle-e.g.-lme4">MLE (e.g., <code class="small">lme4</code>)</h3>
+<p><span class="math inline">\(L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i\)</span></p>
+<ul>
+<li class="fragment"><p>Analytically (or numerically) find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> that maximize <span class="math inline">\(L\)</span>.</p></li>
+<li class="fragment"><p>MLE often requires numerical integration, and this becomes difficult for complex models.</p></li>
+<li class="fragment"><p>No prior; estimates can be unstable or biased with small data.</p></li>
+</ul>
+</section>
+<section id="mle-vs.-bayesian-estimation-1" class="slide level2">
+<h2>MLE vs.&nbsp;Bayesian estimation</h2>
+<h3 id="bayesian-estimation">Bayesian estimation</h3>
+<p><span class="math inline">\(P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times\)</span> <span class="math inline">\(\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\mathcal{N}(\mu \mid 0, 2.5) \times \text{Half-Cauchy}(0, 1)\)</span></p>
+<ul>
+<li class="fragment"><p>Use simulations (MCMC) to appoximate <span class="math inline">\(P\)</span>.</p></li>
+<li class="fragment"><p>Baesyian methods work better for complex models because they explore the full distribution instead of just finding a single best value.</p></li>
+<li class="fragment"><p>Priors help stabilize estimates, especially with limited data.</p></li>
+</ul>
+<aside class="notes">
+<p>posterior distribution is proportional to the likelihood times the prior</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<ul>
+<li><p><em>Why Bayesian estimation is useful</em>.</p></li>
+<li><p><em>Why multilevel models are important</em>.</p></li>
+</ul>
+<ul>
+<li class="fragment"><strong>Bayesian workflow = Likelihood + Prior → Posterior</strong>
+<ul>
+<li class="fragment">One clear pipeline for fitting, checking, and predicting.</li>
+</ul></li>
+<li class="fragment"><strong>Priors = ecological knowledge</strong>
+<ul>
+<li class="fragment">Weakly informative priors stabilize small data sets.</li>
+<li class="fragment">Hierarchical priors share information across species, time, sites, etc.</li>
+</ul></li>
+<li class="fragment"><strong>Multilevel models are the default in ecology</strong>
+<ul>
+<li class="fragment">Ecology is hierarchical (individual → population → community); Bayesian tools handle this naturally.</li>
+</ul></li>
+</ul>
+</section></section>
+<section>
+<section id="tools-for-bayesian-modeling" class="title-slide slide level1 center">
+<h1>Tools for Bayesian Modeling</h1>
+
+</section>
+<section id="tools-for-bayesian-modeling-1" class="slide level2">
+<h2>Tools for Bayesian Modeling</h2>
+
+<img data-src="figure/unnamed-chunk-31-1.png" class="quarto-figure quarto-figure-center r-stretch" width="960"><ul>
+<li>Basic idea of MCMC</li>
+<li>Stan: A modern language for Bayesian modeling</li>
+<li>Interfaces to Stan</li>
+</ul>
+</section>
+<section id="mcmc-markov-chain-monte-carlo" class="slide level2">
+<h2>MCMC (Markov Chain Monte Carlo)</h2>
+<p><strong>Goal</strong>: Approximate the posterior distribution of parameters given the data instead of calculating it directly.</p>
+<p><br></p>
+<div class="fragment">
+<p>For simple models, we can analytically find parameters that maximize the posterior distribution.</p>
+<p>Coin B example again:</p>
+<p><span class="math inline">\(\textcolor{#d95f02}{Post_B}\propto\textcolor{#1b9e77}{p^{60} (1-p)^{40}} \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}\)</span></p>
+<p><span class="math inline">\(p = 110/200 = 0.55\)</span></p>
+</div>
+</section>
+<section id="mcmc-a-simplified-metropolis-hastings-mh-algorithm" class="slide level2">
+<h2>MCMC: a simplified Metropolis-Hastings (MH) algorithm</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/mh_trace.gif"></p>
+<p><img data-src="images/mh_post.gif"></p>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment">Start with some values of <em>p</em> (e.g., 0.2 and 0.8).</li>
+<li class="fragment">Caclulate the posterior of those values.</li>
+<li class="fragment">Repeat the following steps N times:
+<ul>
+<li class="fragment">Propose a new value of <span class="math inline">\(p_{\text{new}}\)</span> (e.g., <span class="math inline">\(p \pm 0.01\)</span>)</li>
+<li class="fragment">Calculate the posterior at <span class="math inline">\(p_{\text{new}}\)</span>.</li>
+<li class="fragment">If <span class="math inline">\(\text{Post}(p_{\text{new}}) \geq \text{Post}(p_t), \text{ then } p_{t+1} = p_{\text{new}}\)</span>.</li>
+<li class="fragment">Else, accept <span class="math inline">\(p_{\text{new}}\)</span> with probability <span class="math inline">\(\frac{\text{Post}(p_{\text{new}})}{\text{Post}(p_t)}\)</span>.</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="mcmc-gibbs-sampling" class="slide level2">
+<h2>MCMC: Gibbs sampling</h2>
+<ul>
+<li class="fragment"><p>Sampling <span class="math inline">\(\theta_1\)</span>, <span class="math inline">\(\theta_2\)</span> jointly is hard: <span class="math inline">\(p(\theta_1, \theta_2 \mid \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_1, \theta_2)\)</span></p></li>
+<li class="fragment"><p>Instead, we sample <span class="math inline">\(\theta_1\)</span> and <span class="math inline">\(\theta_2\)</span> sequentially:</p>
+<ul>
+<li class="fragment"><p><span class="math inline">\(p(\theta_1 \mid \theta_2, \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_1  \mid \theta_2)\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(p(\theta_2 \mid \theta_1, \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_2  \mid \theta_1)\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\theta_1^{(t)} \sim p(\theta_1 \mid \theta^{(t-1)}_2, \text{data})\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\theta_2^{(t)} \sim p(\theta_2 \mid \theta^{(t)}_1, \text{data})\)</span></p></li>
+</ul></li>
+<li class="fragment"><p>Gibbs sampling approximates the joint posterior by sampling from these full conditionals.</p></li>
+<li class="fragment"><p>Implemented in <strong>BUGS</strong> and <strong>JAGS</strong> software.</p></li>
+</ul>
+</section>
+<section id="mcmc-hamiltonian-monte-carlo-hmc" class="slide level2">
+<h2>MCMC: Hamiltonian Monte Carlo (HMC)</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/pot_eng.gif"></p>
+<p><img data-src="images/traj.gif"></p>
+</div><div class="column" style="width:60%;">
+<ul>
+<li class="fragment"><p><span class="math inline">\(H(\theta, r) = U(\theta) + r^2/2\)</span> (Hamiltonian: potential energy + kinetic energy = constant)</p>
+<ul>
+<li class="fragment"><span class="math inline">\(U(\theta) = -\text{log}\; p(\theta \mid \text{data})\)</span></li>
+</ul></li>
+<li class="fragment"><p>Instead of sampling from <span class="math inline">\(p(\theta \mid \text{data})\)</span>, HMC samples from a joint distribution over both <span class="math inline">\(\theta\)</span> and <span class="math inline">\(r\)</span>.</p>
+<ul>
+<li class="fragment"><span class="math inline">\(p(\theta \mid \text{data}) \propto \int \text{exp}(-H(\theta, r))dr\)</span></li>
+</ul></li>
+<li class="fragment"><p>It’s equivalent to sampling from <span class="math inline">\(p(\theta \mid \text{data}) \propto \text{exp}(-U(\theta))\)</span>.</p></li>
+<li class="fragment"><p>HMS explores very different <span class="math inline">\(\theta\)</span> along the same trajectory (i.e.&nbsp;leapfrog path), which is much more efficient than random sampling.</p></li>
+</ul>
+</div></div>
+</section>
+<section id="mcmc-hamiltonian-monte-carlo-hmc-1" class="slide level2">
+<h2>MCMC: Hamiltonian Monte Carlo (HMC)</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/leapfrog.gif"></p>
+<p><img data-src="images/hmc.gif"></p>
+</div><div class="column" style="width:70%;">
+<ul>
+<li class="fragment"><p>Within each iteration, HMC simulates a trajectory using leapfrog steps.</p>
+<ul>
+<li class="fragment">No-U-Turn Sampler (NUTS) dynamically determines the number of leapfrog steps; we only need to set the maximum (e.g., <code>max_treedepth</code> in <strong>Stan</strong>).</li>
+</ul></li>
+<li class="fragment"><p>The Hamiltonian stays the same, but momentum <span class="math inline">\(r\)</span> is resampled each iteration.</p></li>
+<li class="fragment"><p>Only the final parameter <span class="math inline">\(\theta\)</span> of each trajectory is kept as a posterior sample.</p></li>
+</ul>
+</div></div>
+</section>
+<section id="mcmc-methods-comparison" class="slide level2">
+<h2>MCMC Methods: Comparison</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 24%">
+<col style="width: 28%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th><strong>Metropolis(-Hastings)</strong></th>
+<th><strong>Gibbs Sampling</strong></th>
+<th><strong>Hamiltonian Monte Carlo (HMC)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>How it works</td>
+<td>Try random moves, accept/reject</td>
+<td>Update one parameter at a time</td>
+<td>Simulate smooth movement using gradients</td>
+</tr>
+<tr class="even">
+<td>Efficient in high dimensions?</td>
+<td>❌ Often slow</td>
+<td>✅ If math is simple</td>
+<td>✅ Very efficient</td>
+</tr>
+<tr class="odd">
+<td>Flexible?</td>
+<td>✅ Yes</td>
+<td>❌ No (conjugate priors)</td>
+<td>✅ Yes</td>
+</tr>
+<tr class="even">
+<td>Typical software</td>
+<td>JAGS, custom R</td>
+<td>JAGS, BUGS</td>
+<td>Stan</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stan-a-modern-languagesoftware-for-bayesian-modeling" class="slide level2">
+<h2>Stan: A modern language/software for Bayesian modeling</h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><img src="https://raw.githubusercontent.com/stan-dev/logos/master/logo.png" width="250" alt="Stan Logo"></p>
+<div class="cell" data-layout-align="center" data-output.var="bernoulli">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource stan number-lines code-with-copy"><code class="sourceCode stan"><span id="cb14-1"><a href=""></a><span class="kw">data</span> {</span>
+<span id="cb14-2"><a href=""></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N;</span>
+<span id="cb14-3"><a href=""></a>  <span class="dt">array</span>[N] <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=<span class="dv">1</span>&gt; y;</span>
+<span id="cb14-4"><a href=""></a>}</span>
+<span id="cb14-5"><a href=""></a><span class="kw">parameters</span> {</span>
+<span id="cb14-6"><a href=""></a>  <span class="dt">real</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>, <span class="kw">upper</span>=<span class="dv">1</span>&gt; theta;</span>
+<span id="cb14-7"><a href=""></a>}</span>
+<span id="cb14-8"><a href=""></a><span class="kw">model</span> {</span>
+<span id="cb14-9"><a href=""></a>  <span class="co">// uniform prior on interval 0,1</span></span>
+<span id="cb14-10"><a href=""></a>  theta ~ beta(<span class="dv">1</span>, <span class="dv">1</span>);</span>
+<span id="cb14-11"><a href=""></a>  <span class="co">// likelihood</span></span>
+<span id="cb14-12"><a href=""></a>  y ~ bernoulli(theta);</span>
+<span id="cb14-13"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div><div class="column" style="width:65%;">
+<ul>
+<li class="fragment"><p>🧑🏻‍💻 <strong>Bayesian Modeling</strong></p>
+<ul>
+<li class="fragment">Stan uses the No-U-Turn sampler (NUTS), a variant of Hamiltonian Monte Carlo (HMC), which is efficient for complex models with many parameters.</li>
+</ul></li>
+<li class="fragment"><p>⚙️ <strong>Flexible and Scalable</strong></p>
+<ul>
+<li class="fragment">You can use Stan for many types of models, from simple regressions to multi-level models including time-series, spatial, SEM, and more.</li>
+</ul></li>
+<li class="fragment"><p>💻 <strong>Multiplatform</strong></p>
+<ul>
+<li class="fragment">Stan works with R, Python, Julia, and more. It also has tools for checking models and making visualizations.</li>
+</ul></li>
+</ul>
+</div></div>
+</section>
+<section id="interfaces-to-stan-for-r-users" class="slide level2">
+<h2>Interfaces to Stan (for R users)</h2>
+<ul>
+<li>Stan: The actual modeling and inference engine, written in C++.</li>
+</ul>
+<ul>
+<li class="fragment"><p>CmdStan: Command line interface (you write Stan code and run it via terminal).</p></li>
+<li class="fragment"><p><code>rstan</code>, <code>cmdstanr</code>: R interface to Stan/Cmdstan (you write Stan code and run it within R).</p></li>
+<li class="fragment"><p><code>brms</code>, <code>rstanarm</code>: Higher-level R packages that depend on <code>rstan</code> (you write R code and run models within R, without writing Stan code).</p></li>
+<li class="fragment"><p>In this course, we will use <code>cmdstanr</code> and <code>brms</code>.</p></li>
+</ul>
+<div class="footer">
+<p>CmdStan is based on the latest version of Stan, whereas <code>rstan</code> is based on an older version.</p>
+</div>
+</section></section>
+<section>
+<section id="stan-coding-session-separate-html-material" class="title-slide slide level1 center">
+<h1>Stan Coding Session (separate HTML material)</h1>
+
+</section>
+<section id="references" class="slide level2">
+<h2>References</h2>
+<ul>
+<li><p>Slides &amp; code: <a href="https://github.com/mattocci27/bayes-workshop-xtbg" class="uri">https://github.com/mattocci27/bayes-workshop-xtbg</a></p></li>
+<li><p><a href="http://www.stat.columbia.edu/~gelman/book/">Gelman, A. et al.&nbsp;Bayesian Data Analysis, Third Edition. (Chapman &amp; Hall/CRC, 2013)</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/stan-users-guide/index.html">Stan User’s Guide</a></p></li>
+<li><p><a href="https://mc-stan.org/docs/functions-reference/index.html">Stan Functions Reference</a></p></li>
+<li><p><a href="https://youtu.be/mX_NpDD7wwg">AIcia Solid Project</a> (in Japanese and Math)</p></li>
+</ul>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="images/xtbg_logo.png" class="slide-logo"></p>
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="main_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="main_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="main_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="main_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="main_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="main_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="main_files/libs/revealjs/plugin/multiplex/socket.io.js"></script>
+  <script src="main_files/libs/revealjs/plugin/multiplex/multiplex.js"></script>
+  <script src="main_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="main_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="main_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="main_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="main_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': false,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'multiplex': {"secret":"1667574529171787205","id":"525536c0f2e345b6","url":"https://reveal-multiplex.glitch.me/"},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: true,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1440,
+
+        height: 810,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        maxScale: 1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    <link rel="stylesheet" href="assets/syntax-highlight.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-6.1.1-web/css/all.min.css">
+    <script src="assets/fontawesome-free-6.1.1-web/js/all.min.js"></script>
+    
+
+</body></html>

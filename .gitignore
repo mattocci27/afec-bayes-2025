@@ -1,0 +1,12 @@
+# Compiled Object files without extensions
+*
+!*/
+!*.*
+
+*.key
+*_files
+*_cache
+
+!Dockerfile
+!LICENSE
+test.md

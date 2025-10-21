@@ -1,0 +1,914 @@
+---
+title: "Practical Bayesian Modeling with Stan and brms"
+author: "Masatoshi Katabuchi"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+fontsize: 12pt
+format:
+  html:
+    theme: coderpro
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    smooth-scroll: true
+    standalone: true
+    embed-resources: true
+execute:
+  cache: true
+---
+
+```{r global_options, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.show = "hold"
+)
+```
+
+
+```{r setup, mesasge=FALSE, warning=FALSE}
+library(brms)
+library(cmdstanr)
+library(tidyverse)
+library(bayesplot)
+library(patchwork)
+cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
+
+theme_set(theme_bw())
+```
+
+
+# Normal model
+
+$$
+y_i \sim N(\mu, \sigma)
+$$
+
+## Dummy data
+
+```{r}
+set.seed(123)
+n <- 100
+mu <- 5
+sigma <- 2
+y <- rnorm(n, mean = mu, sd = sigma)
+
+hist(y)
+```
+
+```{r}
+normal_list <- list(
+  y = y,
+  N = length(y)
+)
+
+normal_df <- tibble(
+  y = y,
+  N = length(y)
+)
+```
+
+## Stan
+
+`stan/normal.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/normal.stan"), collapse = "\n"), "\n```")
+```
+
+`stan/normal_vague.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/normal_vague.stan"), collapse = "\n"), "\n```")
+```
+
+```{r}
+normal_mod <- cmdstan_model("stan/normal.stan")
+normal_vague_mod <- cmdstan_model("stan/normal_vague.stan")
+```
+
+```{r}
+normal_fit <- normal_mod$sample(
+  data = normal_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  refresh = 500 # print update every 500 iters
+)
+```
+
+```{r, eval=FALSE}
+normal_vague_fit <- normal_vague_mod$sample(
+  data = normal_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 500 # print update every 500 iters
+)
+```
+
+### Summary
+
+We use this to write in manuscripts and for diagnostics.
+
+```{r}
+normal_fit$summary()
+```
+
+- `lp__`: log posterior.
+  - $\text{log}\; p(\theta \mid \text{data}) \propto \text{log}\; p(\text{data} \mid \theta) + \text{log}\; p(\theta)$
+
+- `rhat` (Gelman-Rubin statistic): should be close to 1.
+  - Measures the convergence of the chains.
+  - `rhat` > 1.1: Definitely bad.
+  - 1.01 < `rhat` < 1.1: Suspicous.
+  - `rhat` <=  1.01: Good.
+
+- `ess_bulk` and `ess_tail`: Effective sample size for bulk and tail of the posterior distribution.
+  - `ess_bulk`: sampling efficiency for the bulk posteriors (e.g., mean, SD).
+  - `ess_tail`: sampling efficiency for the tails (e.g., quantiles like 2.5%, 97.5%).
+  - `ess_bulk`, `ess_tail` > 400: Good.
+
+
+### Draws (posterior samples)
+
+For each parameter, we have 1000 iterations $\times$ 4 chains = 4000 posteriors.
+We use this for visualization and diagnostics.
+
+```{r}
+normal_fit$draws()
+```
+
+
+Trace plots for diagnosing convergence and mixing of the chains.
+```{r}
+normal_draws <- as_draws_df(normal_fit$draws())
+
+color_scheme_set("viridis")
+mcmc_trace(normal_draws, pars = c("mu", "sigma"))
+```
+
+Histograms of the posterior distributions of the parameters.
+
+```{r}
+mcmc_hist(normal_draws, pars = c("mu", "sigma"))
+```
+
+
+### Diagnostic summary
+
+```{r}
+normal_fit$diagnostic_summary()
+```
+
+- `num_divergent`: indicates the number of iterations (sampling transitions) where the Hamiltonian trajectory failed — meaning Stan detected a **divergent transition**.
+  - Even 1-2 divergent transitions suggest that model may not be reaiable, especially in hierachical models.
+  - We need reparamaterization or increase `adapt_delta` to make the sampler take smaller steps.
+
+- `num_max_treedepth`: indicates the number of iterations where there are not enough leafprog steps.
+  - This can indicate that the model is complex or that the priors are too tight.
+  - We can increase `max_treedepth` to allow more steps, but this can increase the computation time.
+
+- `ebfmi`: Energy-Bayesian Fraction of Missing Information
+  -	Measures whether the resampled momentum generates enough variation in energy to explore the posterior efficiently.
+  - Low `ebfmi` means the sampler may be stuck in tight regions and exploring poorly, even if Rhat and ESS look fine.
+  - Guidelines:
+    - `ebfmi` < 0.3: Bad
+    - 0.3 < `ebfmi` <= 1: Acceptable
+    - `ebfmi` >= 1: Good
+
+## `brms`
+
+```{r, eval=FALSE}
+normal_fit_brm0 <- brm(y ~ 1, family = gaussian(), data = normal_df)
+```
+
+```{r normal-brm}
+normal_fit_brm <- brm(
+  y ~ 1,
+  family = gaussian(),
+  data = normal_df,
+  prior = c(
+    prior(normal(0, 5), class = "Intercept"),
+    prior(cauchy(0, 2.5), class = "sigma")
+  )
+)
+```
+
+### Summary
+
+```{r}
+summary(normal_fit_brm)
+```
+
+### Draws (posterior samples)
+
+```{r}
+normal_draws_brm <- posterior::as_draws_df(normal_fit_brm)
+normal_draws_brm
+```
+
+```{r}
+mcmc_trace(normal_draws_brm, pars = c("b_Intercept", "sigma"))
+mcmc_hist(normal_draws_brm, pars = c("b_Intercept", "sigma"))
+```
+
+### Diagnostic summary
+
+```{r}
+rstan::check_hmc_diagnostics(normal_fit_brm$fit)
+```
+
+# Poisson model
+
+$$
+y_i \sim \text{Poisson}(\lambda_i)
+$$
+
+$$
+y_i \sim \operatorname{Poisson\_log}(\log \lambda_i)
+$$
+
+## Dummy data
+
+```{r}
+set.seed(123)
+n <-  100
+y <- rpois(n, lambda = 5)
+
+pois_list <- list(
+  y = y,
+  N = n
+)
+
+pois_df <- tibble(
+  y = y,
+  N = n
+)
+```
+
+<!-- poisson_mod <- cmdstan_model("stan/poisson.stan") -->
+
+## Stan
+
+`stan/pois.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/pois.stan"), collapse = "\n"), "\n```")
+```
+
+`stan/pois_re.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/pois_re.stan"), collapse = "\n"), "\n```")
+```
+
+```{r}
+pois_mod <- cmdstan_model("stan/pois.stan")
+pois_re_mod <- cmdstan_model("stan/pois_re.stan")
+```
+
+```{r}
+pois_fit <- pois_mod$sample(
+  data = pois_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  refresh = 0 # print update every 500 iters
+)
+```
+
+```{r}
+pois_re_fit <- pois_re_mod$sample(
+  data = pois_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  refresh = 0 # print update every 500 iters
+)
+```
+
+```{r}
+pois_fit$summary()
+```
+
+```{r}
+pois_re_fit$summary()
+```
+
+
+# Multiple linear model
+
+$$
+y_i \sim N(\beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}, \sigma)
+$$
+
+or
+
+$$
+y_i \sim N(\boldsymbol{\beta \cdot x}, \sigma)
+$$
+
+
+```{r}
+set.seed(123)
+n <- 100
+beta <- c(2, 1.2, -0.8)
+x1 <- rnorm(n, mean = 0, sd = 1)
+x2 <- rnorm(n, mean = 0, sd = 1)
+sigma <- 0.4
+y <- rnorm(n, mean = beta[1] + beta[2] * x1 + beta[3] * x2, sd = sigma)
+```
+
+```{r}
+lm_list <- list(
+  y = y,
+  N = length(y),
+  x = rbind(1, x1, x2)
+)
+
+lm_df <- tibble(
+  y = y,
+  N = length(y),
+  x1 = x1,
+  x2 = x2
+)
+```
+
+## Stan
+
+`stan/lm.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/lm.stan"), collapse = "\n"), "\n```")
+```
+
+```{r lm-model}
+lm_mod <- cmdstan_model("stan/lm.stan")
+
+lm_fit <- lm_mod$sample(
+  data = lm_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  refresh = 0 # don't print update
+)
+
+lm_fit$summary()
+```
+
+## brms
+
+```{r lm-brm}
+lm_fit_brm <- brm(
+  y ~ x1 + x2,
+  family = gaussian(),
+  data = lm_df,
+  prior = c(
+    prior(normal(0, 2.5), class = "Intercept"),
+    prior(normal(0, 2.5), class = "b"),
+    prior(cauchy(0, 2.5), class = "sigma")
+  ),
+  refresh = 0 # don't print update
+)
+
+summary(lm_fit_brm)
+```
+
+# Varying intercepts
+
+There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
+
+$$
+\text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_1 x_{i}, \sigma)
+$$
+
+$$
+\text{log}\; \beta_{0j} \sim N(\mu_0, \tau)
+$$
+
+$$
+\mu_0 \sim N(0, 2.5)
+$$
+
+$$
+\tau \sim \text{Half-Cauchy}(0, 1)
+$$
+
+
+## dummy data
+
+- We simulate a dataset with 10 species and 20 trees per species.
+- Each species has wood density (wd) values.
+
+```{r, fig.height=6}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 20
+wd <- rnorm(n_sp, 0, 1)
+gamma0 <- 0.6
+gamma1 <- 0.1
+sigma_y <- 0.1
+
+b1_hat <- gamma1 * wd + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+log_b0 <- rnorm(n_sp, 0.55, 0.05)
+
+# ---- simulate ----
+allo_df <- tibble(
+  sp     = factor(rep(paste0("sp", 1:n_sp), each = n_rep)),
+  wd  = rep(wd, each = n_rep),
+  # now log_xx ~ Normal(mean log‐dbh, sd
+  log_xx = rnorm(n_sp * n_rep, mean = log(40), sd = 0.5)) |>
+  mutate(
+    # add observation‐level noise on log‐height
+    log_y = rnorm(
+      n(),
+      log_b0[as.integer(sp)] + b1[as.integer(sp)] * log_xx,
+      sigma_y),
+    dbh = exp(log_xx),
+    h = exp(log_y)) |>
+  select(sp, wd, dbh, h)
+
+dbh_hist <- allo_df |>
+  ggplot(aes(dbh)) +
+  geom_histogram() +
+  xlab("DBH (cm)") +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
+
+h_hist <- allo_df |>
+  ggplot(aes(h)) +
+  geom_histogram() +
+  xlab("Height (m)") +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
+
+p1 <- allo_df |>
+  ggplot(aes(x = dbh, y = h, col = sp)) +
+  geom_point() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
+
+p2 <- p1 +
+  scale_x_log10() +
+  scale_y_log10()
+
+
+dbh_hist + h_hist + p1 + p2
+```
+
+```{r}
+allo_list <- list(
+  log_h = log(allo_df$h),
+  log_dbh = log(allo_df$dbh),
+  sp = as.integer(allo_df$sp),
+  N = nrow(allo_df),
+  J = allo_df$sp |> unique() |> length()
+)
+```
+
+
+## Stan
+
+`stan/vint.stan`
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/vint.stan"), collapse = "\n"), "\n```")
+```
+
+```{r vint-model}
+vint_mod <- cmdstan_model("stan/vint.stan")
+
+vint_fit <- vint_mod$sample(
+  data = allo_list,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  refresh = 0 # don't print update
+)
+
+vint_fit$summary()
+vint_fit$diagnostic_summary()
+```
+
+## brms
+
+```{r vint-brm}
+priors <- c(
+  prior(normal(0, 2.5), class = Intercept),
+  prior(normal(0, 2.5),   class = b),
+  prior(cauchy(0, 1),   class = sd),
+  prior(cauchy(0, 1),   class = sigma)
+)
+
+vint_fit_brm <- brm(
+  log(h) ~ log(dbh) + (1 | sp),
+  family = gaussian(),
+  data = allo_df,
+  prior = priors,
+  refresh = 0 # don't print update
+)
+
+summary(vint_fit_brm)
+
+print(vint_fit_brm)
+plot(vint_fit_brm)
+pp_check(vint_fit_brm)
+```
+
+
+## lme4
+
+```{r vint-lme4}
+vint_fit_lme <- lme4::lmer(
+  log(h) ~ log(dbh) + (1 | sp),
+  data = allo_df)
+
+summary(vint_fit_lme)
+```
+
+# Reparameterization for multilevel models
+
+[Diagnosing Biased Inference with Divergences](https://betanalpha.github.io/assets/case_studies/divergences_and_bias.html#3_a_non-centered_eight_schools_implementation) by Michael Betancourt
+
+## Eight schools example
+
+What is the effect of the treatment (a new education method) on students' scores for each school and across schools?
+
+```{r, echo=FALSE, message=FALSE}
+# Eight schools estimates and standard errors
+y     <- c(28,  8, -3,  7, -1,  1, 18, 12)
+sigma <- c(15, 10, 16, 11,  9, 11, 10, 18)
+
+# Number of schools
+J <- length(y)
+
+# Pack into a list for Stan
+schools_dat <- list(
+  J     = J,
+  y     = y,
+  sigma = sigma
+)
+
+# (Optionally) also create a data frame for quick inspection / plotting
+schools_df <- tibble(
+  school = paste0("School_", 1:J),
+  y      = y,
+  sigma  = sigma
+)
+
+# Inspect
+# print(shools_dt)
+schools_df |> kableExtra::kbl()
+```
+
+
+## Centered parameterization
+
+$$
+y_j \sim \mathcal{N}\bigl(\theta_j,\;\sigma_j\bigr)
+$$
+
+$$
+\theta_j \sim \mathcal{N}\bigl(\mu,\;\tau \bigr)
+$$
+
+$$
+\mu \sim \mathcal{N}\bigl(0,\;5 \bigr)
+$$
+
+$$
+\tau \sim \text{Half-Cauchy}(0, 2.5)
+$$
+
+*Note: $\sigma_j$ is known constant (i.e., data), we don't have to estimate it.*
+
+This parameterization is intuitive, but it often leads to convergence issues in hierarchical models.
+
+## Non-centered parameterization
+
+$$
+\tilde{\theta_j} \sim \mathcal{N}\bigl(0,\;1 \bigr)
+$$
+
+$$
+\theta_j = \mu + \tau \cdot \tilde{\theta_j}
+$$
+
+In this parameterization, we introduce a new latent variable $\tilde{\theta_j}$ that is independent of the other parameters.
+This allows the sampler to explore the posterior more efficiently and avoids problems with convergence.
+We often use this parameterization when we have hierarchical models with varying intercepts or slopes.
+
+# Varying slopes and intercepts
+
+There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the expoent $\beta_1$ vary among species.
+
+$$
+\text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
+$$
+
+$$
+\begin{bmatrix}
+\text{log}\; \beta_{0j} \\
+\beta_{1j}
+\end{bmatrix}
+\sim
+\mathrm{MVN}
+\Biggl(
+\begin{bmatrix}
+\mu_{0} \\
+\mu_{1}
+\end{bmatrix},
+\begin{bmatrix}
+\sigma_{0}^2  & \rho \sigma_{0} \sigma_{1} \\
+\rho \sigma_{0} \sigma_{1} & \sigma_{1}^2
+\end{bmatrix}
+\Biggr)
+$$
+
+## Centered parameterization
+
+
+$$
+\boldsymbol\mu \sim N(0, 2.5)
+$$
+
+$$
+\boldsymbol\Sigma \sim \mathcal{W}^{-1}_p(\nu,\,\Psi)
+$$
+
+This parameterization using inverse-whishart distribution $\mathcal{W}^{-1}$ is **not recommended** for hierarchical models with varying slopes and intercepts.
+
+## Non-Centered parameterization
+
+[Optimization through Cholesky factorization](https://mc-stan.org/docs/stan-users-guide/regression.html#hierarchical-priors.section)
+
+$$
+\boldsymbol z_j \sim \mathcal{N}(\mathbf0,\,I_2)
+$$
+$$
+\begin{pmatrix}\log\beta_{0j}\\[3pt]\beta_{1j}\end{pmatrix}
+  = \boldsymbol\mu + L\, \boldsymbol z_j
+$$
+
+
+Some linear algebra (Cholesk decomposition):
+
+$$
+\Sigma \;=\;L\,L^\top
+\;=\;\bigl[\mathrm{diag}(\tau)\,L_\Omega\bigr]\,
+\bigl[L_\Omega^\top\,\mathrm{diag}(\tau)\bigr]
+\;=\;\mathrm{diag}(\tau)\,\Omega\,\mathrm{diag}(\tau).
+$$
+
+$$
+L_\Omega \sim \mathrm{LKJ\_Corr\_Cholesky}(2) \quad \text{or}  \quad \Omega \sim \mathrm{LKJ\_Corr}(2)
+$$
+$$
+\tau_i \sim \mathrm{Half\text{-}Cauchy}(0,1)
+$$
+
+
+Rather than sampling the correlation matix $\Omega$ directly, sampling the Cholesky factor $L_\Omega$ is computationally more efficient and numerically stable.
+
+In the LKJ(\eta) prior:
+
+- $\eta$ = 1 indicate flat prior (uniform distribution) over correlation matrices.
+
+- $\eta$  > 1 indicate weaker correlations.
+
+We usually use $\eta$  = 2 because we assume at leat weak correlations among the parameters, but still allow mooderate to strong cvorrelations.
+
+## Stan
+
+`stan/vslope.stan`
+
+```{r}
+cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
+```
+
+```{r, echo=FALSE, results='asis'}
+cat("```stan\n", paste(readLines("stan/vslope.stan"), collapse = "\n"), "\n```")
+```
+
+```{r}
+allo_vslope_list <- list(
+  y = log(allo_df$h),
+  x = cbind(1, log(allo_df$dbh)),
+  jj = as.integer(allo_df$sp),
+  N = nrow(allo_df),
+  K = 2, # number of predictors (intercept + slope)
+  J = allo_df$sp |> unique() |> length(),
+  L = 1 # number of group-level predictors (intercept)
+)
+allo_vslope_list$u <- matrix(1, nrow = allo_vslope_list$L, ncol = allo_vslope_list$J)
+```
+
+```{r}
+vslope_mod <- cmdstan_model("stan/vslope.stan")
+
+vslope_fit <- vslope_mod$sample(
+  data = allo_vslope_list,
+  seed = 1234,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
+  max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
+  refresh = 0 # don't print update
+)
+
+vslope_fit$summary()
+vslope_fit$diagnostic_summary()
+```
+
+## brms
+
+```{r vslope-brm}
+priors <- c(
+  prior(normal(0, 2.5), class = Intercept),
+  prior(normal(0, 2.5),   class = b),
+  prior(lkj(2), class = cor),                # Ω ~ LKJ(2)
+  prior(cauchy(0, 1),   class = sigma)
+)
+
+slope_fit_brm <- brm(
+  log(h) ~ log(dbh) + (1 + log(dbh) | sp),
+  family = gaussian(),
+  data = allo_df,
+  prior = priors,
+  refresh = 0, # don't print update
+  control = list(
+    adapt_delta  = 0.95,  # default is 0.8
+    max_treedepth = 15    # default is 10
+  )
+)
+```
+
+**Divergent transitions!**
+We need to increase `adapt_delta` and `max_treedepth` to avoid divergent transitions.
+We may also need to change the priors.
+Reparameterization is less  straightforward in `brms` than writing your own Stan code.
+
+```{r}
+summary(slope_fit_brm)
+```
+
+
+## lme4
+
+```{r slope-lme4}
+slope_fit_lme <- lme4::lmer(
+  log(h) ~ log(dbh) + (1 + log(dbh) | sp),
+  data = allo_df)
+```
+
+**Not convergent!**
+
+```{r}
+summary(slope_fit_lme)
+```
+
+# Varying slopes and intercepts, and group-level predictors
+
+There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the expoent $\beta_1$ vary among species.
+Those species variation can be explained by wood density (group-level predictor: $u$) of each species.
+
+$$
+\text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
+$$
+
+$$
+\begin{bmatrix}
+\text{log}\; \beta_{0j} \\
+\beta_{1j}
+\end{bmatrix}
+\sim
+\mathrm{MVN}
+\Biggl(
+\underbrace{
+\begin{bmatrix}
+\gamma_{0}^{(\beta_0)} + \gamma_{1}^{(\beta_0)}u_{j}  \\
+\gamma_{0}^{(\beta_1)} + \gamma_{1}^{(\beta_1)}u_{j}
+\end{bmatrix}}_{\text{mean depends on }u_j},
+\begin{bmatrix}
+\sigma_{0}^2  & \rho \sigma_{0} \sigma_{1} \\
+\rho \sigma_{0} \sigma_{1} & \sigma_{1}^2
+\end{bmatrix}
+\Biggr)
+$$
+
+The rest of part is the same as the section Varying slopes and intercepts.
+
+```{r, eval=FALSE, echo=FALSE}
+p3 <- allo_df |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
+  xlab("Wood density") +
+  ylab("b") +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+allo_vslope_list$L <- 2 # number of group-level predictors (intercept and wd)
+allo_vslope_list$u <- matrix(1, nrow = allo_vslope_list$L, ncol = allo_vslope_list$J)
+```
+
+```{r}
+vgrp_fit <- vslope_mod$sample(
+  data = allo_vslope_list,
+  seed = 1234,
+  chains = 4,
+  parallel_chains = 4,
+  iter_warmup = 1000, # number of warmup iterations
+  iter_sampling = 1000, # number of sampling iterations
+  adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
+  max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
+  refresh = 0 # don't print update
+)
+
+vgrp_fit$summary()
+vgrp_fit$diagnostic_summary()
+```
+
+## brms
+
+```{r vgrp-brm}
+priors <- c(
+  prior(normal(0, 2.5), class = Intercept),
+  prior(normal(0, 2.5),   class = b),
+  prior(lkj(2), class = cor),                # Ω ~ LKJ(2)
+  prior(cauchy(0, 1),   class = sigma)
+)
+
+vgrp_fit_brm <- brm(
+  log(h) ~ log(dbh) * wd + (1 + log(dbh) | sp),
+  family = gaussian(),
+  data = allo_df,
+  prior = priors,
+  refresh = 0, # don't print update
+  control = list(
+    adapt_delta  = 0.95,  # default is 0.8
+    max_treedepth = 15    # default is 10
+  )
+)
+```
+
+```{r}
+summary(vgrp_fit_brm)
+```
+
+## lme4
+
+```{r group-lme4}
+grp_fit_lme <- lme4::lmer(
+  log(h) ~ log(dbh) * wd + (1 + log(dbh) | sp),
+  data = allo_df)
+```
+
+
+# References
+
+- Betancourt, M. (2017). [Diagnosing Biased Inference with Divergences](https://betanalpha.github.io/assets/case_studies/divergences_and_bias.html#3_a_non-centered_eight_schools_implementation).
+
+- [Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013)](http://www.stat.columbia.edu/~gelman/book/)
+
+- [Stan User's Guide](https://mc-stan.org/docs/stan-users-guide/index.html)
+
+- [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/index.html)
+
+
+```{r}
+devtools::session_info()
+```

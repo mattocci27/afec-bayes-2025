@@ -1,0 +1,1797 @@
+---
+pagetitle: "Bayesian estimation for ecology"
+author: "Masatoshi Katabuchi"
+date: "June 14, 2025"
+host: "The 8th Advanced Statistics Workshop Course 2025, XTBG"
+institute: "XTBG, CAS"
+strip-comments: true
+format:
+  revealjs:
+    html-math-method: mathjax
+    logo: images/xtbg_logo.png
+    chalkboard: true
+    slide-number: true
+    multiplex: true
+    theme: assets/rladies.scss
+    show-slide-number: all
+    controls: true
+    width: 1440
+    height: 810
+    # min-scale: 1.0   # never shrink below 100%
+    max-scale: 1.0   # never grow above 100%
+    # margin: 0       # no extra padding around it
+    css: [assets/custom.css]
+    include-after: |
+      <link rel="stylesheet" href="assets/syntax-highlight.css">
+      <link rel="stylesheet" href="assets/fontawesome-free-6.1.1-web/css/all.min.css">
+      <script src="assets/fontawesome-free-6.1.1-web/js/all.min.js"></script>
+callout-icon: false
+execute:
+  echo: true
+---
+
+```{r external, child="setup.Rmd", include=FALSE}
+```
+
+
+##  {#title-slide background="images/priors.png" background-size="50%" background-position="50% 20%"}
+
+::: title-box
+<h2>
+
+`r rmarkdown::metadata$pagetitle`
+
+</h2>
+
+<h3>
+🧑🏻‍💻 [`r rmarkdown::metadata$author` \@ `r rmarkdown::metadata$institute`]{.author}
+
+
+`r rotating_text(c('<i class="fa-solid fa-envelope"></i> mattocci27@gmail.com', '<i class="fa-brands fa-twitter"></i> @mattocci', '<i class="fa-brands fa-github"></i> github.com/mattocci27/bayes-afec', '<i class="fa-solid fa-globe"></i> https://mattocci27.github.io'))`
+</h3>
+:::
+
+
+<br><br>
+
+::: {.absolute .top-0 .w-100}
+[`r rmarkdown::metadata$date`]{.fl} [`r rmarkdown::metadata$host`]{.fr}
+:::
+
+
+::: notes
+hoge
+:::
+
+---
+
+## Objectives
+
+::: incremental
+::: large
+- We Learn
+
+  - Why Bayesian estimation is useful
+
+  - Why multilevel models are important
+
+  - How to use and code Bayesian models in Stan and R
+
+:::
+:::
+
+::: notes
+- coding exercises are not the focus of this workshop
+- it will take a couple of days
+- idea of Bayesian in ecology
+:::
+
+## Outline: From Likelihood to Hierarchical Bayesian Models in Ecology
+
+
+::: columns
+
+::: column
+### 🧠Bayesian Foundations
+
+- Likelihood
+
+- Multilevel Models (Conceptual Motivation)
+
+- Conditional Probability and Bayes' Theorem
+
+- Prior
+
+- Multilevel Model Revisited
+:::
+
+::: column
+### 🧑🏻‍💻Modeling with Stan
+
+- Tools for Bayesian Modeling
+
+- Stan Coding Session (separate HTML material)
+
+:::
+:::
+
+# Likelihood
+
+::: fragment
+::: large
+Assuming everyone knows the concept of likelihood
+:::
+:::
+
+::: notes
+correct?
+:::
+
+---
+
+## Likelihood and probability density distribution
+
+::: columns
+
+::: {.column width=40%}
+
+```{r, fig.height=7}
+x <- seq(-5, 5, length.out = 100)
+y <- dnorm(x, mean = 0, sd = 1)
+tibble(x, y) |>
+  ggplot() +
+  xlab("x") +
+  ylab("Density") +
+  ggtitle("N(0, 1)") +
+  geom_line(aes(x, y)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+```
+
+::: small
+$f(x \mid \mu, \sigma) = \frac{1}{\sqrt{2\pi\sigma^2}}\mathrm{exp} \bigl[{-\frac{1}{2}\bigl\{\frac{x-\mu}{\sigma}}\bigr\}^2\bigr]$
+:::
+
+:::
+::: {.column width=60%}
+::: incremental
+- **P(data | parameters)**: Probability of observing the data given the parameters.
+
+- e.g., when your model is $x_i \sim \mathcal{N}(\mu = 0, \sigma^2 = 1)$ (normal distribution with mean 0 and variance 1), what is the probability density at x = 1.96?
+:::
+
+::: fragment
+```{r, echo=TRUE}
+1 / sqrt(2 * pi * 1) * exp(-1/2 * (1.96 - 0)^2 / 1)
+```
+:::
+
+::: fragment
+- $P(x = 1.96 \mid \mu = 0, \sigma = 1)$
+:::
+
+::: fragment
+```{r, echo=TRUE}
+dnorm(1.96, mean = 0, sd = 1)
+```
+:::
+
+:::
+
+:::
+
+::: notes
+- likelihood is all about probability density (mass) function (normal, log-normal, poisson, beta, gamma, binomial, negative-binomial...)
+:::
+
+---
+
+## Likelihood
+
+When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing x?
+
+::: small
+::: incremental
+- $L = P(-1.5 \mid 0, 1) \times P(0 \mid 0, 1) \times P(1.5 \mid 0, 1)$
+- $\mathrm{ln}\;L = \mathrm{ln}\;P(-1.5 \mid 0, 1) + \mathrm{ln}\;P(0 \mid 0, 1) +  \mathrm{ln}\;P(1.5 \mid 0, 1)$
+:::
+:::
+
+::: fragment
+```{r, echo=TRUE}
+dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRUE) + dnorm(1.5, mean = 0, sd = 1, log = TRUE)
+```
+:::
+
+::: fragment
+
+```{r, fig.height=3.5}
+like_fun <- function(mu) {
+  dnorm(-1.5, mean = mu, sd = 1, log = TRUE) + dnorm(0, mean = mu, sd = 1, log = TRUE) + dnorm(1.5, mean = mu, sd = 1, log = TRUE)
+}
+
+x <- seq(-5, 5, length.out = 100)
+y <- like_fun(x)
+tibble(x, y) |>
+  ggplot() +
+  xlab("mu") +
+  ylab("ln L") +
+  ggtitle("N(0, 1)") +
+  geom_line(aes(x, y)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+
+```
+:::
+
+
+## Likelihood
+
+::: incremental
+- Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**MLE: Maximum Likelihood Estimation**).
+
+  - e.g., for a liner model $y_i = ax_i + b$, we usually assume that $y_i \sim \mathcal{N}(\mu_i = ax_i + b, \sigma^2)$, and we want to find the parameters $a$, $b$, and $\sigma$ that maximize the likelihood function: $P(y_i \mid ax_i + b, \sigma)$
+:::
+
+---
+
+## Maximum Likelihood Estimation (MLE)
+
+- 2 survivors out of 5 seedlings: What is the survival probability of seedlings?
+
+::: columns
+
+::: {.column width=40%}
+![](images/seedling.png)
+:::
+
+::: {.column width=60%}
+::: incremental
+- $p$: survival rates, $1-p$: mortality rate
+
+- $L = {}_5C_2 p^2(1-p)^3$ (Binomial distribution)
+
+- $\mathrm{ln}\;L = \mathrm{ln}\;{}_5C_2 + 2\mathrm{ln}\;p + 3\mathrm{ln}(1-p)$
+
+- $\frac{d}{dp}\mathrm{ln}\;L = \frac{2}{p} - \frac{3}{1-p} = 0$
+
+- Solve: $p = \frac{2}{5}$
+
+:::
+:::
+:::
+
+
+# Multilevel Models (Conceptual Motivation)
+
+---
+
+::: columns
+::: {.column width="40%"}
+![](images/comita_cover.jpg)
+:::
+
+::: {.column width="60%"}
+### Negative density dependence (NDD)
+
+"...rare species suffered more from the presence of conspecific neighbors than common species did, suggesting that conspecific density dependence shapes species abundances in diverse communities."
+
+\-                    Comita et al. 2010 \-
+
+:::
+:::
+
+::: fragment
+NDD can maintain diversity in communities by preventing common species from dominating the community.
+:::
+
+
+::: footer
+[Comita *et al.* 2010 *Science*](https://doi.org/10.1126/science.1190772)
+:::
+
+---
+
+## Multilevel model (verbal model: NDD example)
+
+::: footer
+Example inspired by
+[Comita *et al.* 2010 *Science*](https://doi.org/10.1126/science.1190772)
+and
+[Song & Katabuchi *et al.* 2024 *Ecology*](https://doi.org/10.1002/ecy.4382)
+
+Conspecific density and species abundance are scaled (mean = 0, sd = 1).
+:::
+
+::: small
+
+*H: Rare species tend to be rare because they suffer stronger conspecific NDD than common species.*
+
+::: fragment
+There is negative density dependence (NDD) of seedling survival rate, and the strength of NDD varies among species.
+The strength of NDD depends on species abundance.
+:::
+
+::: fragment
+- Survival rates *p* ~ conspecific density *x* (individual-level, logistic regression).
+:::
+
+::: fragment
+- Slopes *a* ~ species abundance (species-level).
+:::
+
+:::
+
+
+```{r, echo=FALSE, fig.width=15, fig.height=5, fig.retina=3}
+set.seed(123)
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- -0.8
+gamma1 <- 0.3
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.1)
+
+b0 <- rnorm(n_sp, 0, 0.5)
+y_fun <- function(beta0, beta1) beta0 + beta1 * xx
+xx <- seq(-3, 3, length = n_rep)
+z <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(z,
+              x = rep(xx, n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+logistic <- function(z) 1 / (1 + exp(-z))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = logistic(z), col = sp)) +
+  geom_line() +
+  xlab("Conspecific density") +
+  ylab("Survival rates") +
+  ggtitle("p = logistic(ax + b)") +
+  theme(legend.position = "none")
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = z, col = sp)) +
+  geom_line() +
+  xlab("Conspecific density") +
+  ylab("logit(Survival rates)") +
+  ggtitle("logit(p) = ax + b") +
+  theme(legend.position = "none")
+
+p3 <- tmp2 |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
+  xlab("Abundance") +
+  ylab("Strength of NDD") +
+  theme(legend.position = "none")
+
+p1 + p2 + p3
+```
+
+
+---
+
+## Multilevel model (verbal model: tree allometry example)
+
+::: footer
+Example inspired by
+Nguyen & Katabuchi *Journal of Forestry Research* (accepted)
+
+Wood density is scaled (mean = 0, sd = 1).
+:::
+
+::: small
+
+*H: Dense wood can support taller trees than less dense wood.*
+
+::: fragment
+There is a power-law relationship ($y =ax^b$) between tree diameter (DBH) and tree maximum height, and the power-law exponent varies among species.
+Those relationships depend on wood density.
+:::
+
+::: incremental
+- Tree height *y* ~ DBH *x* (individual-level)
+
+- Slope *b* ~ wood density (species-level)
+:::
+:::
+
+```{r, echo=FALSE, fig.width=15, fig.height=5, fig.retina=3}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- 0.6
+gamma1 <- 0.05
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+b0 <- rnorm(n_sp, 0.55, 0.05)
+y_fun <- function(beta0, beta1) beta0 + beta1 * log_xx
+log_xx <- seq(1, 100, length = n_rep) |> log()
+
+log_y <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(y = exp(log_y),
+              x = rep(exp(log_xx), n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression("y = ax"^b)) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
+
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle("log(y) = log(a) + b log(x)") +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
+
+p3 <- tmp2 |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
+  xlab("Wood density") +
+  ylab("b") +
+  theme(legend.position = "none")
+
+p1 + p2 + p3
+```
+
+---
+
+## Code implementation: two-stage MLE
+
+::: footer
+e.g.,
+[Song *et al.* 2021 *Journal of Ecology*](https://doi.org/10.1111/1365-2745.13497),
+[Jevon *et al.* 2022 *Ecology*](https://doi.org/10.1002/ecy.3808)
+:::
+
+```{r, echo=FALSE, eval=FALSE}
+library(tidyverse)
+library(targets)
+tar_load(dummy_simple)
+```
+
+### Individual-level model: GLMM
+
+
+```{r, echo=TRUE, eval=FALSE}
+fit_ind <- lme4::glmer(
+  cbind(suv, n - suv) ~  cons + (1 + cons | sp),
+  data = dummy, family = binomial)
+```
+
+We need to extract the slope coefficients for each species from `fit_ind` and make `new_data`.
+
+::: fragment
+### Group-level model: LM
+
+```{r, echo=TRUE, eval=FALSE}
+fit_gr <- lm(slope_coef ~  abund, data = new_data)
+```
+:::
+
+::: incremental
+- This method has low statistical power.
+:::
+
+---
+
+## Code implementation: Simultaneous MLE approach
+
+::: footer
+e.g.,
+[Chen *et al.* 2019 *Science*](https://doi.org/10.1126/science.aau1361)
+:::
+
+```{r, echo=TRUE, eval=FALSE}
+fit_mle <- lme4::glmer(
+  cbind(suv, n - suv) ~  cons + abund + cons:abund + (1 + cons | sp),
+  data = dummy, family = binomial)
+```
+
+::: incremental
+- Combines both levels into a single model.
+- Often work for simple models and data.
+:::
+
+## Code implementation: Bayesian GLMM with `brms`
+
+```{r, echo=TRUE, eval=FALSE}
+fit_bayes <- brms::brms(
+  cbind(suv, n - suv) ~  cons + abund + cons:abund + (1 + cons | sp),
+  data = dummy, family = binomial())
+```
+
+::: incremental
+- Syntax is similar to `lme4::glmer()`.
+- Works well for most cases.
+:::
+
+---
+
+## Looking ahead: full Bayesian implementation in Stan
+
+::: footer
+e.g.,
+[Comita *et al.* 2010 *Science*](https://doi.org/10.1126/science.1190772),
+[Song & Katabuchi *et al.* 2024 *Ecology*](https://doi.org/10.1002/ecy.4382),
+Nguyen & Katabuchi *Journal of Forestry Research* (accepted)
+:::
+
+<!-- ## Multilevel model (Bayes: non-verbal model) `r emo::ji("vomit")` -->
+
+::: footer
+<!-- Inspired by [1] Comita, L. S., Muller-Landau, H. C., Aguilar, S. & Hubbell, S. P. Asymmetric density dependence shapes species abundances in a tropical tree community. Science 329, 330–2 (2010). -->
+:::
+
+::: columns
+
+::: {.column width=50%}
+```{stan, output.var="mv_logistic",file=here('stan/mv_logistic.stan'), eval=FALSE, echo=TRUE}
+```
+:::
+
+::: {.column width=50%}
+::: small
+- $s_{i,j} \sim \mathcal{B}(p_{i, j})$: [likelihood]{.orange}
+
+- $\mathrm{logit}(p_{i,j}) = \boldsymbol{x_{i}} \cdot \boldsymbol{\beta_{j}}$: individual-level model
+
+- $\boldsymbol{\beta_j} = \boldsymbol{\gamma_k} \cdot \boldsymbol{u_j} + \mathrm{diag}(\boldsymbol{\sigma})\cdot \boldsymbol{L} \cdot \boldsymbol{z}$: species-level model
+
+- $L \sim \mathrm{LkjCholesky}(\eta)$: [prior (?)]{.blue}
+
+- $z_j \sim \mathcal{N}(0, 1)$: [prior (?)]{.blue}
+
+- $\tau \sim \mathrm{Cauchy}(0, 2.5)$: [prior (?)]{.blue}
+
+- $\gamma_k \sim \mathcal{N}(0, 2.5)$: [prior (?)]{.blue}
+
+:::
+:::
+
+I won't explain this now — but this is the kind of model we'll build after learning Bayes's theorem, priors, and a bit of linear algebra.
+
+:::
+
+# Conditional Probability and Bayes' Theorem
+
+## Conditional Probability and Bayes' Theorem
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+
+- Conditional probability
+
+- Bayes' Theorem
+
+- Forward / inverse problems
+
+- Revisiting Bayes
+
+---
+
+## Probability
+
+::: columns
+::: {.column width="50%"}
+
+```{r}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  annotate("text", x = 0, y = 0, label = "A", size = 10) +
+  theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+```
+:::
+::: {.column width="50%"}
+
+Probility of A:
+
+$$
+P(A) = \frac{A}{U}
+$$
+
+e.g., probability of rolling a dice and getting an odd number is 3/6 = 1/2
+
+:::
+:::
+
+
+---
+
+## Conditional Probability
+
+::: columns
+
+::: {.column width="40%"}
+
+```{r, eval=FALSE}
+ggplot() +
+  ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = 2), size = 1.5) +
+  ggtitle("U") +
+  theme_void() +
+  theme(
+    panel.border = element_rect(colour = "black")
+  )
+```
+
+```{r}
+a <- 1
+df.venn <- data.frame(x = c(-a, a),
+                      y = c(0, 0),
+                      labels = c("A", "B"),
+                      stringsAsFactors = FALSE)
+
+radius <- 1.5
+
+xvals <- seq(0, 2 * a - radius, 0.01)
+yvals <- sqrt(radius^2 - (xvals + a)^2)
+xvals <- c(xvals, rev(xvals))
+yvals <- c(yvals, -rev(yvals))
+xvals <- c(xvals, -xvals)
+yvals <- c(yvals, -yvals)
+combo <- data.frame(x = xvals, y = yvals)
+
+xvals <- seq(a - radius, a  + radius, 0.01)
+yvals <- sqrt(radius^2 - (xvals - a)^2)
+xvals <- c(xvals, rev(xvals))
+yvals <- c(yvals, -yvals)
+combo2 <- data.frame(x = xvals, y = yvals)
+
+ggplot2::ggplot(data = df.venn) +
+    ggforce::geom_circle(
+        ggplot2::aes_string(x0 = "x", y0 = "y", r = radius, fill = "labels"),
+        alpha = 0,
+        size = 1.5
+#       colour = 'darkgray'
+    ) +
+    ggtitle("U") +
+    ggplot2::geom_polygon(data = combo, aes(x = x, y = y),
+      fill = "blue", alpha = 0.6) +
+    ggplot2::geom_polygon(data = combo2, aes(x = x, y = y),
+      fill = "blue", alpha = 0.3) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_void() +
+    ggplot2::scale_fill_manual(values = c("gray50", "gray50")) +
+    annotate("text", x = 0, y = 0, label = "A ∩ B", size = 10) +
+    annotate("text", x = -1, y = 0, label = "A", size = 10) +
+    annotate("text", x = 1, y = 0, label = "B", size = 10) +
+    theme(
+      title = element_text(size = 30),
+      panel.border = element_rect(colour = "black", size = 2),
+      legend.position = "none"
+    )
+
+```
+
+:::
+
+::: {.column width="60%"}
+
+Probability of A occurring given B has already occurred:
+
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+
+::: incremental
+e.g.,
+
+- P(hangover) = 4%
+- P(baiju) = 1.5%
+- P(hangover | baiju) = 85%.
+:::
+
+:::
+:::
+
+::: notes
+- probability A occurs given B
+- vertical bar = given
+- at least 1 day for each month
+- the next day after I had beer
+- the next day after I had baiju
+:::
+
+---
+
+##  Bayes' Theorem
+
+$$
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+$$
+
+$$
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+$$
+
+
+::: fragment
+$$
+P(A \mid B) \times P(B) =  P(B \mid A) \times P(A)
+$$
+:::
+
+
+::: fragment
+::: box
+$$
+P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
+$$
+:::
+:::
+
+::: fragment
+### Why is this useful?
+:::
+
+---
+
+<img src="images/fip_1.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_2.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_3.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_4.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_5.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+<img src="images/fip_6.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+
+## Forward and Inverse Problems: PCR and disease example
+
+::: footer
+- $P(\text{Positive})$: 2%, $P(\text{Infected})$: 0.05%
+:::
+
+**➡️Forward problem:**
+If you are infected, what is the probability that PCR test is positive?
+
+<br>
+
+::: fragment
+$P(\text{Positive} \mid \text{Infected})$: 95%
+:::
+
+<br>
+
+::: fragment
+This is what the lab test is designed to estimate — how likely we are to observe a positive signal given the known infection status (e.g., 95 out of 100 infected samples test positive).
+:::
+
+## Forward and Inverse Problems: PCR and disease example
+
+::: footer
+- $P(\text{Positive})$: 2%, $P(\text{Infected})$: 0.05%
+:::
+
+**🔁Inverse problem (Bayesian):**
+If the PCR test is positive, what is the probability that you are infected?
+
+<br>
+
+::: fragment
+- $P(\text{Infected} \mid \text{Positive}) = \frac{P(\text{Positive} \mid \text{Infected}) \cdot  P(\text{Infected})}{P(\text{Positive})} \approx 2.4\%$
+:::
+
+<br>
+
+::: fragment
+This isn’t intuitive, but it’s the probability we actually care about — how likely someone is to be infected, given a positive test result.
+
+:::
+
+
+---
+
+<img src="images/bayes_re.png" width="100%" style="display: block; margin: auto;"/>
+
+---
+
+## Bayes' theorem
+
+$$
+\textcolor{#d95f02}{
+  P(\mathrm{Parameter} \mid \mathrm{Data})
+}
+=
+\frac{
+\textcolor{#1b9e77} {
+  P(\mathrm{Data} \mid \mathrm{Parameter})
+} \times
+\textcolor{#7570b3} {
+  P(\mathrm{Parameter})}
+}
+{P(\mathrm{Data})}
+$$
+
+::: small
+::: incremental
+- $\textcolor{#d95f02}{P(\mathrm{Parameter} \mid \mathrm{Data})}$
+
+  - **What we want to estimate ([posterior]{.orange})**: When we got our data, what were the parameters behind the data (e.g., coefficients of regressions)?
+
+- $\textcolor{#1b9e77}{P(\mathrm{Data} \mid \mathrm{Parameter})}$
+
+  - When we know our parameters, what is the probability of getting our data? (i.e., **[likelihood]{.teal}**)
+
+- $\textcolor{#7570b3}{P(\mathrm{Parameter})}$
+
+  - Probability to get our parameters. This is what we assume for our parameter before we see any data (i.e., **[prior??]{.purple}** — next section).
+
+- $P(\mathrm{Data})$
+
+  - Independent with parameters (i.e., constant)
+:::
+:::
+
+---
+
+<img src="images/bayes_re_2.png" width="100%" style="display: block; margin: auto;"/>
+
+# Prior
+
+```{r}
+my_prior <- function(p) p^50 * (1 - p)^ 50
+my_like <- function(p) p^2 * (1 - p)^1
+x <- seq(0, 1, length = 100)
+y <- my_prior(x)
+y2 <- my_like(x)
+y3 <- y * y2
+
+dark2 <- brewer.pal(3, "Dark2")
+
+p1 <- tibble(x, Prior = y * 10^29.5, Likelihood = y2, Posterior = y3 * 10^30.5) |>
+  pivot_longer(Prior:Posterior) |>
+  mutate(name = factor(name, levels = c("Posterior", "Likelihood", "Prior"))) |>
+  ggplot(aes(x = x, y = value, color = name)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = c(dark2[2], dark2[1], dark2[3])) +
+  ylab("Probability") +
+  xlab("Parameter") +
+  theme(
+    legend.position = c(0.15, 0.7),
+    legend.text = element_text(size = 28),
+    legend.title = element_blank(),
+    axis.text.y = element_blank()
+    )
+
+p1
+
+ggsave("images/priors.png", p1, width = 10, height = 6)
+```
+
+##  Prior vs. Data: MLE and Bayesian comparison (Coin Toss)
+We compare two coins, A and B, with the same prior but different likelihood (due to data sizes) to illustrate how prior beliefs influence posterior estimates.
+
+::: incremental
+
+### MLE
+
+- A: 2 head out of 3 tosses -> P(H) = 2/3 = 0.666
+- B: 60 heads out of 100 tosses -> P(H) = 60/100 = 0.6
+
+::: columns
+::: {.column width="50%"}
+### Bayesian
+
+- $\textcolor{#1b9e77}{L_A = {}_3C_2 p^2 (1-p)^1}$
+
+- $\textcolor{#1b9e77}{L_B = {}_{100}C_{60} p^{60} (1-p)^{40}}$
+
+- $\textcolor{#7570b3}{\mathrm{Prior} \propto  p^{50} (1-p)^{50}}$
+  - Beta distribution with mean 0.5 and small variance
+
+:::
+
+::: {.column width="50%"}
+```{r}
+my_prior <- function(p) p^50 * (1 - p)^ 50
+x <- seq(0, 1, length = 100)
+y <- my_prior(x)
+
+tibble(x, prior = y * 10^29.5) %>%
+  ggplot(aes(x, prior)) +
+  geom_line(size = 1.5) +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 28),
+    axis.title = element_text(size = 32))
+
+```
+:::
+
+:::
+:::
+
+---
+
+##  Bayesian Update with Prior (Coin Toss)
+
+[Posterior]{.orange} $\propto$ [Likelihood]{.teal} $\times$ [Prior]{.purple}
+
+::: columns
+::: {.column width="50%"}
+
+::: fragment
+Parameter *p* that maximizes the posterior of coin A.
+$\textcolor{#d95f02}{Post_A}\propto\textcolor{#1b9e77}{p^2 (1-p)^1} \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}$
+$p = 52/103 \approx 0.505$
+:::
+::: fragment
+- $Post_A$: With only 3 coin tosses, the likelihood is weak, so the posterior stays close to the prior.
+:::
+:::
+
+::: {.column width="50%"}
+::: fragment
+Parameter *p* that maximizes the posterior of coin B.
+$\textcolor{#d95f02}{Post_B} \propto \textcolor{#1b9e77}{p^{60} (1-p)^{40}} \times \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}$
+$p = 110/200 = 0.55$
+:::
+
+::: fragment
+- $Post_B$:
+With 100 coin tosses, the likelihood dominates, so the posterior shifts more towards the data.
+:::
+
+:::
+:::
+
+::: incremental
+- The same prior can have a strong or weak influence depending on how much data we have.
+- We usually have some sense of a scale about parameters, we can legally use that information.
+:::
+
+---
+
+## Priors in ecology: Why scale matters
+
+::: footer
+We often use weakly informative priors in ecology.
+:::
+
+::: columns
+::: {.column width=40%}
+
+```{r, fig.height=5, fig.width=5}
+set.seed(123)
+x1 <- rnorm(100)
+y1 <- rnorm(100, 2 * x1 - 1)
+p1 <- tibble(x1, y1) |>
+  ggplot() +
+  xlab("x") +
+  ylab("y") +
+  ggtitle("y= ax + b") +
+  geom_point(aes(x1, y1), size = 5) +
+  geom_abline(intercept = 2, slope = 1000, col = "blue", size = 2, lty = 2) +
+  annotate(
+    "text",
+    x     = 1,
+    y     = -4,
+    label = "y = 100x + 2",
+    color = "blue",
+    size  = 10
+  ) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+p1
+```
+:::
+
+::: {.column width=60%}
+
+::: incremental
+- We consider variables *x* = {-3, ..., 3} and *y* = {-6, ..., 4}. We don't yet know if there is a correlation (*y = ax + b*).
+- However, given the similar scales of *x* and *y*, it's reasonable to guess that *a* falls within a narrow range (e.g., **strongly informative prior**: -5 to 5, **weakly informative prior**: $a \sim \mathcal{N}(0,  2.5)$).
+- In contrast, a slope like *a* = 100 (blue line) clearly doesn't match the data (i.e., **uninformative prior**: $a \sim \mathcal{N}(0,  10^4)$).
+:::
+
+:::
+:::
+
+
+## Priors and ecology: multilevel structure for group-level effects
+
+::: columns
+::: {.column width=40%}
+
+```{r, fig.height=8}
+n_sp <- 5
+x <- seq(-3, 3, length.out = 100)
+b <- rnorm(n_sp, mean = 3, sd = 0.8)
+a <- 2
+
+y <- map(b, \(b)(a*x + b))
+tibble(y = unlist(y), x = rep(x, n_sp), .id = rep(letters[1:n_sp], each = 100)) |>
+  ggplot(aes(x = x, y = y , col = .id)) +
+  geom_line(size = 1.5) +
+  scale_color_viridis_d() +
+  theme(legend.position = "none",
+    axis.title   = element_text(size = 52),
+    axis.text    = element_text(size = 48))
+```
+
+::: footer
+*i* indexes samples (e.g., individuals), and *j* indexes groups (e.g., species, sites).
+:::
+
+:::
+::: {.column width=60%}
+::: incremental
+- Likelihood: $y_i \sim \mathcal{N}(ax_i + b_j, \sigma)$
+- If the parameter $b_j$ is similar within each group (e.g., species differences, site differences), it makes sense to model:
+- Prior: $b_j \sim \mathcal{N}(\mu_b, \tau)$
+  - $\mu_b$: global means across all groups
+  - $\tau$: variation among groups
+:::
+:::
+:::
+
+## Priors and ecology: multilevel structure for spatial autocorrelation
+
+::: footer
+Each observation *i* is associated with a grid cell ($m,n$), so $\tilde{r}i = r_{m,n}$.
+:::
+
+::: columns
+::: {.column width="30%"}
+![](images/spatial.png)
+:::
+
+::: {.column width="70%"}
+
+- When the data $y_i$ is similar to the surrounding samples (e.g., temporal / spatial autocorrelation):
+
+::: incremental
+  - Likelihood: $y_i \sim \mathcal{N}(\mu + \tilde{r_i}, \sigma)$
+  - Prior (spatial effect): $\tilde{r_i} = r_{m, n} \sim \mathcal{N}(\phi_{m,n}, \tau)$
+  - $\phi_{m,n}$ = average of 8 neighbors around  $r_{m,n}$
+:::
+
+::: fragment
+$$
+\begin{align*}
+\phi_{m,n} = \frac{1}{8} (&
+r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
+& r_{m,n-1} + r_{m,n+1} + \\
+& r_{m+1,n-1} + r_{m+1,n} + r_{m+1,n+1})
+\end{align*}
+$$
+:::
+:::
+:::
+
+## Summary: Priors
+
+- Using weakly informative priors, we don't have to explore the entire parameter space.
+
+- Bayesian methods are inherently designed for hierarchical (multilevel) modeling through priors.
+
+# Multilevel model Revisit
+
+## Eight schools problem
+
+Coaching effects in eight schools.
+
+::: footer
+[1] Rubin, D. B. Estimation in parallel randomized experiments. Journal of Educational Statistics 6, 377–401 (1981).
+
+[2] Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013).
+:::
+
+![](images/eight_schools.png)
+
+<!-- - What is the average effect of coaching? -->
+
+::: notes
+- s a t
+- data has 8 rows with mean effects and sd of the effects
+- not straightforward
+:::
+
+---
+
+## Eight mother trees problem
+
+What is the survival rate?
+
+::: columns
+::: {.column width="30%"}
+```{r}
+dummy_simple <- targets::tar_read(dummy_simple) |>
+  rename(id = sp)
+dummy_simple |>
+  dplyr::select(id:suv) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="70%"}
+
+::: incremental
+
+- suv $\sim$ B(n, p) (Binomial distribution)
+
+- p  = suv / n (Maximum likelihood estimation: MLE)
+
+:::
+
+::: fragment
+```{r, echo = TRUE}
+sum(dummy_simple$suv) / sum(dummy_simple$n)
+```
+```{r}
+suv_pool <- sum(dummy_simple$suv) / sum(dummy_simple$n)
+```
+
+:::
+
+::: incremental
+
+- If we pool all the data, the survival rate will be about `r suv_pool |> round(3)`
+
+:::
+
+:::
+
+:::
+
+---
+
+
+## Eight mother trees problem (separate estimates)
+
+What is the survival rate?
+
+::: columns
+::: {.column width="35%"}
+```{r}
+dummy_simple <- tar_read(dummy_simple) |>
+  rename(id = sp)
+dummy_simple |>
+  dplyr::select(id:suv, p_like) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="65%"}
+::: incremental
+- If we estimate each species separately, survival rates will be `p_like`
+:::
+
+:::
+
+:::
+
+---
+
+## Eight mother trees problem (separate estimates)
+
+What is the survival rate?
+
+::: columns
+::: {.column width="40%"}
+```{r}
+dummy_simple <- tar_read(dummy_simple)
+dummy_simple |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE)
+```
+:::
+
+::: {.column width="60%"}
+
+::: incremental
+::: small
+- `p_true` ranges [`r min(dummy_simple$p_true)`, `r max(dummy_simple$p_true)`]
+
+- `p_like` ranges [`r min(dummy_simple$p_like)`, `r max(dummy_simple$p_like)`]
+- The estimate shows the larger variation
+
+- Because of the small sample size (common in ecological studies)
+:::
+:::
+
+::: fragment
+```{r, fig.height=3.5, fig.width=7}
+ggplot(dummy_simple, aes(x = p_true, y = p_like)) +
+  geom_point(size = 12, pch = 21) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
+  xlab("True survival rate") +
+  ylab("Estimated \nsurvival rate")
+```
+:::
+
+:::
+
+:::
+
+::: notes
+- These data were simulated based on `p_true`, but the ML estimates are slightly different
+- we want to improve the estimates
+:::
+
+::: footer
+We know `p_true` because we generated this data using `p_true` as a known parameter. In practical scenarios, we don't know `p_true`.
+:::
+
+
+---
+
+## Extreme case 1: Pooled estimates
+
+::: columns
+::: column
+- $S_i \sim \mathcal{B}(N_i, p)$: Likelihood
+- $\mathrm{logit}(p) \sim \mathcal{N}(0, 2.5)$: Prior
+
+![](images/pool.png)
+:::
+
+::: column
+::: incremental
+- This model assumes all mother trees share the exact same survival rate.
+:::
+:::
+:::
+
+---
+
+## Extreme case 2: Separate estimates
+
+::: columns
+::: column
+
+- $S_i \sim \mathcal{B}(N_i, p_i)$: Likelihood
+- $\mathrm{logit}(p_i) \sim \mathcal{N}(0, 2.5)$: Prior
+
+![](images/separate.png)
+:::
+
+::: column
+::: incremental
+- This model assumes each mother tree has a completely independent survival rate.
+- With limited data per tree, this model tends to overfit and produces noisy estimates.
+- We need to find a balance between these two extremes.
+:::
+
+:::
+:::
+
+::: notes
+- if we have infinite amount of data, we can estimate survival rates separately
+- usually, we don't have enough data (model tends to overfit)
+- We need to find a balance between these two extremes
+:::
+
+---
+
+## More realistic estimates: Multilevel models — partial pooling
+
+- $S_i \sim \mathcal{B}(N_i, p_i)$: Likelihood
+
+- $\mathrm{logit}(p_i) \sim \mathcal{N}(\mu, \sigma)$: Group-level model (hierarchical prior)
+
+- $\mu \sim \mathcal{N}(0, 2.5)$: Hyperprior
+
+- $\sigma \sim \text{Half-Cauchy}(0, 1)$: Hyperprior
+
+<img src="images/multilevel.png" width="80%" style="display: block; margin: auto;"/>
+
+---
+
+## $\sigma$ determines group-level variation
+
+The overall survival rate is 0.5 in this figure.
+We have some sense of a scale for $\sigma$.
+
+::: columns
+::: {.column width=50%}
+```{r, fig.height=10}
+set.seed(123)
+z <- 0
+sig1 <- 0.1
+sig2 <- 1
+sig3 <- 3
+n_sp <- 8
+sig <- 0.2
+
+xx <- seq(-3, 3, length = 100)
+mu1 <- rnorm(n_sp, z, sig1)
+mu2 <- rnorm(n_sp, z, sig2)
+mu3 <- rnorm(n_sp, z, sig3)
+
+data <- tibble(mu1 = as.list(mu1), mu2 = as.list(mu2), mu3 = as.list(mu3), sp = LETTERS[1:8]) |>
+  mutate(y1 = map(mu1, \(mu)dnorm(xx, mu, sig))) |>
+  mutate(y2 = map(mu2, \(mu)dnorm(xx, mu, sig))) |>
+  mutate(y3 = map(mu3, \(mu)dnorm(xx, mu, sig))) |>
+  unnest(cols = c(mu1, mu2, mu3, y1, y2, y3))  |>
+  mutate(xx = rep(xx, 8))
+
+plot_density <- function(data, y, title_suffix) {
+  ggplot(data, aes(x = logistic(xx), y = {{y}}, col = sp)) +
+    geom_line() +
+    xlab("p") +
+    ylab("Density") +
+    theme(legend.position = "none") +
+    ggtitle(paste("sigma =", title_suffix))
+}
+
+p1 <- plot_density(data, y1, "0.1")
+p2 <- plot_density(data, y2, "1")
+p3 <- plot_density(data, y3, "10")
+
+p1 / p2 / p3
+```
+:::
+
+::: {.column width=50%}
+::: fragment
+```{r, fig.height=10}
+plot_sigma <- function(density_func, params, title) {
+  y <- density_func(sigma, params[[1]], params[[2]])
+  tibble(sigma, y) %>%
+    ggplot(aes(x = sigma, y = y)) +
+    geom_line() +
+    xlab("Sigma") +
+    ylab("Density") +
+    ggtitle(title)
+}
+
+# Sigma values
+sigma <- seq(0.01, 10, length = 100)
+
+# Generating plots
+p4 <- plot_sigma(dcauchy, list(0, 1), "sigma ~ Half-Cauchy(0, 1)")
+p5 <- plot_sigma(dnorm, list(0, 1), "sigma ~ Half-N(0, 1)")
+p6 <- plot_sigma(dnorm, list(0, 10), "sigma ~ Half-N(0, 10)")
+
+p4 / p5 / p6
+```
+:::
+
+::: incremental
+<!-- - We have some sense of a scale for $\sigma$ -->
+<!-- - `logistic(0.1)` = `r round(logistic(0.1), 3)`
+- `logistic(1)` = `r round(logistic(1), 3)`
+- `logistic(10) - 0.5` = `r round(logistic(10) - 0.5, 5)` -->
+:::
+:::
+:::
+
+::: notes
+- on the logit scale
+- we have some sense of a scale for sigma
+- sigma = 0.3 -> +/- 7%
+- sigma = 3 -> +/- 45%
+- sigma = 10 -> +/- 49.99%
+:::
+
+## Better estimates via partial pooling (Bayesian multilevel model vs. MLE separate fits)
+
+::: columns
+::: {.column width="40%"}
+
+```{r}
+dummy_simple_re <- tar_read(dummy_simple_re)
+dummy_simple_re |>
+  mutate(p_bayes = round(p_bayes, 2)) |>
+  knitr::kable(format = "html") |>
+  kable_material(c("striped", "hover"), full_width = FALSE, font_size = 30)
+```
+:::
+
+::: {.column width="60%"}
+
+```{r, fig.height=4.5}
+dummy_simple_re |>
+  pivot_longer(c(p_like, p_bayes)) |>
+  ggplot(aes(x = p_true, y = value, fill = name)) +
+    # geom_jitter(size = 12, pch = 21, width = 0.001, alpha = 0.8) +
+    geom_point(size = 12, pch = 21, alpha = 0.8) +
+    annotate(geom = "text", x = 0.34, y = 0.38, label = "1:1", size = 10, angle = 18) +
+    geom_abline(slope = 1, intercept = 0, lty = 2) +
+    xlab("True survival rate") +
+    ylab("Estimated \nsurvival rate") +
+    theme(
+      legend.position = c(0.2, 0.75),
+      legend.text = element_text(size = 24),
+      legend.title = element_blank(),
+      legend.box.background = element_rect(color = "grey40", size = 1)
+    )
+```
+
+::: small
+::: incremental
+- Closed symbols (`p_bayes`{.small}) align more closely with the 1:1 line, indicating more accurate estimates.
+
+- This model compensates for limited data by using **prior** knowledge that tree responses are somehow similar and compensates for limited data.
+:::
+:::
+
+:::
+:::
+
+
+::: notes
+- less influenced by overfitting for each species
+
+- to understand prior, we need to understand Bayes's theorem a bit more
+:::
+
+## MLE vs. Bayesian estimation
+
+### MLE (e.g., `lme4`{.small})
+
+$L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i$
+
+
+::: incremental
+
+- Analytically (or numerically) find $\mu$ and $\sigma$ that maximize $L$.
+
+- MLE often requires numerical integration, and this becomes difficult for complex models.
+
+- No prior; estimates can be unstable or biased with small data.
+
+:::
+
+## MLE vs. Bayesian estimation
+
+### Bayesian estimation
+
+$P(\mu, \sigma \mid S_i, N_i) \propto \prod_i \mathcal{B}(S_i \mid N_i, p_i) \times \prod_i \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) \times$ \n
+$\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\mathcal{N}(\mu \mid 0, 2.5) \times \text{Half-Cauchy}(0, 1)$
+
+::: incremental
+
+- Use simulations (MCMC) to appoximate $P$.
+
+- Baesyian methods work better for complex models because they explore the full distribution instead of just finding a single best value.
+
+- Priors help stabilize estimates, especially with limited data.
+
+:::
+
+::: notes
+posterior distribution is proportional to the likelihood times the prior
+:::
+
+## Summary
+
+- *Why Bayesian estimation is useful*.
+
+- *Why multilevel models are important*.
+
+::: incremental
+
+- **Bayesian workflow = Likelihood + Prior → Posterior**
+  - One clear pipeline for fitting, checking, and predicting.
+
+- **Priors = ecological knowledge**
+  - Weakly informative priors stabilize small data sets.
+  - Hierarchical priors share information across species, time, sites, etc.
+
+- **Multilevel models are the default in ecology**
+  - Ecology is hierarchical (individual → population → community); Bayesian tools handle this naturally.
+
+:::
+
+
+# Tools for Bayesian Modeling
+
+## Tools for Bayesian Modeling
+
+```{r}
+# Load necessary packages
+library(bayesplot)
+library(posterior)  # for creating a draws_array
+
+# Simulate MCMC draws for 3 chains and 1000 iterations
+set.seed(42)
+n_iter <- 1000
+n_chains <- 3
+param <- replicate(n_chains, cumsum(rnorm(n_iter, 0, 0.1)) + 0)
+
+# Combine into a 3D array: iterations × chains × parameters
+draws_array <- array(param,
+  dim = c(n_iter, n_chains, 1),
+  dimnames = list(NULL, NULL, "beta[1]"))
+
+# Traceplot using bayesplot
+color_scheme_set("viridis")
+mcmc_trace(draws_array, n_warmup = 0, facet_args = list(nrow = 3)) +
+  labs(x = "Iteration")
+```
+
+- Basic idea of MCMC
+- Stan: A modern language for Bayesian modeling
+- Interfaces to Stan
+
+## MCMC (Markov Chain Monte Carlo)
+
+**Goal**: Approximate the posterior distribution of parameters given the data instead of calculating it directly.
+
+<br>
+
+::: fragment
+For simple models, we can analytically find parameters that maximize the posterior distribution.
+
+Coin B example again:
+
+$\textcolor{#d95f02}{Post_B}\propto\textcolor{#1b9e77}{p^{60} (1-p)^{40}} \times\textcolor{#7570b3}{p^{50} (1-p)^{50}}$
+
+$p = 110/200 = 0.55$
+:::
+
+## MCMC: a simplified Metropolis-Hastings (MH) algorithm
+
+::: columns
+::: {.column width="40%"}
+
+![](images/mh_trace.gif)
+
+![](images/mh_post.gif)
+
+:::
+
+::: {.column width="60%"}
+
+::: incremental
+- Start with some values of *p* (e.g., 0.2 and 0.8).
+- Caclulate the posterior of those values.
+- Repeat the following steps N times:
+  - Propose a new value of $p_{\text{new}}$ (e.g., $p \pm 0.01$)
+  - Calculate the posterior at $p_{\text{new}}$.
+  - If $\text{Post}(p_{\text{new}}) \geq \text{Post}(p_t), \text{ then } p_{t+1} = p_{\text{new}}$.
+  - Else, accept $p_{\text{new}}$ with probability $\frac{\text{Post}(p_{\text{new}})}{\text{Post}(p_t)}$.
+:::
+:::
+:::
+
+## MCMC: Gibbs sampling
+
+::: incremental
+
+- Sampling $\theta_1$, $\theta_2$ jointly is hard:
+$p(\theta_1, \theta_2 \mid \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_1, \theta_2)$
+
+- Instead, we sample $\theta_1$ and $\theta_2$ sequentially:
+
+  - $p(\theta_1 \mid \theta_2, \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_1  \mid \theta_2)$
+
+  - $p(\theta_2 \mid \theta_1, \text{data}) \propto p(\text{data} \mid \theta_1, \theta_2) \times p(\theta_2  \mid \theta_1)$
+
+  - $\theta_1^{(t)} \sim p(\theta_1 \mid \theta^{(t-1)}_2, \text{data})$
+
+  - $\theta_2^{(t)} \sim p(\theta_2 \mid \theta^{(t)}_1, \text{data})$
+
+- Gibbs sampling approximates the joint posterior by sampling from these full conditionals.
+
+- Implemented in **BUGS** and **JAGS** software.
+
+:::
+
+
+
+```{r, eval=FALSE}
+gibbs_sampler <- function(n_iter = 1000, rho = 0.9) {
+  p <- q <- numeric(n_iter)
+  p[1] <- 0
+  q[1] <- 0
+  for (t in 2:n_iter) {
+    p[t] <- rnorm(1, mean = rho * q[t-1], sd = sqrt(1 - rho^2))
+    q[t] <- rnorm(1, mean = rho * p[t],   sd = sqrt(1 - rho^2))
+  }
+  tibble(iter = 1:n_iter, p = p, q = q)
+}
+
+library(ggplot2)
+library(tidyr)
+
+samples <- gibbs_sampler()
+samples_long <- pivot_longer(samples, cols = c(p, q), names_to = "param")
+
+ggplot(samples_long, aes(x = iter, y = value, color = param)) +
+  geom_line() +
+  theme_minimal(base_size = 16)
+```
+
+## MCMC: Hamiltonian Monte Carlo (HMC)
+
+::: columns
+
+::: {.column width=40%}
+![](images/pot_eng.gif)
+
+![](images/traj.gif)
+:::
+
+::: {.column width=60%}
+
+:::incremental
+
+- $H(\theta, r) = U(\theta) + r^2/2$ (Hamiltonian: potential energy + kinetic energy = constant)
+
+  - $U(\theta) = -\text{log}\; p(\theta \mid \text{data})$
+
+- Instead of sampling from $p(\theta \mid \text{data})$, HMC samples from a joint distribution over both $\theta$ and $r$.
+
+  - $p(\theta \mid \text{data}) \propto \int \text{exp}(-H(\theta, r))dr$
+
+- It's equivalent to sampling from $p(\theta \mid \text{data}) \propto \text{exp}(-U(\theta))$.
+
+- HMS explores very different $\theta$ along the same trajectory (i.e. leapfrog path), which is much more efficient than random sampling.
+
+:::
+:::
+:::
+
+
+## MCMC: Hamiltonian Monte Carlo (HMC)
+
+::: columns
+
+::: {.column width=30%}
+![](images/leapfrog.gif)
+
+![](images/hmc.gif)
+
+:::
+
+::: {.column width=70%}
+
+:::incremental
+
+- Within each iteration, HMC simulates a trajectory using leapfrog steps.
+
+    -  No-U-Turn Sampler (NUTS) dynamically determines the number of leapfrog steps; we only need to set the maximum (e.g., `max_treedepth` in **Stan**).
+
+- The Hamiltonian stays the same, but momentum $r$ is resampled each iteration.
+
+- Only the final parameter $\theta$ of each trajectory is kept as a posterior sample.
+
+:::
+:::
+:::
+
+
+## MCMC Methods: Comparison
+
+| Feature                    | **Metropolis(-Hastings)**          | **Gibbs Sampling**                        | **Hamiltonian Monte Carlo (HMC)**        |
+|----------------------------|------------------------------------|-------------------------------------------|------------------------------------------|
+| How it works               | Try random moves, accept/reject    | Update one parameter at a time            | Simulate smooth movement using gradients |
+| Efficient in high dimensions? | ❌ Often slow                   | ✅ If math is simple                       | ✅ Very efficient                         |
+| Flexible?                  | ✅ Yes                             | ❌ No (conjugate priors)                   | ✅ Yes                                    |
+| Typical software           | JAGS, custom R                     | JAGS, BUGS                                | Stan               |
+
+
+## Stan: A modern language/software for Bayesian modeling
+
+::: columns
+
+::: {.column width=35%}
+
+<img src="https://raw.githubusercontent.com/stan-dev/logos/master/logo.png" width=250 alt="Stan Logo"/>
+
+
+```{stan, output.var="bernoulli",file=here('stan/bernoulli.stan'), eval=FALSE, echo=TRUE}
+```
+
+
+:::
+
+::: {.column width=65%}
+
+::: incremental
+
+- 🧑🏻‍💻 **Bayesian Modeling**
+
+  - Stan uses the No-U-Turn sampler (NUTS), a variant of Hamiltonian Monte Carlo (HMC), which is efficient for complex models with many parameters.
+
+- ⚙️ **Flexible and Scalable**
+
+  - You can use Stan for many types of models, from simple regressions to multi-level models including time-series, spatial, SEM, and more.
+
+- 💻 **Multiplatform**
+
+  - Stan works with R, Python, Julia, and more.
+  It also has tools for checking models and making visualizations.
+
+:::
+:::
+:::
+
+
+## Interfaces to Stan (for R users)
+
+- Stan: The actual modeling and inference engine, written in C++.
+
+::: incremental
+
+- CmdStan: Command line interface (you write Stan code and run it via terminal).
+
+- `rstan`, `cmdstanr`: R interface to Stan/Cmdstan (you write Stan code and run it within R).
+
+- `brms`, `rstanarm`: Higher-level R packages that depend on `rstan` (you write R code and run models within R, without writing Stan code).
+
+- In this course, we will use `cmdstanr` and `brms`.
+
+:::
+
+::: footer
+CmdStan is based on the latest version of Stan, whereas `rstan` is based on an older version.
+:::
+
+# Stan Coding Session (separate HTML material)
+
+## References
+
+- Slides & code: <https://github.com/mattocci27/bayes-workshop-xtbg>
+
+- [Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013)](http://www.stat.columbia.edu/~gelman/book/)
+
+- [Stan User's Guide](https://mc-stan.org/docs/stan-users-guide/index.html)
+
+- [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/index.html)
+
+- [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese and Math)
+
+
+
+
