@@ -15,9 +15,9 @@
     "HOST_UID": "${env:HOST_UID}",
     "HOST_GID": "${env:HOST_GID}",
     "WORKSPACE_FOLDER": "${localWorkspaceFolder}",
-    "HTTP_PROXY": "${env:HTTP_PROXY}",
-    "HTTPS_PROXY": "${env:HTTPS_PROXY}",
-    "NO_PROXY": "${env:NO_PROXY}"
+    "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+    "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+    "NO_PROXY": "${localEnv:NO_PROXY}"
   },
 
   "mounts": [

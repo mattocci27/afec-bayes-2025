@@ -11,6 +11,8 @@ USER root
 RUN apt-get update -q -y \
   && apt-get install --no-install-recommends --fix-missing -y \
     libmagick++-dev \
+    cargo \
+    rustc \
   && apt-get autoremove -y \
   && apt-get clean all
 
