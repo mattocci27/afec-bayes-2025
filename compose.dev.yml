@@ -1,0 +1,12 @@
+services:
+  dev:
+    build:
+      context: .
+      target: dev
+    image: mattocci/afec-bayes:dev
+    container_name: afec-dev
+    environment:
+      - RENV_PATHS_CACHE=/opt/renv/cache
+    restart: unless-stopped
+volumes:
+  renv-cache: {}

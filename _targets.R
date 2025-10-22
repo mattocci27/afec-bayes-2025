@@ -14,8 +14,7 @@ source("R/hmc.R")
 # parallel computing on local or on the same node
 plan(multicore)
 options(clustermq.scheduler = "multicore")
-cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
-
+# cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
 
 tar_option_set(packages = c(
   "tidyverse",
@@ -26,7 +25,8 @@ tar_option_set(packages = c(
   "showtext",
   "animation",
   "gganimate",
-  "loo"
+  "loo",
+  "gifski"
 ))
 
 list(
