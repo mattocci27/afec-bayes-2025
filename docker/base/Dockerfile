@@ -16,9 +16,9 @@ RUN apt-get update -q -y \
   && apt-get autoremove -y \
   && apt-get clean all
 
+RUN mkdir -p  /opt/cmdstan
+
 RUN R -q -e '\
   install.packages("cmdstanr", repos=c("https://mc-stan.org/r-packages/","https://cloud.r-project.org")); \
   cmdstanr::check_cmdstan_toolchain(); \
   cmdstanr::install_cmdstan(dir="/opt/cmdstan", quiet=TRUE, cores=2)'
-
-USER rstudio

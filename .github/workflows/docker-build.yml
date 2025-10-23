@@ -5,6 +5,7 @@ on:
     paths:
       - 'bakefile.json'
       - '**/docker-build.yml'
+      - '**/**/Dockerfile'
   workflow_dispatch:
 
 jobs:
