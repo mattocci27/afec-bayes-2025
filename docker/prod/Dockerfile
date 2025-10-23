@@ -5,6 +5,9 @@ RUN R -q -e 'install.packages(c("renv", "pak"), repos="https://cloud.r-project.o
 # RUN R -q -e 'pak::pkg_install(c("clustermq"))'
 # RUN R -q -e 'pak::pkg_install(c("brms", "targets", "bayesplot", "posterior", "tidybayes", "gifski", "animation"))'
 
+RUN mkdir -p /home/rstudio/proj \
+  && chown rstudio:rstudio /home/rstudio/proj
+
 # 1) Put the project in place BEFORE restore
 WORKDIR /home/rstudio/proj
 COPY --chown=rstudio:rstudio . /home/rstudio/proj
