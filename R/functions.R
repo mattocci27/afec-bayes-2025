@@ -14,6 +14,37 @@
 #   tmp
 # }
 
+project_root <- function() {
+  root <- Sys.getenv("TARGETS_PROJECT_DIR")
+  if (!nzchar(root)) {
+    root <- tryCatch(
+      if (requireNamespace("rprojroot", quietly = TRUE)) {
+        rprojroot::find_root(rprojroot::has_file("_targets.R"))
+      } else {
+        normalizePath(".", winslash = "/", mustWork = TRUE)
+      },
+      error = function(...) normalizePath(".", winslash = "/", mustWork = TRUE)
+    )
+    Sys.setenv(TARGETS_PROJECT_DIR = root)
+  }
+  root
+}
+
+project_path <- function(path) {
+  if (grepl("^(/|[A-Za-z]:|\\\\\\\\)", path)) {
+    normalizePath(path, winslash = "/", mustWork = FALSE)
+  } else {
+    normalizePath(file.path(project_root(), path), winslash = "/", mustWork = FALSE)
+  }
+}
+
+ensure_dir_exists <- function(path) {
+  if (!dir.exists(path)) {
+    dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  }
+  path
+}
+
 logistic <- function(z) 1 / (1 + exp(-z))
 
 logit <- function(p) log(p / (1 - p))

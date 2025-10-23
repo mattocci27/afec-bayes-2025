@@ -59,8 +59,8 @@ generate_mh_df <- function(n_iter = 200, init_p1 = 0.2, init_p2 = 0.8, seed = 12
 
 
 make_mh_trace_gif <- function(df, width = 600, height = 400, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
   p <- ggplot(df, aes(x = iteration, y = p, color = chain)) +
     annotate("rect",
              xmin = 0,      # or 1, whichever your first iter is
@@ -85,15 +85,13 @@ make_mh_trace_gif <- function(df, width = 600, height = 400, out) {
 
   animate(p, nframes = nrow(df), fps = 40,
         width = width, height = height,
-        renderer = gifski_renderer(fname))
-  file.rename(fname, out)
-  paste(out)
-
+        renderer = gifski_renderer(out_path))
+  out
 }
 
 make_mh_post_gif <- function(df, width = 600, height = 400, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
   p <- ggplot(df, aes(x = p, y = post, color = chain)) +
     geom_line(lwd = 2) +
     geom_point(size = 4) +
@@ -110,9 +108,6 @@ make_mh_post_gif <- function(df, width = 600, height = 400, out) {
 
   animate(p, nframes = nrow(df), fps = 40,
         width = width, height = height,
-        renderer = gifski_renderer(fname))
-  file.rename(fname, out)
-  paste(out)
-
+        renderer = gifski_renderer(out_path))
+  out
 }
-

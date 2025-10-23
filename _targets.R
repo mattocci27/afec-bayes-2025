@@ -1,3 +1,19 @@
+if (file.exists("renv/activate.R")) {
+  source("renv/activate.R")
+}
+
+if (!nzchar(Sys.getenv("TARGETS_PROJECT_DIR"))) {
+  project_dir <- tryCatch(
+    if (requireNamespace("rprojroot", quietly = TRUE)) {
+      rprojroot::find_root(rprojroot::has_file("_targets.R"))
+    } else {
+      normalizePath(".", winslash = "/", mustWork = TRUE)
+    },
+    error = function(...) normalizePath(".", winslash = "/", mustWork = TRUE)
+  )
+  Sys.setenv(TARGETS_PROJECT_DIR = project_dir)
+}
+
 library(targets)
 library(tarchetypes)
 library(tidyverse)
@@ -14,20 +30,22 @@ source("R/hmc.R")
 # parallel computing on local or on the same node
 plan(multicore)
 options(clustermq.scheduler = "multicore")
-# cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
+cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 
-tar_option_set(packages = c(
-  "tidyverse",
-  "bayesplot",
-  "ggrepel",
-  "patchwork",
-  "janitor",
-  "showtext",
-  "animation",
-  "gganimate",
-  "loo",
-  "gifski"
-))
+tar_option_set(
+  packages = c(
+    "tidyverse",
+    "bayesplot",
+    "ggrepel",
+    "patchwork",
+    "janitor",
+    # "showtext",
+    "gganimate",
+    "loo",
+    "gifski"
+  ),
+  library = .libPaths()
+)
 
 list(
   tar_target(
@@ -98,7 +116,7 @@ list(
   tar_target(
     hmc_gif,
     make_hmc_gif(
-      data = leapfrog_list$cont_dat,
+      contour_data = leapfrog_list$cont_dat,
       sim_res = hmc_df,
       out = "images/hmc.gif"),
     format = "file"

@@ -175,9 +175,9 @@ generate_simple_hmc_list <- function(theta = 0.1, shape = 11, rate = 13, p = 0, 
 
 
 make_pot_eng_gif <- function(simple_hmc_list, n_max = 200, width = 600, height = 400, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
-  df <- simple_hmc_list$hmc_df
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
+  df <- simple_hmc_list[["hmc_df"]]
 
   anim_df <- df %>%
   slice(1:n_max) %>%
@@ -203,23 +203,26 @@ make_pot_eng_gif <- function(simple_hmc_list, n_max = 200, width = 600, height =
     # labs(title = "Potential energy (h) — fr") +
     transition_reveal(frame)
 
-  animate(p, nframes = nrow(df), fps = 40,
-        width = width, height = height,
-        renderer = gifski_renderer(fname))
-  file.rename(fname, out)
-  paste(out)
-
+  animate(
+    p,
+    nframes = nrow(df),
+    fps = 40,
+    width = width,
+    height = height,
+    renderer = gifski_renderer(out_path)
+  )
+  out
 }
 
 make_traj_gif <- function(simple_hmc_list, n_max = 200, width = 600, height = 400, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
-  df <- simple_hmc_list$new_hm
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
+  df <- simple_hmc_list[["new_hm"]]
   anim_df <- df %>%
     slice(1:n_max) %>%
     mutate(frame = row_number())
 
-  p <- ggplot(simple_hmc_list$cont_df, aes(x = theta, y = p)) +
+  p <- ggplot(simple_hmc_list[["cont_df"]], aes(x = theta, y = p)) +
     geom_contour(aes(z = hamiltonian),
                  bins = 50, lwd = 0.2) +
     geom_point(data = anim_df,
@@ -232,52 +235,80 @@ make_traj_gif <- function(simple_hmc_list, n_max = 200, width = 600, height = 40
     # labs(title = "Phase space (p vs θ) — frame {current_frame}") +
     transition_reveal(frame)
 
-  animate(p, nframes = nrow(df), fps = 40,
-        width = width, height = height,
-        renderer = gifski_renderer(fname))
-  file.rename(fname, out)
-  paste(out)
-
+  animate(
+    p,
+    nframes = nrow(df),
+    fps = 40,
+    width = width,
+    height = height,
+    renderer = gifski_renderer(out_path)
+  )
+  out
 }
-generate_leapfrog_frame <- function(n, data, step, step2) {
-    step_n <- step %>%
-      filter(row_number() <= n)
-    step2_n <- step2 %>%
-      filter(gr3 %in% step_n$gr)
-
-    plt1 <- ggplot(step_n) +
-      geom_point(data = step_n, aes(x = theta, y = p), size = 4) +
-      geom_contour(data = data,
-                   aes(x = theta, y = p, z = hamiltonian),
-                   bins = 50,
-                   lwd = 0.2) +
-      geom_line(data = step2_n,
-                aes(x = theta, y = p, group = gr3),
-                col = "red") +
-      geom_path(aes(x = theta, y = p, group = gr), lty = 2) +
-      ylab("r") +
-      coord_cartesian(xlim = c(-0.2, 3.5),
-                      ylim = c(-5, 5)) +
-      theme_bw(base_size = 28)
-    print(plt1)
- }
-
-
 make_leapfrog_gif <- function(leapfrog_list, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
 
-  saveGIF(
-    lapply(seq_len(nrow(leapfrog_list$step)),
-           function(i) generate_leapfrog_frame(i, leapfrog_list$cont_dat, leapfrog_list$step, leapfrog_list$step2)),
-    interval   = 0.05,
-    ani.width  = 600,
-    ani.height = 400,
-    movie.name = fname
+  step <- leapfrog_list[["step"]] %>%
+    mutate(frame = row_number())
+
+  step_history <- purrr::map_dfr(step$frame, function(i) {
+    step %>%
+      filter(frame <= i) %>%
+      mutate(frame = i)
+  })
+
+  segment_history <- purrr::map_dfr(step$frame, function(i) {
+    active_groups <- unique(step$gr[step$frame <= i])
+    leapfrog_list[["step2"]] %>%
+      filter(gr3 %in% active_groups) %>%
+      mutate(frame = i)
+  })
+
+  current_point <- step %>%
+    transmute(frame, theta, p)
+
+  p <- ggplot() +
+    geom_contour(
+      data = leapfrog_list[["cont_dat"]],
+      aes(x = theta, y = p, z = hamiltonian),
+      bins = 50,
+      lwd = 0.2
+    ) +
+    geom_path(
+      data = step_history,
+      aes(x = theta, y = p, group = gr),
+      linetype = 2
+    ) +
+    geom_line(
+      data = segment_history,
+      aes(x = theta, y = p, group = gr3),
+      colour = "red"
+    ) +
+    geom_point(
+      data = current_point,
+      aes(x = theta, y = p),
+      colour = "red",
+      size = 4
+    ) +
+    ylab("r") +
+    coord_cartesian(
+      xlim = c(-0.2, 3.5),
+      ylim = c(-5, 5)
+    ) +
+    theme_bw(base_size = 28) +
+    transition_manual(frame)
+
+  animate(
+    p,
+    nframes = max(step$frame),
+    fps = 40,
+    width = 600,
+    height = 400,
+    renderer = gifski_renderer(out_path)
   )
 
-  file.rename(fname, out)
-  paste(out)
+  out
 }
 
 # make_leapfrog_gif(leapfrog_list, out = "images/leapfrog.gif")
@@ -320,45 +351,64 @@ generate_hmc_df <- function(theta = 2.5, shape = 11, rate = 13, p = 0, eps = 0.0
 }
 
 
-generate_hmc_frame <- function(n_iter, n_burn, data, sim_res) {
-  sim_res_n <- sim_res %>%
-    filter(row_number() <= n_iter) %>%
-    mutate(burn = ifelse(row_number() <= n_burn,
-                         "discard",
-                         "keep"))
-  plt1 <- ggplot(sim_res_n) +
-    geom_contour(data = data,
-                 aes(x = theta, y = p, z = hamiltonian),
-                 bins = 50,
-                 lwd = 0.2) +
-    geom_path(data = sim_res_n,
-              aes(x = theta, y = p),
-              col = "#2E7D32",
-              lwd = 0.2) +
-    geom_point(data = sim_res_n, aes(x = theta, y = p, shape = burn), size = 4) +
-    scale_shape_manual(values = c(1, 16)) +
+make_hmc_gif <- function(n_iter = 200, n_burn = 50, contour_data, sim_res, out) {
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
+
+  contour_data <- tibble::as_tibble(contour_data)
+
+  sim_res <- sim_res %>%
+    mutate(
+      iter = row_number(),
+      burn = if_else(iter <= n_burn, "discard", "keep"),
+      frame = iter
+    )
+
+  max_frame <- min(n_iter, nrow(sim_res))
+
+  history <- purrr::map_dfr(seq_len(max_frame), function(i) {
+    sim_res %>%
+      filter(iter <= i) %>%
+      mutate(frame = i)
+  }) %>%
+    mutate(burn = factor(burn, levels = c("discard", "keep")))
+
+  p <- ggplot() +
+    geom_contour(
+      data = contour_data,
+      aes(x = theta, y = p, z = hamiltonian),
+      bins = 50,
+      lwd = 0.2
+    ) +
+    geom_path(
+      data = history,
+      aes(x = theta, y = p, group = frame),
+      colour = "#2E7D32",
+      lwd = 0.2
+    ) +
+    geom_point(
+      data = history,
+      aes(x = theta, y = p, shape = burn),
+      size = 4
+    ) +
+    scale_shape_manual(values = c("discard" = 1, "keep" = 16)) +
     ylab("r") +
-    coord_cartesian(xlim = c(-0.2, 3.5),
-                    ylim = c(-5, 5)) +
+    coord_cartesian(
+      xlim = c(-0.2, 3.5),
+      ylim = c(-5, 5)
+    ) +
     theme_bw(base_size = 28) +
-    theme(legend.position = "none")
-  print(plt1)
-}
+    theme(legend.position = "none") +
+    transition_manual(frame)
 
-
-make_hmc_gif <- function(n_iter = 200, n_burn = 50, data, sim_res, out) {
-  outdir <- dirname(out)
-  fname  <- basename(out)
-
-  saveGIF(
-    lapply(seq_len(n_iter),
-           function(i) generate_hmc_frame(i, n_burn, data, sim_res)),
-    interval   = 0.05,
-    ani.width  = 600,
-    ani.height = 400,
-    movie.name = fname
+  animate(
+    p,
+    nframes = max_frame,
+    fps = 40,
+    width = 600,
+    height = 400,
+    renderer = gifski_renderer(out_path)
   )
 
-  file.rename(fname, out)
-  paste(out)
+  out
 }
