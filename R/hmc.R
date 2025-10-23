@@ -269,6 +269,7 @@ make_leapfrog_gif <- function(leapfrog_list, out) {
     transmute(frame, theta, p)
 
   p <- ggplot() +
+    geom_point(data = step_history, aes(x = theta, y = p), size = 4) +
     geom_contour(
       data = leapfrog_list[["cont_dat"]],
       aes(x = theta, y = p, z = hamiltonian),
