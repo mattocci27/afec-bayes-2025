@@ -21,6 +21,7 @@ library(stantargets)
 library(cmdstanr)
 library(furrr)
 library(clustermq)
+library(quarto)
 
 
 source("R/functions.R")
@@ -121,9 +122,9 @@ list(
       out = "images/hmc.gif"),
     format = "file"
   ),
-  # tar_quarto(
-  #   main,
-  #   "main.qmd"
-  # ),
+  tar_quarto(
+    main,
+    "main.qmd"
+  ),
   NULL
 )

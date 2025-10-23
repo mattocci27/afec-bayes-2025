@@ -1,6 +1,25 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
+simple_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|569763593|stan/logistic.stan|t20383.0857381573s|s643b|643|file|local|vector|||0||
+dummy_simple|stem|a413439b6a729e9b|62bd5aeb942a5882|aaefc4484af376c5|-888664837||t20384.3743272736s|s302b|302|rds|local|vector|||0.071||
+mh_df|stem|e6eb8251a933d53f|34bfa89f26652d8d|a2a61c3ab24d69f8|-1022243609||t20384.3743271926s|s2095b|2095|rds|local|vector|||0.079||
+simple_hmc_list|stem|210009cdb7283383|935638e084186e20|30e71340b5a13c54|1193945633||t20384.3743276787s|s217580b|217580|rds|local|vector|||0.102|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
+leapfrog_list|stem|c2a3c9c0158ad411|9c7eb4c6c82dd209|35c75f774a3e2b5b|1598672164||t20384.3743285583s|s211441b|211441|rds|local|vector|||0.172|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
+dummy_simple_stan|stem|90df21918e16da59|de4b58a69c07002f|cf3b2f990416418c|1981477967||t20384.3743296695s|s180b|180|rds|local|vector|||0||
+simple_data|stem|3f960229fbac18d2|d3cd90b2fca9421b|355a83c5694605ff|-1645633210||t20384.3743316718s|s222b|222|qs|local|vector|||0||
+simple_mcmc_logistic|stem|2e7508b3d93c1c52|3cef4e085a5a9bef|7380f73c077a5b70|-856359403||t20384.3743383502s|s1369633b|1369633|qs|local|vector|||0.349||
+simple_diagnostics_logistic|stem|fd77f2f22594fd2b|f67bebf8751797bc|bd08c603b4d4a893|-1129186995||t20384.3743414984s|s82916b|82916|fst_tbl|local|vector|||0.002||
+simple_summary_logistic|stem|5e7f83ae5c11ef34|75fbf76fb7fc6a11|b535d0457424f008|1352529849||t20384.3743427368s|s3832b|3832|fst_tbl|local|vector|||0.189||
+simple_draws_logistic|stem|804fcec60f9ec1ed|a860147a3d4c035a|bd08c603b4d4a893|733771483||t20384.374343304s|s1134404b|1134404|fst_tbl|local|vector|||0.003||
+dummy_simple_re|stem|e7abcba218d151df|d6ae6656316743ec|23292f173b7c8e60|-1147551103||t20384.3743450054s|s380b|380|rds|local|vector|||0.007||
+hmc_df|stem|08f757b47543b946|db93016b03830cb6|cfce8182910e9fef|582158721||t20384.3743637789s|s226640b|226640|rds|local|vector|||3.151||
+pot_eng_gif|stem|fca5d3bbaaf246ac|c67da689dcb95741|e4bf4be401115007|-544675296|images/pot_eng.gif|t20384.3744426924s|s263937b|263937|file|local|vector|||9.677||
+traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|c4a81a1a8cead8c6|1954173610|images/traj.gif|t20384.3745073926s|s242097b|242097|file|local|vector|||15.251||
+hmc_gif|stem|92e551a793204842|5c90438139064144|6529a6604056a966|636377848|images/hmc.gif|t20384.3745535972s|s227667b|227667|file|local|vector|||16.262||
+mh_post_gif|stem|24ddf8dbb021bd38|1fa21a6a0923dd5a|a50ad80b003ad201|-1467484502|images/mh_post.gif|t20384.3746250336s|s687893b|687893|file|local|vector|||25.506||
+mh_trace_gif|stem|c69341eba409f493|78331365fc45c198|e0d30cfd6129f321|-705628236|images/mh_trace.gif|t20384.3746289226s|s673857b|673857|file|local|vector|||25.85||
+leapfrog_gif|stem|f4f4ec5ae50d10ac|2f70d06688107411|bd9574370f15f8e3|-876472587|images/leapfrog.gif|t20384.379767628s|s203062b|203062|file|local|vector|||9.185||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|13b9c8f80f1e3e4e
+.Random.seed|object|4480562dd8b5067a
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -25,28 +44,10 @@ generate_hmc_df|function|674365c10ef82b92
 make_mh_trace_gif|function|c5bdd552f8ad363b
 make_mh_post_gif|function|9137a79a1cd83ec0
 make_traj_gif|function|cf25c0d88a88e0e1
-make_leapfrog_gif|function|93a18ed79a506ee3
+make_leapfrog_gif|function|3fdaea67929ea9c8
 make_pot_eng_gif|function|f684b473fcfdd5b5
 make_hmc_gif|function|4f880bf47ed0f383
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|b3b6b2d754e8868e
-simple_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|569763593|stan/logistic.stan|t20383.0857381573s|s643b|643|file|local|vector|||0||
-dummy_simple|stem|a413439b6a729e9b|62bd5aeb942a5882|aaefc4484af376c5|-888664837||t20384.3743272736s|s302b|302|rds|local|vector|||0.071||
-mh_df|stem|e6eb8251a933d53f|34bfa89f26652d8d|a2a61c3ab24d69f8|-1022243609||t20384.3743271926s|s2095b|2095|rds|local|vector|||0.079||
-simple_hmc_list|stem|210009cdb7283383|935638e084186e20|30e71340b5a13c54|1193945633||t20384.3743276787s|s217580b|217580|rds|local|vector|||0.102|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
-leapfrog_list|stem|c2a3c9c0158ad411|9c7eb4c6c82dd209|35c75f774a3e2b5b|1598672164||t20384.3743285583s|s211441b|211441|rds|local|vector|||0.172|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
-dummy_simple_stan|stem|90df21918e16da59|de4b58a69c07002f|cf3b2f990416418c|1981477967||t20384.3743296695s|s180b|180|rds|local|vector|||0||
-simple_data|stem|3f960229fbac18d2|d3cd90b2fca9421b|355a83c5694605ff|-1645633210||t20384.3743316718s|s222b|222|qs|local|vector|||0||
-simple_mcmc_logistic|stem|2e7508b3d93c1c52|3cef4e085a5a9bef|7380f73c077a5b70|-856359403||t20384.3743383502s|s1369633b|1369633|qs|local|vector|||0.349||
-simple_diagnostics_logistic|stem|fd77f2f22594fd2b|f67bebf8751797bc|bd08c603b4d4a893|-1129186995||t20384.3743414984s|s82916b|82916|fst_tbl|local|vector|||0.002||
-simple_summary_logistic|stem|5e7f83ae5c11ef34|75fbf76fb7fc6a11|b535d0457424f008|1352529849||t20384.3743427368s|s3832b|3832|fst_tbl|local|vector|||0.189||
-simple_draws_logistic|stem|804fcec60f9ec1ed|a860147a3d4c035a|bd08c603b4d4a893|733771483||t20384.374343304s|s1134404b|1134404|fst_tbl|local|vector|||0.003||
-dummy_simple_re|stem|e7abcba218d151df|d6ae6656316743ec|23292f173b7c8e60|-1147551103||t20384.3743450054s|s380b|380|rds|local|vector|||0.007||
-hmc_df|stem|08f757b47543b946|db93016b03830cb6|cfce8182910e9fef|582158721||t20384.3743637789s|s226640b|226640|rds|local|vector|||3.151||
-pot_eng_gif|stem|fca5d3bbaaf246ac|c67da689dcb95741|e4bf4be401115007|-544675296|images/pot_eng.gif|t20384.3744426924s|s263937b|263937|file|local|vector|||9.677||
-leapfrog_gif|stem|665d202f6b83a5c4|2f70d06688107411|109aaaa1783d8555|-876472587|images/leapfrog.gif|t20384.3744495212s|s220215b|220215|file|local|vector|||10.278||
-traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|c4a81a1a8cead8c6|1954173610|images/traj.gif|t20384.3745073926s|s242097b|242097|file|local|vector|||15.251||
-hmc_gif|stem|92e551a793204842|5c90438139064144|6529a6604056a966|636377848|images/hmc.gif|t20384.3745535972s|s227667b|227667|file|local|vector|||16.262||
-mh_post_gif|stem|24ddf8dbb021bd38|1fa21a6a0923dd5a|a50ad80b003ad201|-1467484502|images/mh_post.gif|t20384.3746250336s|s687893b|687893|file|local|vector|||25.506||
-mh_trace_gif|stem|c69341eba409f493|78331365fc45c198|e0d30cfd6129f321|-705628236|images/mh_trace.gif|t20384.3746289226s|s673857b|673857|file|local|vector|||25.85||
+main|stem|f9e3f5868ca74e6b|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20384.381462914s|s8334214b|8334214|file|local|vector|||8.366||
