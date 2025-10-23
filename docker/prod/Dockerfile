@@ -17,12 +17,16 @@ RUN rm -f /home/rstudio/proj/.env
 ENV RENV_PATHS_CACHE=/opt/renv/cache \
     RENV_CONFIG_SANDBOX_ENABLED=FALSE \
     RENV_CONFIG_CACHE_SYMLINKS=FALSE
-RUN mkdir -p /opt/renv/cache && chown -R rstudio:rstudio /opt/renv
+RUN mkdir -p /opt/renv/cache \
+  && chown -R rstudio:rstudio /opt/renv \
+  && mkdir -p /home/rstudio/.cache/R \
+  && chown -R rstudio:rstudio /home/rstudio/.cache
 
 
 # 3) Do a verbose restore (with pak backend) and show diagnostics on failure
 ENV RENV_INSTALL_PAK_ENABLED=TRUE
-RUN --mount=type=cache,target=/root/.cache/R R --vanilla -e '\
+USER rstudio
+RUN --mount=type=cache,target=/home/rstudio/.cache/R R --vanilla -e '\
   options(repos=c(CRAN="https://cloud.r-project.org")); \
   renv::consent(provided=TRUE); \
   renv::activate(); \
