@@ -46,7 +46,7 @@ jobs:
           files: docker-bake.hcl
           push: true
           set: |
-            VERSION=${{ steps.bakevars.outputs.version }}
-            IMAGE_REPOSITORY=mattocci/afec-bayes
-            IMAGE_REGISTRY=docker.io
+            *.VERSION=${{ steps.bakevars.outputs.version }}
+            *.IMAGE_REPOSITORY=mattocci/afec-bayes
+            *.IMAGE_REGISTRY=docker.io
 
