@@ -7,14 +7,8 @@ RUN R -q -e 'install.packages(c("renv", "pak"), repos="https://cloud.r-project.o
 
 # 1) Put the project in place BEFORE restore
 WORKDIR /home/rstudio/proj
-# copy the minimum needed for restore (lockfile + optional .Rprofile/renv/)
-COPY renv.lock ./
-# if you have .Rprofile or renv/settings.dcf, copy them too:
-# COPY .Rprofile renv/ ./   # (uncomment if present)
-
-# WORKDIR /home/rstudio/proj
-# COPY . /home/rstudio/proj
-# RUN chown -R rstudio:rstudio /home/rstudio
+COPY --chown=rstudio:rstudio . /home/rstudio/proj
+RUN rm -f /home/rstudio/proj/.env
 
 # 2) Prepare renv/pak and a CRAN mirror
 ENV RENV_PATHS_CACHE=/opt/renv/cache \
