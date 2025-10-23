@@ -31,6 +31,6 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          docker buildx bake -f bakefiles/bakefile.json --push base
-          docker buildx bake -f bakefiles/bakefile.json --push dev
-          docker buildx bake -f bakefiles/bakefile.json --push prod
+          docker buildx bake -f bakefile.json --push base
+          docker buildx bake -f bakefile.json --push dev
+          docker buildx bake -f bakefile.json --push prod
