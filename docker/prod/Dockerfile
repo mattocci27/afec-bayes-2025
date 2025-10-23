@@ -26,7 +26,7 @@ RUN mkdir -p /opt/renv/cache \
 # 3) Do a verbose restore (with pak backend) and show diagnostics on failure
 ENV RENV_INSTALL_PAK_ENABLED=TRUE
 USER rstudio
-RUN --mount=type=cache,target=/home/rstudio/.cache/R R --vanilla -e '\
+RUN --mount=type=cache,target=/home/rstudio/.cache/R,uid=1000,gid=1000 R --vanilla -e '\
   options(repos=c(CRAN="https://cloud.r-project.org")); \
   renv::consent(provided=TRUE); \
   renv::activate(); \
@@ -41,3 +41,4 @@ RUN --mount=type=cache,target=/home/rstudio/.cache/R R --vanilla -e '\
   tryCatch(renv::restore(prompt=FALSE), error=function(e){ \
     message("---- renv diagnostics ----"); try(renv::diagnostics(), silent=TRUE); stop(e) \
   })'
+USER root
