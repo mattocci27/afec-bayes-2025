@@ -15,6 +15,7 @@ RUN rm -f /home/rstudio/proj/.env
 
 # 2) Prepare renv/pak and a CRAN mirror
 ENV RENV_PATHS_CACHE=/opt/renv/cache \
+    RENV_PATHS_LIBRARY=/home/rstudio/.cache/R/renv/library \
     RENV_CONFIG_SANDBOX_ENABLED=FALSE \
     RENV_CONFIG_CACHE_SYMLINKS=FALSE
 RUN mkdir -p /opt/renv/cache \
