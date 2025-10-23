@@ -2,6 +2,8 @@ FROM mattocci/afec-bayes:base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+USER root
+
 # Install dependencies and tools including Cargo and Rust
 RUN apt-get update && apt-get install -y \
   curl \
@@ -58,9 +60,6 @@ RUN source /home/rstudio/.local/share/zinit/zinit.git/zinit.zsh && \
 RUN [[ -d "/home/rstudio/.local/share/zinit/plugins/sindresorhus---pure" ]] \
     || git clone https://github.com/sindresorhus/pure.git \
       /home/rstudio/.local/share/zinit/plugins/sindresorhus---pure
-
-
-USER rstudio
 
 # RUN curl -fsSL https://claude.ai/install.sh | bash \
 #   && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /home/rstudio/.bashrc
