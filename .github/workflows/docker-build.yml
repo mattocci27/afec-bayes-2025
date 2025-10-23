@@ -41,7 +41,7 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: Docker Bake
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           files: docker-bake.hcl
           push: true
