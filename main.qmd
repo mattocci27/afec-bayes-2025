@@ -1,8 +1,8 @@
 ---
 pagetitle: "Bayesian estimation for ecology"
 author: "Masatoshi Katabuchi"
-date: "June 14, 2025"
-host: "The 8th Advanced Statistics Workshop Course 2025, XTBG"
+date: "November 3, 2025"
+host: "Experimental Design and Statistics in R, AFEC, XTBG"
 institute: "XTBG, CAS"
 strip-comments: true
 format:
@@ -92,7 +92,7 @@ hoge
 ::: columns
 
 ::: column
-### 🧠Bayesian Foundations
+### Bayesian Foundations
 
 - Likelihood
 
@@ -106,7 +106,7 @@ hoge
 :::
 
 ::: column
-### 🧑🏻‍💻Modeling with Stan
+### Modeling with Stan
 
 - Tools for Bayesian Modeling
 
@@ -1803,15 +1803,15 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 
 ::: incremental
 
-- 🧑🏻‍💻 **Bayesian Modeling**
+- **Bayesian Modeling**
 
   - Stan uses the No-U-Turn sampler (NUTS), a variant of Hamiltonian Monte Carlo (HMC), which is efficient for complex models with many parameters.
 
-- ⚙️ **Flexible and Scalable**
+- **Flexible and Scalable**
 
   - You can use Stan for many types of models, from simple regressions to multi-level models including time-series, spatial, SEM, and more.
 
-- 💻 **Multiplatform**
+- **Multiplatform**
 
   - Stan works with R, Python, Julia, and more.
   It also has tools for checking models and making visualizations.
