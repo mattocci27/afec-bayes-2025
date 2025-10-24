@@ -2,10 +2,10 @@ FROM mattocci/afec-bayes:base
 
 RUN R -q -e 'install.packages(c("renv","pak"), repos="https://cloud.r-project.org")'
 
-USER rstudio
 WORKDIR /home/rstudio/proj
-COPY . /home/rstudio/proj
+COPY --chown=rstudio:rstudio . /home/rstudio/proj
 
+USER rstudio
 # ENV RENV_PATHS_CACHE=/opt/renv/cache \
 ENV RENV_INSTALL_PAK_ENABLED=TRUE
 
