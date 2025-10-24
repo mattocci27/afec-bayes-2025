@@ -28,6 +28,23 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Docker (optional)
+
+Run this on your terminal to start an RStudio Server with all the necessary packages installed.
+
+```
+docker run -d -p 8787:8787 \
+  -e PASSWORD=123456  \
+  mattocci/afec-bayes:prod
+```
+
+Access `127.0.0.1:8787` and log in with the username `rstudio` and the password `123456` (or your own password).
+
+**Note:**
+Because you’re running this container on your own machine and mapping only to 127.0.0.1:8787, the RStudio Server isn’t accessible from outside your computer.
+So, using a simple password like `123456` is fine and safe for local development.
+
+# Setup
 
 ```{r setup, mesasge=FALSE, warning=FALSE}
 library(brms)
@@ -35,14 +52,13 @@ library(cmdstanr)
 library(tidyverse)
 library(bayesplot)
 library(patchwork)
-cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
+cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 
 theme_set(theme_bw())
 ```
 
 
 # Normal model
-
 $$
 y_i \sim N(\mu, \sigma)
 $$
