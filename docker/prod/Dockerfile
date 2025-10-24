@@ -1,8 +1,11 @@
 # Base image with system deps you already maintain
 FROM mattocci/afec-bayes:base
 
+# Use bash for all subsequent RUN commands (dash doesn't support `pipefail`)
+SHELL ["/bin/bash", "-lc"]
+
 # ---- R tooling ----
-RUN R -q -e 'install.packages(c("renv", "pak"), repos="https://cloud.r-project.org")'
+RUN R -q -e 'install.packages(c("renv","pak"), repos="https://cloud.r-project.org")'
 
 # ---- Project layout ----
 WORKDIR /home/rstudio/proj
@@ -18,13 +21,12 @@ ENV RENV_PATHS_CACHE=/opt/renv/cache \
     RENV_INSTALL_PAK_ENABLED=TRUE \
     RENV_PROJECT=/home/rstudio/proj
 
-# create writable cache + project dirs
-RUN mkdir -p /opt/renv/cache \
- && chown -R rstudio:rstudio /opt/renv /home/rstudio
+# create writable cache + home
+RUN mkdir -p /opt/renv/cache && chown -R rstudio:rstudio /opt/renv /home/rstudio
 
 USER rstudio
 
-# ---- Restore packages INTO the image (with BuildKit heredoc) ----
+# ---- Restore packages INTO the image (BuildKit heredoc) ----
 # Cache-mount ONLY the renv cache; the project library is written into the image layer.
 RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 <<'BASH'
 set -euo pipefail
@@ -43,7 +45,7 @@ renv::restore(prompt = FALSE)
 cat("Lib (after):  ", renv::paths$library(), "\n")
 
 ip   <- rownames(installed.packages(lib.loc = renv::paths$library()))
-need <- c("targets","ape")   # adjust this sentinel list as you like
+need <- c("targets","ape")   # adjust or remove this sentinel list as you like
 miss <- setdiff(need, ip)
 if (length(miss)) stop(paste("Missing after restore:", paste(miss, collapse=",")))
 
