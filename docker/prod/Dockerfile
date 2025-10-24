@@ -16,7 +16,7 @@ ENV RENV_PATHS_CACHE=/opt/renv/cache \
     RENV_CONFIG_SANDBOX_ENABLED=FALSE \
     RENV_CONFIG_CACHE_SYMLINKS=FALSE \
     RENV_INSTALL_PAK_ENABLED=TRUE \
-    RENV_PROJECT=/home/rstudio/proj     # <— force project detection
+    RENV_PROJECT=/home/rstudio/proj
 
 # create writable dirs
 RUN mkdir -p /opt/renv/cache /home/rstudio/renv-lib \
