@@ -26,22 +26,22 @@ USER rstudio
 
 # Ensure library dir exists and is writable, cache-mount only the cache,
 # then restore and assert key packages are present.
-RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 \
-    R --vanilla -q -e '\
-      options(repos = c(CRAN = "https://cloud.r-project.org")); \
-      renv::consent(provided = TRUE); \
-      renv::activate(project = Sys.getenv("RENV_PROJECT")); \
-      cat("Project: ", renv::project(), "\n"); \
-      cat("Lib (before): ", renv::paths$library(), "\n"); \
-      dir.create(renv::paths$library(), recursive = TRUE, showWarnings = FALSE); \
-      renv::restore(prompt = FALSE); \
-      cat("Lib (after):  ", renv::paths$library(), "\n"); \
-      ip <- rownames(installed.packages(lib.loc = renv::paths$library())); \
-      need <- c("targets","ape"); \
-      miss <- setdiff(need, ip); \
-      if (length(miss)) stop(paste("Missing after restore:", paste(miss, collapse=","))); \
-      cat("OK: renv library populated at:", renv::paths$library(), "\n")'
-USER root
+RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 bash -lc 'cat > /tmp/renv-restore.R << "RSCRIPT"
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+renv::consent(provided = TRUE)
+renv::activate(project = Sys.getenv("RENV_PROJECT"))
+cat("Project: ", renv::project(), "\n")
+cat("Lib (before): ", renv::paths$library(), "\n")
+dir.create(renv::paths$library(), recursive = TRUE, showWarnings = FALSE)
+renv::restore(prompt = FALSE)
+cat("Lib (after):  ", renv::paths$library(), "\n")
+ip <- rownames(installed.packages(lib.loc = renv::paths$library()))
+need <- c("targets", "ape")
+miss <- setdiff(need, ip)
+if (length(miss)) stop(paste("Missing after restore:", paste(miss, collapse=",")))
+cat("OK: renv library populated at:", renv::paths$library(), "\n")
+RSCRIPT
+R --vanilla -q -f /tmp/renv-restore.R'
 
 USER root
 
