@@ -129,7 +129,7 @@ correct?
 
 ---
 
-## Likelihood and probability density distribution
+## Likelihood and probability density distribution (Normal)
 
 ::: columns
 
@@ -187,7 +187,68 @@ dnorm(1.96, mean = 0, sd = 1)
 
 ---
 
-## Likelihood
+## Likelihood and probability mass distribution (Poisson)
+
+::: columns
+
+::: {.column width=40%}
+
+```{r, fig.height=7}
+x <- seq(0, 20)
+y <- dpois(x, lambda = 5.4)
+tibble(x, y) |>
+  ggplot() +
+  xlab("k") +
+  ylab("Density") +
+  ggtitle(expression(P(lambda == 5.4))) +
+  geom_point(aes(x, y), size = 5) +
+  geom_line(aes(x, y)) +
+  theme(
+    axis.title   = element_text(size = 32),
+    axis.text    = element_text(size = 28))
+```
+
+$f(k \mid \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}$
+
+<!-- ::: small
+$f(k \mid \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}$
+::: -->
+
+:::
+::: {.column width=60%}
+::: incremental
+- **P(data | parameters)**: Probability of observing the data given the parameters.
+
+- e.g., when your model is $k_i \sim \mathcal{P}(\lambda = 5.4)$ (Poisson distribution with mean and variance = 5.4), what is the probability mass at k = 8?
+:::
+
+::: fragment
+```{r, echo=TRUE}
+(5.4^8 * exp(-5.4)) / factorial(8)
+```
+:::
+
+::: fragment
+- $P(k = 8 \mid \lambda = 5.4)$
+:::
+
+::: fragment
+```{r, echo=TRUE}
+dpois(8, lambda = 5.4)
+```
+:::
+
+:::
+
+:::
+
+::: notes
+- likelihood is all about probability density (mass) function (normal, log-normal, poisson, beta, gamma, binomial, negative-binomial...)
+:::
+
+---
+
+## Likelihood (Back to Normal distribution)
 
 When your data is x = {-1.5, 0, 1.5} and your model is $x \sim \mathcal{N}(0, 1)$, what is the probability of observing x?
 
@@ -204,6 +265,17 @@ dnorm(-1.5, mean = 0, sd = 1, log = TRUE) + dnorm(0, mean = 0, sd = 1, log = TRU
 ```
 :::
 
+
+## Likelihood
+
+::: incremental
+- Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**MLE: Maximum Likelihood Estimation**).
+
+  - e.g., for a linear model $y_i = ax_i + b$, we usually assume that $y_i \sim \mathcal{N}(\mu_i = ax_i + b, \sigma^2)$, and we want to find the parameters $a$, $b$, and $\sigma$ that maximize the likelihood function: $P(y_i \mid ax_i + b, \sigma)$
+
+  - In the previous example, $\mu$ = 0 makes the likelihood maximum.
+:::
+
 ::: fragment
 
 ```{r, fig.height=3.5}
@@ -217,23 +289,14 @@ tibble(x, y) |>
   ggplot() +
   xlab("mu") +
   ylab("ln L") +
-  ggtitle("N(0, 1)") +
+  ggtitle(expression(Ln~L(mu)~~"for"~~x %~% N(mu, 1))) +
   geom_line(aes(x, y)) +
   theme(
     axis.title   = element_text(size = 32),
     axis.text    = element_text(size = 28))
-
 ```
 :::
 
-
-## Likelihood
-
-::: incremental
-- Because we usually don't know the true parameters ($\mu$ and $\sigma$), we need to find the parameters that maximize the likelihood function (**MLE: Maximum Likelihood Estimation**).
-
-  - e.g., for a linear model $y_i = ax_i + b$, we usually assume that $y_i \sim \mathcal{N}(\mu_i = ax_i + b, \sigma^2)$, and we want to find the parameters $a$, $b$, and $\sigma$ that maximize the likelihood function: $P(y_i \mid ax_i + b, \sigma)$
-:::
 
 ---
 
@@ -383,7 +446,7 @@ p1 + p2 + p3
 
 ::: footer
 Example inspired by
-Nguyen & Katabuchi *Journal of Forestry Research* (accepted)
+[Nguyen & Katabuchi 2025 *Journal of Forestry Research*](https://doi.org/10.1007/s11676-025-01898-9)
 
 Wood density is scaled (mean = 0, sd = 1).
 :::
@@ -544,7 +607,7 @@ fit_bayes <- brms::brms(
 e.g.,
 [Comita *et al.* 2010 *Science*](https://doi.org/10.1126/science.1190772),
 [Song & Katabuchi *et al.* 2024 *Ecology*](https://doi.org/10.1002/ecy.4382),
-Nguyen & Katabuchi *Journal of Forestry Research* (accepted)
+[Nguyen & Katabuchi 2025 *Journal of Forestry Research*](https://doi.org/10.1007/s11676-025-01898-9)
 :::
 
 <!-- ## Multilevel model (Bayes: non-verbal model) `r emo::ji("vomit")` -->
