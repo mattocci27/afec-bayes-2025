@@ -23,20 +23,20 @@ RUN mkdir -p /opt/renv/cache /home/rstudio/renv-lib \
 
 USER rstudio
 
-# ---- Restore packages INTO the image ----
-# Cache-mount only the renv CACHE (safe to skip committing),
-# NOT the library, so the library is baked into the layer.
+# Ensure library dir exists and is writable, cache-mount only the cache,
+# then restore and assert key packages are present.
 RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 \
-    R --vanilla -e '\
+    R --vanilla -q -e '\
       options(repos = c(CRAN = "https://cloud.r-project.org")); \
       renv::consent(provided = TRUE); \
       renv::activate(); \
-      tryCatch({ \
-        message("pak enabled: ", tryCatch(get("renv_pak_enabled", asNamespace("renv"))(), error=function(e) NA)); \
-        renv::restore(prompt = FALSE) \
-      }, error = function(e) { \
-        message("---- renv diagnostics ----"); try(renv::diagnostics(), silent = TRUE); stop(e) \
-      })'
+      dir.create(renv::paths$library(), recursive = TRUE, showWarnings = FALSE); \
+      renv::restore(prompt = FALSE); \
+      ip <- rownames(installed.packages(lib.loc = renv::paths$library())); \
+      need <- c("targets","ape"); \
+      missing <- setdiff(need, ip); \
+      if (length(missing)) stop("Missing after restore: ", paste(missing, collapse = ", ")); \
+      cat("OK: renv library populated: ", renv::paths$library(), "\n")'
 
 USER root
 
