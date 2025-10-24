@@ -15,7 +15,8 @@ ENV RENV_PATHS_CACHE=/opt/renv/cache \
     RENV_PATHS_LIBRARY=/home/rstudio/renv-lib \
     RENV_CONFIG_SANDBOX_ENABLED=FALSE \
     RENV_CONFIG_CACHE_SYMLINKS=FALSE \
-    RENV_INSTALL_PAK_ENABLED=TRUE
+    RENV_INSTALL_PAK_ENABLED=TRUE \
+    RENV_PROJECT=/home/rstudio/proj     # <— force project detection
 
 # create writable dirs
 RUN mkdir -p /opt/renv/cache /home/rstudio/renv-lib \
@@ -29,14 +30,20 @@ RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 \
     R --vanilla -q -e '\
       options(repos = c(CRAN = "https://cloud.r-project.org")); \
       renv::consent(provided = TRUE); \
-      renv::activate(); \
+      renv::activate(project = Sys.getenv("RENV_PROJECT")); \
+      cat("Project: ", renv::project(), "\n"); \
+      cat("Lib (before): ", renv::paths$library(), "\n"); \
       dir.create(renv::paths$library(), recursive = TRUE, showWarnings = FALSE); \
       renv::restore(prompt = FALSE); \
+      cat("Lib (after):  ", renv::paths$library(), "\n"); \
       ip <- rownames(installed.packages(lib.loc = renv::paths$library())); \
       need <- c("targets","ape"); \
-      missing <- setdiff(need, ip); \
-      if (length(missing)) stop("Missing after restore: ", paste(missing, collapse = ", ")); \
-      cat("OK: renv library populated: ", renv::paths$library(), "\n")'
+      miss <- setdiff(need, ip); \
+      if (length(miss)) { \
+        cat("Installed (first 10): ", paste(head(ip, 10), collapse = ", "), "\n"); \
+        stop("Missing after restore: ", paste(miss, collapse = ", ")); \
+      } \
+      cat("OK: renv library populated at: ", renv::paths$library(), "\n")'
 
 USER root
 
