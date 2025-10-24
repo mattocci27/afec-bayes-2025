@@ -142,7 +142,7 @@ normal_fit$summary()
 - `rhat` (Gelman-Rubin statistic): should be close to 1.
   - Measures the convergence of the chains.
   - `rhat` > 1.1: Definitely bad.
-  - 1.01 < `rhat` < 1.1: Suspicous.
+  - 1.01 < `rhat` < 1.1: Suspicious.
   - `rhat` <=  1.01: Good.
 
 - `ess_bulk` and `ess_tail`: Effective sample size for bulk and tail of the posterior distribution.
@@ -183,10 +183,10 @@ normal_fit$diagnostic_summary()
 ```
 
 - `num_divergent`: indicates the number of iterations (sampling transitions) where the Hamiltonian trajectory failed — meaning Stan detected a **divergent transition**.
-  - Even 1-2 divergent transitions suggest that model may not be reaiable, especially in hierachical models.
-  - We need reparamaterization or increase `adapt_delta` to make the sampler take smaller steps.
+  - Even 1-2 divergent transitions suggest that model may not be reliable, especially in hierarchical models.
+  - We need reparameterization or increase `adapt_delta` to make the sampler take smaller steps.
 
-- `num_max_treedepth`: indicates the number of iterations where there are not enough leafprog steps.
+- `num_max_treedepth`: indicates the number of iterations where there are not enough leapfrog steps.
   - This can indicate that the model is complex or that the priors are too tight.
   - We can increase `max_treedepth` to allow more steps, but this can increase the computation time.
 
@@ -719,7 +719,7 @@ In the LKJ(\eta) prior:
 
 - $\eta$  > 1 indicate weaker correlations.
 
-We usually use $\eta$  = 2 because we assume at leat weak correlations among the parameters, but still allow mooderate to strong cvorrelations.
+We usually use $\eta$  = 2 because we assume at least weak correlations among the parameters, but still allow moderate to strong correlations.
 
 ## Stan
 
