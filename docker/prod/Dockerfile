@@ -39,11 +39,9 @@ RUN --mount=type=cache,target=/opt/renv/cache,uid=1000,gid=1000 \
       ip <- rownames(installed.packages(lib.loc = renv::paths$library())); \
       need <- c("targets","ape"); \
       miss <- setdiff(need, ip); \
-      if (length(miss)) { \
-        cat("Installed (first 10): ", paste(head(ip, 10), collapse = ", "), "\n"); \
-        stop("Missing after restore: ", paste(miss, collapse = ", ")); \
-      } \
-      cat("OK: renv library populated at: ", renv::paths$library(), "\n")'
+      if (length(miss)) stop(paste("Missing after restore:", paste(miss, collapse=","))); \
+      cat("OK: renv library populated at:", renv::paths$library(), "\n")'
+USER root
 
 USER root
 
