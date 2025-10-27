@@ -9,7 +9,14 @@ USER rstudio
 WORKDIR /home/rstudio/proj
 COPY --chown=rstudio:rstudio . /home/rstudio/proj
 
-ENV RENV_INSTALL_PAK_ENABLED=TRUE
+# BEFORE running renv::restore()
+ENV RENV_BOOTSTRAP_FROM=system \
+    RENV_INSTALL_PAK_ENABLED=TRUE \
+    RENV_CONFIG_SANDBOX_ENABLED=FALSE \
+    RENV_CONFIG_CACHE_SYMLINKS=FALSE \
+    RENV_CONFIG_HARD_LINKS_ENABLED=FALSE
+
+RUN mkdir -p /home/rstudio/proj/renv/library
 
 # Restore packages INTO the image (no cache mount; simplest)
 RUN R --vanilla -q -e '\
