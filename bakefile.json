@@ -14,7 +14,8 @@
         "mattocci/afec-bayes:base"
       ],
       "platforms": [
-        "linux/amd64"
+        "linux/amd64",
+        "linux/arm64"
       ],
       "cache-from": [
         "docker.io/mattocci/afec-bayes:base"
@@ -36,7 +37,8 @@
         "mattocci/afec-bayes:dev"
       ],
       "platforms": [
-        "linux/amd64"
+        "linux/amd64",
+        "linux/arm64"
       ],
       "cache-from": [
         "docker.io/mattocci/afec-bayes:dev"
@@ -58,7 +60,8 @@
         "mattocci/afec-bayes:prod"
       ],
       "platforms": [
-        "linux/amd64"
+        "linux/amd64",
+        "linux/arm64"
       ],
       "cache-from": [
         "docker.io/mattocci/afec-bayes:prod"
