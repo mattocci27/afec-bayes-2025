@@ -7,7 +7,7 @@ RUN mkdir -p /home/rstudio/proj && chown rstudio:rstudio /home/rstudio/proj
 
 USER rstudio
 WORKDIR /home/rstudio/proj
-COPY . .
+COPY --chown=rstudio:rstudio . /home/rstudio/proj
 
 ENV RENV_INSTALL_PAK_ENABLED=TRUE
 
