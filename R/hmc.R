@@ -159,10 +159,10 @@ generate_simple_hmc_list <- function(theta = 0.1, shape = 11, rate = 13, p = 0, 
 
   new_hm <- move_one_step(theta = theta, shape = shape, rate = rate, p = p, eps = eps, L = L)
 
-  hmc_df <- tibble(h = pot_eng(new_hm$theta, shape = shape, rate = rate),
+  hmc_df <- tibble(u = pot_eng(new_hm$theta, shape = shape, rate = rate),
                        theta = new_hm$theta) %>%
-    mutate(p = p_eng(max(h), h)) %>%
-    mutate(hamiltonian = h + 0.5 * p^2) %>%
+    mutate(p = p_eng(max(u), u)) %>%
+    mutate(hamiltonian = u + 0.5 * p^2) %>%
     mutate(theta_diff = theta - c(0, theta)[-201]) %>%
     mutate(p = ifelse(theta_diff > 0, p, -p))
 
@@ -183,8 +183,8 @@ make_pot_eng_gif <- function(simple_hmc_list, n_max = 200, width = 600, height =
   slice(1:n_max) %>%
   mutate(frame = row_number())
 
-  p <- ggplot(anim_df, aes(x = theta, y = h)) +
-    geom_line(data = df, aes(x = theta, y = h)) +
+  p <- ggplot(anim_df, aes(x = theta, y = u)) +
+    geom_line(data = df, aes(x = theta, y = u)) +
     geom_point(color = "blue", size = 4) +
     geom_segment(
       aes(
@@ -192,8 +192,8 @@ make_pot_eng_gif <- function(simple_hmc_list, n_max = 200, width = 600, height =
         xend = ifelse(p > 0,
                       theta + exp(p)/100,
                       theta - exp(-p)/100),
-        y    = h,
-        yend = h
+        y    = u,
+        yend = u
       ),
       arrow = arrow(length = unit(0.05, "npc")),
       color = "blue"

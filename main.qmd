@@ -200,7 +200,7 @@ tibble(x, y) |>
   ggplot() +
   xlab("k") +
   ylab("Density") +
-  ggtitle(expression(P(lambda == 5.4))) +
+  ggtitle(expression(Pois(lambda == 5.4))) +
   geom_point(aes(x, y), size = 5) +
   geom_line(aes(x, y)) +
   theme(
@@ -219,7 +219,7 @@ $f(k \mid \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}$
 ::: incremental
 - **P(data | parameters)**: Probability of observing the data given the parameters.
 
-- e.g., when your model is $k_i \sim \mathcal{P}(\lambda = 5.4)$ (Poisson distribution with mean and variance = 5.4), what is the probability mass at k = 8?
+- e.g., when your model is $k_i \sim \mathcal{Pois}(\lambda = 5.4)$ (Poisson distribution with mean and variance = 5.4), what is the probability mass at k = 8?
 :::
 
 ::: fragment
