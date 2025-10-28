@@ -14,21 +14,12 @@ COPY --chown=rstudio:rstudio . /home/rstudio/proj
 
 RUN mkdir -p /home/rstudio/proj/renv/library
 
-# ---- renv & PPM configuration ----
-ENV \
-  # Use system renv (avoid project-level bootstrap)
-  RENV_BOOTSTRAP_FROM=system \
-  # Disable renv sandbox/symlink features that can break under overlayfs
-  RENV_CONFIG_SANDBOX_ENABLED=FALSE \
-  RENV_CONFIG_CACHE_SYMLINKS=FALSE \
-  RENV_CONFIG_HARD_LINKS_ENABLED=FALSE \
-  # Explicit project library path
-  RENV_PATHS_LIBRARY=/home/rstudio/proj/renv/library \
-  # Use Posit Package Manager for binary packages (works on AMD64 + ARM64)
-  RENV_CONFIG_REPOS_OVERRIDE=https://packagemanager.posit.co/cran/__linux__/ubuntu/noble/latest \
-  RSPM=https://packagemanager.posit.co/cran/__linux__/ubuntu/noble/latest \
-  # Prefer curl for reliable downloads in Docker
-  RENV_DOWNLOAD_METHOD=curl
+# BEFORE running renv::restore()
+ENV RENV_BOOTSTRAP_FROM=system \
+    RENV_CONFIG_SANDBOX_ENABLED=FALSE \
+    RENV_CONFIG_CACHE_SYMLINKS=FALSE \
+    RENV_CONFIG_HARD_LINKS_ENABLED=FALSE \
+    RENV_PATHS_LIBRARY=/home/rstudio/proj/renv/library
 
 # Restore packages INTO the image (no cache mount; simplest)
 RUN cd /home/rstudio/proj/ && \
