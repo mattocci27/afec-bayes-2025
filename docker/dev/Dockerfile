@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
-ARG TARGETARCH
-FROM mattocci/afec-bayes:base-${TARGETARCH}
+ARG BASE_IMAGE=mattocci/afec-bayes:base
+FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
