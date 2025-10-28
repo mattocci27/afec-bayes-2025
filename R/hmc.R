@@ -334,6 +334,7 @@ generate_hmc_df <- function(theta = 2.5, shape = 11, rate = 13, p = 0, eps = 0.0
         p <- leapfrog_nexthalf_p(p, theta, shape, rate, eps = eps)
       }
     H <- hamiltonian(p, theta, shape, rate)
+    # acceptance ratio
     r <- exp(prev_hamiltonian - H)
     if (r > 1) {
       sim_res <- rbind(sim_res, c(p, theta, prev_hamiltonian, TRUE))
@@ -386,7 +387,7 @@ make_hmc_gif <- function(n_iter = 200, n_burn = 50, contour_data, sim_res, out) 
       data = history,
       aes(x = theta, y = p, group = frame),
       colour = "#2E7D32",
-      lwd = 0.2
+      lwd = 0.3
     ) +
     geom_point(
       data = history,
@@ -497,7 +498,7 @@ make_rw_metropolis_gif <- function(rw_res, contour_data, n_iter = 200,
       data = history,
       aes(x = theta, y = p, group = frame),
       colour = "#283593",
-      lwd = 0.2
+      lwd = 0.3
     ) +
     geom_point(
       data = history,

@@ -1750,14 +1750,13 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 
 ::: columns
 
-::: {.column width=30%}
+::: {.column width=40%}
 ![](images/leapfrog.gif)
 
 ![](images/hmc.gif)
-
 :::
 
-::: {.column width=70%}
+::: {.column width=60%}
 
 :::incremental
 
@@ -1765,7 +1764,7 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 
     -  No-U-Turn Sampler (NUTS) dynamically determines the number of leapfrog steps; we only need to set the maximum (e.g., `max_treedepth` in **Stan**).
 
-- The Hamiltonian stays the same, but momentum $r$ is resampled each iteration.
+- The Hamiltonian stays almost constant, but momentum $r$ is resampled each iteration.
 
 - Only the final parameter $\theta$ of each trajectory is kept as a posterior sample.
 
@@ -1773,12 +1772,24 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 :::
 :::
 
+<!-- ## MCMC: HMC vs. Metropolis-Hastings (MH)
+
+::: columns
+
+::: {.column width=70%}
+![](images/hmc.gif)
+![](images/rw_metropolis.gif)
+:::
+
+::: {.column width=30%}
+:::
+hoge
+::: -->
+
 ## MCMC: HMC vs. Metropolis-Hastings (MH)
 
 ![](images/hmc.gif)
-
 ![](images/rw_metropolis.gif)
-
 
 ## MCMC Methods: Comparison
 
