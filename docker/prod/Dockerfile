@@ -25,5 +25,6 @@ ENV RENV_BOOTSTRAP_FROM=system \
 RUN cd /home/rstudio/proj/ && \
   R -s -e 'renv::restore(project = ".")'
 
-RUN ls renv/library/linux-ubuntu-noble/R-4.5/x86_64-pc-linux-gnu/
+RUN R -q -e 'print(renv::paths$library())' \
+ && R -q -e 'print(list.files(renv::paths$library()))'
 USER root
