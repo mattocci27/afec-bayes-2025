@@ -138,5 +138,9 @@ list(
     main,
     "main.qmd"
   ),
+  tar_quarto(
+    exercise,
+    "exercise.qmd"
+  ),
   NULL
 )

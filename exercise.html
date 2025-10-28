@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Masatoshi Katabuchi">
-<meta name="dcterms.date" content="2025-10-24">
+<meta name="dcterms.date" content="2025-10-28">
 
 <title>Practical Bayesian Modeling with Stan and brms</title>
 <style>
@@ -2549,23 +2549,23 @@ window.Quarto = {
   <li><a href="#normal-model" id="toc-normal-model" class="nav-link" data-scroll-target="#normal-model"><span class="header-section-number">3</span> Normal model</a>
   <ul class="collapse">
   <li><a href="#dummy-data" id="toc-dummy-data" class="nav-link" data-scroll-target="#dummy-data"><span class="header-section-number">3.1</span> Dummy data</a></li>
-  <li><a href="#stan" id="toc-stan" class="nav-link" data-scroll-target="#stan"><span class="header-section-number">3.2</span> Stan</a></li>
+  <li><a href="#cmdstan" id="toc-cmdstan" class="nav-link" data-scroll-target="#cmdstan"><span class="header-section-number">3.2</span> CmdStan</a></li>
   <li><a href="#brms" id="toc-brms" class="nav-link" data-scroll-target="#brms"><span class="header-section-number">3.3</span> <code>brms</code></a></li>
   </ul></li>
   <li><a href="#poisson-model" id="toc-poisson-model" class="nav-link" data-scroll-target="#poisson-model"><span class="header-section-number">4</span> Poisson model</a>
   <ul class="collapse">
   <li><a href="#dummy-data-1" id="toc-dummy-data-1" class="nav-link" data-scroll-target="#dummy-data-1"><span class="header-section-number">4.1</span> Dummy data</a></li>
-  <li><a href="#stan-1" id="toc-stan-1" class="nav-link" data-scroll-target="#stan-1"><span class="header-section-number">4.2</span> Stan</a></li>
+  <li><a href="#cmdstan-1" id="toc-cmdstan-1" class="nav-link" data-scroll-target="#cmdstan-1"><span class="header-section-number">4.2</span> CmdStan</a></li>
   </ul></li>
   <li><a href="#multiple-linear-model" id="toc-multiple-linear-model" class="nav-link" data-scroll-target="#multiple-linear-model"><span class="header-section-number">5</span> Multiple linear model</a>
   <ul class="collapse">
-  <li><a href="#stan-2" id="toc-stan-2" class="nav-link" data-scroll-target="#stan-2"><span class="header-section-number">5.1</span> Stan</a></li>
+  <li><a href="#cmdstan-2" id="toc-cmdstan-2" class="nav-link" data-scroll-target="#cmdstan-2"><span class="header-section-number">5.1</span> CmdStan</a></li>
   <li><a href="#brms-1" id="toc-brms-1" class="nav-link" data-scroll-target="#brms-1"><span class="header-section-number">5.2</span> brms</a></li>
   </ul></li>
   <li><a href="#varying-intercepts" id="toc-varying-intercepts" class="nav-link" data-scroll-target="#varying-intercepts"><span class="header-section-number">6</span> Varying intercepts</a>
   <ul class="collapse">
   <li><a href="#dummy-data-2" id="toc-dummy-data-2" class="nav-link" data-scroll-target="#dummy-data-2"><span class="header-section-number">6.1</span> dummy data</a></li>
-  <li><a href="#stan-3" id="toc-stan-3" class="nav-link" data-scroll-target="#stan-3"><span class="header-section-number">6.2</span> Stan</a></li>
+  <li><a href="#cmdstan-3" id="toc-cmdstan-3" class="nav-link" data-scroll-target="#cmdstan-3"><span class="header-section-number">6.2</span> CmdStan</a></li>
   <li><a href="#brms-2" id="toc-brms-2" class="nav-link" data-scroll-target="#brms-2"><span class="header-section-number">6.3</span> brms</a></li>
   <li><a href="#lme4" id="toc-lme4" class="nav-link" data-scroll-target="#lme4"><span class="header-section-number">6.4</span> lme4</a></li>
   </ul></li>
@@ -2579,7 +2579,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#centered-parameterization-1" id="toc-centered-parameterization-1" class="nav-link" data-scroll-target="#centered-parameterization-1"><span class="header-section-number">8.1</span> Centered parameterization</a></li>
   <li><a href="#non-centered-parameterization-1" id="toc-non-centered-parameterization-1" class="nav-link" data-scroll-target="#non-centered-parameterization-1"><span class="header-section-number">8.2</span> Non-Centered parameterization</a></li>
-  <li><a href="#stan-4" id="toc-stan-4" class="nav-link" data-scroll-target="#stan-4"><span class="header-section-number">8.3</span> Stan</a></li>
+  <li><a href="#cmdstan-4" id="toc-cmdstan-4" class="nav-link" data-scroll-target="#cmdstan-4"><span class="header-section-number">8.3</span> CmdStan</a></li>
   <li><a href="#brms-3" id="toc-brms-3" class="nav-link" data-scroll-target="#brms-3"><span class="header-section-number">8.4</span> brms</a></li>
   <li><a href="#lme4-1" id="toc-lme4-1" class="nav-link" data-scroll-target="#lme4-1"><span class="header-section-number">8.5</span> lme4</a></li>
   </ul></li>
@@ -2613,7 +2613,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 24, 2025</p>
+      <p class="date">October 28, 2025</p>
     </div>
   </div>
   
@@ -2684,8 +2684,8 @@ y_i \sim N(\mu, \sigma)
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="stan" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="stan"><span class="header-section-number">3.2</span> Stan</h2>
+<section id="cmdstan" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="cmdstan"><span class="header-section-number">3.2</span> CmdStan</h2>
 <p><code>stan/normal.stan</code></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a> <span class="kw">data</span> {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N;</span>
@@ -2801,7 +2801,7 @@ Total execution time: 0.2 seconds.</code></pre>
 <ul>
 <li>Measures the convergence of the chains.</li>
 <li><code>rhat</code> &gt; 1.1: Definitely bad.</li>
-<li>1.01 &lt; <code>rhat</code> &lt; 1.1: Suspicous.</li>
+<li>1.01 &lt; <code>rhat</code> &lt; 1.1: Suspicious.</li>
 <li><code>rhat</code> &lt;= 1.01: Good.</li>
 </ul></li>
 <li><code>ess_bulk</code> and <code>ess_tail</code>: Effective sample size for bulk and tail of the posterior distribution.
@@ -2899,10 +2899,10 @@ $ebfmi
 <ul>
 <li><code>num_divergent</code>: indicates the number of iterations (sampling transitions) where the Hamiltonian trajectory failed — meaning Stan detected a <strong>divergent transition</strong>.
 <ul>
-<li>Even 1-2 divergent transitions suggest that model may not be reaiable, especially in hierachical models.</li>
-<li>We need reparamaterization or increase <code>adapt_delta</code> to make the sampler take smaller steps.</li>
+<li>Even 1-2 divergent transitions suggest that model may not be reliable, especially in hierarchical models.</li>
+<li>We need reparameterization or increase <code>adapt_delta</code> to make the sampler take smaller steps.</li>
 </ul></li>
-<li><code>num_max_treedepth</code>: indicates the number of iterations where there are not enough leafprog steps.
+<li><code>num_max_treedepth</code>: indicates the number of iterations where there are not enough leapfrog steps.
 <ul>
 <li>This can indicate that the model is complex or that the priors are too tight.</li>
 <li>We can increase <code>max_treedepth</code> to allow more steps, but this can increase the computation time.</li>
@@ -3171,8 +3171,8 @@ y_i \sim \operatorname{Poisson\_log}(\log \lambda_i)
 </div>
 <!-- poisson_mod <- cmdstan_model("stan/poisson.stan") -->
 </section>
-<section id="stan-1" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="stan-1"><span class="header-section-number">4.2</span> Stan</h2>
+<section id="cmdstan-1" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="cmdstan-1"><span class="header-section-number">4.2</span> CmdStan</h2>
 <p><code>stan/pois.stan</code></p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a> <span class="kw">data</span> {</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N;</span>
@@ -3305,8 +3305,8 @@ y_i \sim N(\boldsymbol{\beta \cdot x}, \sigma)
 <span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> x2</span>
 <span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="stan-2" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="stan-2"><span class="header-section-number">5.1</span> Stan</h2>
+<section id="cmdstan-2" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="cmdstan-2"><span class="header-section-number">5.1</span> CmdStan</h2>
 <p><code>stan/lm.stan</code></p>
 <div class="sourceCode" id="cb55"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a> <span class="kw">data</span> {</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">0</span>&gt; N;</span>
@@ -3517,8 +3517,8 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="stan-3" class="level2" data-number="6.2">
-<h2 data-number="6.2" class="anchored" data-anchor-id="stan-3"><span class="header-section-number">6.2</span> Stan</h2>
+<section id="cmdstan-3" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="cmdstan-3"><span class="header-section-number">6.2</span> CmdStan</h2>
 <p><code>stan/vint.stan</code></p>
 <div class="sourceCode" id="cb68"><pre class="sourceCode stan code-with-copy"><code class="sourceCode stan"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a> <span class="kw">data</span> {</span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span>&lt;<span class="kw">lower</span>=<span class="dv">1</span>&gt; N;               <span class="co">// total number of observations</span></span>
@@ -3943,10 +3943,10 @@ L_\Omega \sim \mathrm{LKJ\_Corr\_Cholesky}(2) \quad \text{or}  \quad \Omega \sim
 <li><p><span class="math inline">\(\eta\)</span> = 1 indicate flat prior (uniform distribution) over correlation matrices.</p></li>
 <li><p><span class="math inline">\(\eta\)</span> &gt; 1 indicate weaker correlations.</p></li>
 </ul>
-<p>We usually use <span class="math inline">\(\eta\)</span> = 2 because we assume at leat weak correlations among the parameters, but still allow mooderate to strong cvorrelations.</p>
+<p>We usually use <span class="math inline">\(\eta\)</span> = 2 because we assume at least weak correlations among the parameters, but still allow moderate to strong correlations.</p>
 </section>
-<section id="stan-4" class="level2" data-number="8.3">
-<h2 data-number="8.3" class="anchored" data-anchor-id="stan-4"><span class="header-section-number">8.3</span> Stan</h2>
+<section id="cmdstan-4" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="cmdstan-4"><span class="header-section-number">8.3</span> CmdStan</h2>
 <p><code>stan/vslope.stan</code></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>cmdstanr<span class="sc">::</span><span class="fu">set_cmdstan_path</span>(<span class="st">&quot;/opt/cmdstan/cmdstan-2.36.0&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

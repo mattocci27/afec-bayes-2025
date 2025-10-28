@@ -18,8 +18,11 @@ pot_eng_gif|stem|ae564e6bbf6470b8|c67da689dcb95741|50f837e239775ef3|-544675296|i
 traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|fbc0e4813ec7567d|1954173610|images/traj.gif|t20388.4031598558s|s242097b|242097|file|local|vector|||13.325||
 leapfrog_gif|stem|ea046ca70d37db0c|2f70d06688107411|5824f7e0b92756a3|-876472587|images/leapfrog.gif|t20389.1340085723s|s206340b|206340|file|local|vector|||9.42||
 hmc_gif|stem|32bde6327110366f|5c90438139064144|e80bc5d4693e75bc|636377848|images/hmc.gif|t20389.2723411159s|s221246b|221246|file|local|vector|||15.385||
+rw_metropolis_df|stem|4091bfe1d1956dad|fd3fe7070fc2b973|cd9525b777c09c5e|1577384420||t20389.3066280929s|s173772b|173772|rds|local|vector|||0.097||
+rw_metropolis_gif|stem|27600ce048b6a4d7|8296b4da6c4531b9|a37c2f18aec8b2d2|1848927686|images/rw_metropolis.gif|t20389.3067934544s|s156881b|156881|file|local|vector|||14.271||
+main|stem|42ca34877d9d0929|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20389.3068947175s|s8339392b|8339392|file|local|vector|||8.743||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|e95bac68a92d0cb8
+.Random.seed|object|7be1859c9b08e705
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -52,6 +55,4 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-rw_metropolis_df|stem|4091bfe1d1956dad|fd3fe7070fc2b973|cd9525b777c09c5e|1577384420||t20389.3066280929s|s173772b|173772|rds|local|vector|||0.097||
-rw_metropolis_gif|stem|27600ce048b6a4d7|8296b4da6c4531b9|a37c2f18aec8b2d2|1848927686|images/rw_metropolis.gif|t20389.3067934544s|s156881b|156881|file|local|vector|||14.271||
-main|stem|42ca34877d9d0929|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20389.3068947175s|s8339392b|8339392|file|local|vector|||8.743||
+exercise|stem|6d39834bdda044dd|df1538604d317d8f|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20389.3526967054s||3260210|file|local|vector|||4.752||! Error running quarto CLI from R. Caused by error: ✖ Error returned by quarto CLI. ℹ Rerun with `quiet = FALSE` to see the full error message. Caused by error: ! System command 'quarto' failed

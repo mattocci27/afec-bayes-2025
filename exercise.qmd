@@ -87,7 +87,7 @@ normal_df <- tibble(
 )
 ```
 
-## Stan
+## CmdStan
 
 `stan/normal.stan`
 
@@ -270,7 +270,7 @@ pois_df <- tibble(
 
 <!-- poisson_mod <- cmdstan_model("stan/poisson.stan") -->
 
-## Stan
+## CmdStan
 
 `stan/pois.stan`
 
@@ -360,7 +360,7 @@ lm_df <- tibble(
 )
 ```
 
-## Stan
+## CmdStan
 
 `stan/lm.stan`
 
@@ -508,7 +508,7 @@ allo_list <- list(
 ```
 
 
-## Stan
+## CmdStan
 
 `stan/vint.stan`
 
@@ -721,7 +721,7 @@ In the LKJ(\eta) prior:
 
 We usually use $\eta$  = 2 because we assume at least weak correlations among the parameters, but still allow moderate to strong correlations.
 
-## Stan
+## CmdStan
 
 `stan/vslope.stan`
 
