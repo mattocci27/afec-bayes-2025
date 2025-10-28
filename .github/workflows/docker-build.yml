@@ -32,7 +32,8 @@ jobs:
 
       - name: Build and push ARM images
         run: |
-          docker buildx bake -f bakefile.json base-arm64 dev-arm64 prod-arm64
+          docker buildx bake -f bakefile.json base-arm64
+          docker buildx bake -f bakefile.json dev-arm64 prod-arm64
 
   build-amd:
     runs-on: ubuntu-latest
@@ -57,7 +58,8 @@ jobs:
 
       - name: Build and push AMD images
         run: |
-          docker buildx bake -f bakefile.json base-amd64 dev-amd64 prod-amd64
+          docker buildx bake -f bakefile.json base-amd64
+          docker buildx bake -f bakefile.json dev-amd64 prod-amd64
 
   publish-manifests:
     runs-on: ubuntu-latest
