@@ -292,6 +292,7 @@ make_leapfrog_gif <- function(leapfrog_list, out) {
       colour = "red",
       size = 4
     ) +
+    ggtitle("Trace") +
     ylab("r") +
     coord_cartesian(
       xlim = c(-0.2, 3.5),
@@ -398,6 +399,123 @@ make_hmc_gif <- function(n_iter = 200, n_burn = 50, contour_data, sim_res, out) 
       xlim = c(-0.2, 3.5),
       ylim = c(-5, 5)
     ) +
+    ggtitle("HMC") +
+    theme_bw(base_size = 28) +
+    theme(legend.position = "none") +
+    transition_manual(frame)
+
+  animate(
+    p,
+    nframes = max_frame,
+    fps = 40,
+    width = 600,
+    height = 400,
+    renderer = gifski_renderer(out_path)
+  )
+
+  out
+}
+
+
+generate_rw_metropolis_df <- function(theta_init = 2.5, p_init = 0, shape = 11,
+                                      rate = 13, sigma_theta = 0.15,
+                                      sigma_p = 0.5, n_iter = 2000,
+                                      seed = 2025) {
+  set.seed(seed)
+
+  rw_results <- matrix(NA_real_, nrow = n_iter, ncol = 4)
+  colnames(rw_results) <- c("p", "theta", "hamiltonian", "accept")
+
+  theta_curr <- theta_init
+  p_curr <- p_init
+  H_curr <- hamiltonian(p = p_curr, theta = theta_curr, shape = shape, rate = rate)
+
+  for (i in seq_len(n_iter)) {
+    theta_prop <- rnorm(1, mean = theta_curr, sd = sigma_theta)
+    p_prop <- rnorm(1, mean = p_curr, sd = sigma_p)
+
+    if (theta_prop <= 0) {
+      rw_results[i, ] <- c(p_curr, theta_curr, H_curr, 0)
+      next
+    }
+
+    H_prop <- hamiltonian(p = p_prop, theta = theta_prop, shape = shape, rate = rate)
+    accept_prob <- exp(H_curr - H_prop)
+
+    if (!is.finite(accept_prob)) {
+      accept_prob <- 0
+    }
+
+    accepted <- runif(1) < min(1, accept_prob)
+
+    if (accepted) {
+      theta_curr <- theta_prop
+      p_curr <- p_prop
+      H_curr <- H_prop
+    }
+
+    rw_results[i, ] <- c(p_curr, theta_curr, H_curr, accepted)
+  }
+
+  rw_results %>%
+    as_tibble() %>%
+    mutate(accept = as.logical(accept))
+}
+
+
+make_rw_metropolis_gif <- function(rw_res, contour_data, n_iter = 200,
+                                   n_burn = 50, out) {
+  out_path <- project_path(out)
+  ensure_dir_exists(dirname(out_path))
+
+  contour_data <- tibble::as_tibble(contour_data)
+
+  rw_res <- rw_res %>%
+    mutate(
+      iter = row_number(),
+      burn = if_else(iter <= n_burn, "discard", "keep"),
+      frame = iter
+    )
+
+  max_frame <- min(n_iter, nrow(rw_res))
+
+  history <- purrr::map_dfr(seq_len(max_frame), function(i) {
+    rw_res %>%
+      filter(iter <= i) %>%
+      mutate(frame = i)
+  }) %>%
+    mutate(burn = factor(burn, levels = c("discard", "keep")))
+
+  p <- ggplot() +
+    geom_contour(
+      data = contour_data,
+      aes(x = theta, y = p, z = hamiltonian),
+      bins = 50,
+      lwd = 0.2
+    ) +
+    geom_path(
+      data = history,
+      aes(x = theta, y = p, group = frame),
+      colour = "#283593",
+      lwd = 0.2
+    ) +
+    geom_point(
+      data = history,
+      aes(x = theta, y = p, shape = burn, colour = accept),
+      size = 4
+    ) +
+    scale_shape_manual(values = c("discard" = 1, "keep" = 16)) +
+    scale_colour_manual(
+      values = c("TRUE" = "#00695C", "FALSE" = "#C62828"),
+      guide = "none"
+    ) +
+    ylab("r") +
+    xlab(expression(theta)) +
+    coord_cartesian(
+      xlim = c(-0.2, 3.5),
+      ylim = c(-5, 5)
+    ) +
+    ggtitle("MH") +
     theme_bw(base_size = 28) +
     theme(legend.position = "none") +
     transition_manual(frame)

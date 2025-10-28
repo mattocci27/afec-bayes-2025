@@ -115,11 +115,23 @@ list(
     generate_hmc_df(T = 10000)
   ),
   tar_target(
+    rw_metropolis_df,
+    generate_rw_metropolis_df(n_iter = 10000)
+  ),
+  tar_target(
     hmc_gif,
     make_hmc_gif(
       contour_data = leapfrog_list$cont_dat,
       sim_res = hmc_df,
       out = "images/hmc.gif"),
+    format = "file"
+  ),
+  tar_target(
+    rw_metropolis_gif,
+    make_rw_metropolis_gif(
+      rw_res = rw_metropolis_df,
+      contour_data = leapfrog_list$cont_dat,
+      out = "images/rw_metropolis.gif"),
     format = "file"
   ),
   tar_quarto(

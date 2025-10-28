@@ -1773,6 +1773,12 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 :::
 :::
 
+## MCMC: HMC vs. Metropolis-Hastings (MH)
+
+![](images/hmc.gif)
+
+![](images/rw_metropolis.gif)
+
 
 ## MCMC Methods: Comparison
 
