@@ -1821,8 +1821,8 @@
     },
     "cmdstanr": {
       "Package": "cmdstanr",
-      "Version": "0.9.0.9000",
-      "Source": "GitHub",
+      "Version": "0.9.0",
+      "Source": "Repository",
       "Title": "R Interface to 'CmdStan'",
       "Date": "2025-03-30",
       "Authors@R": "c(person(given = \"Jonah\", family = \"Gabry\", role = \"aut\", email = \"jsg2201@columbia.edu\"), person(given = \"Rok\", family = \"Češnovar\", role = \"aut\", email = \"rok.cesnovar@fri.uni-lj.si\"), person(given = \"Andrew\", family = \"Johnson\", role = c(\"aut\", \"cre\"), email = \"andrew.johnson@arjohnsonau.com\", comment = c(ORCID = \"0000-0001-7000-8065\")), person(given = \"Steve\", family = \"Bronder\", role = \"aut\"), person(given = \"Ben\", family = \"Bales\", role = \"ctb\"), person(given = \"Mitzi\", family = \"Morris\", role = \"ctb\"), person(given = \"Mikhail\", family = \"Popov\", role = \"ctb\"), person(given = \"Mike\", family = \"Lawrence\", role = \"ctb\"), person(given = c(\"William\", \"Michael\"), family = \"Landau\", role = \"ctb\", email = \"will.landau@gmail.com\", comment = c(ORCID = \"0000-0003-1878-3253\")), person(given = \"Jacob\", family = \"Socolar\", role = \"ctb\"), person(given = \"Martin\", family = \"Modrák\", role = \"ctb\"), person(given = \"Ven\", family = \"Popov\", role = \"ctb\") )",
@@ -1831,7 +1831,6 @@
       "URL": "https://mc-stan.org/cmdstanr/, https://discourse.mc-stan.org",
       "BugReports": "https://github.com/stan-dev/cmdstanr/issues",
       "Encoding": "UTF-8",
-      "LazyData": "true",
       "RoxygenNote": "7.3.2",
       "Roxygen": "list(markdown = TRUE, r6 = FALSE)",
       "SystemRequirements": "CmdStan (https://mc-stan.org/users/interfaces/cmdstan)",
@@ -1850,7 +1849,6 @@
       ],
       "Suggests": [
         "bayesplot",
-        "fs",
         "ggplot2",
         "knitr (>= 1.37)",
         "loo (>= 2.0.0)",
@@ -1859,15 +1857,13 @@
         "Rcpp"
       ],
       "VignetteBuilder": "knitr",
+      "Repository": "https://stan-dev.r-universe.dev",
+      "RemoteUrl": "https://github.com/stan-dev/cmdstanr",
+      "RemoteRef": "v0.9.0",
+      "RemoteSha": "da99e2ba954658bdad63bffb738c4444c33a4e0e",
+      "NeedsCompilation": "no",
       "Author": "Jonah Gabry [aut], Rok Češnovar [aut], Andrew Johnson [aut, cre] (ORCID: <https://orcid.org/0000-0001-7000-8065>), Steve Bronder [aut], Ben Bales [ctb], Mitzi Morris [ctb], Mikhail Popov [ctb], Mike Lawrence [ctb], William Michael Landau [ctb] (ORCID: <https://orcid.org/0000-0003-1878-3253>), Jacob Socolar [ctb], Martin Modrák [ctb], Ven Popov [ctb]",
-      "Maintainer": "Andrew Johnson <andrew.johnson@arjohnsonau.com>",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "cmdstanr",
-      "RemoteUsername": "stan-dev",
-      "RemotePkgRef": "stan-dev/cmdstanr",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "edccf2d2f6449e7d80626a3ee6cc93845e82915b"
+      "Maintainer": "Andrew Johnson <andrew.johnson@arjohnsonau.com>"
     },
     "coda": {
       "Package": "coda",
@@ -2953,8 +2949,8 @@
     },
     "fontawesome": {
       "Package": "fontawesome",
-      "Version": "0.5.3.9000",
-      "Source": "GitHub",
+      "Version": "0.5.3",
+      "Source": "Repository",
       "Type": "Package",
       "Title": "Easily Work with 'Font Awesome' Icons",
       "Description": "Easily and flexibly insert 'Font Awesome' icons into 'R Markdown' documents and 'Shiny' apps. These icons can be inserted into HTML content through inline 'SVG' tags or 'i' tags. There is also a utility function for exporting 'Font Awesome' icons as 'PNG' images for those situations where raster graphics are needed.",
@@ -2980,17 +2976,11 @@
         "testthat (>= 3.0.0)",
         "rsvg"
       ],
-      "Roxygen": "list(markdown = TRUE)",
       "Config/testthat/edition": "3",
-      "Author": "Richard Iannone [aut, cre] (ORCID: <https://orcid.org/0000-0003-3925-190X>), Christophe Dervieux [ctb] (ORCID: <https://orcid.org/0000-0003-4474-2498>), Winston Chang [ctb], Dave Gandy [ctb, cph] (Font-Awesome font), Posit Software, PBC [cph, fnd]",
+      "NeedsCompilation": "no",
+      "Author": "Richard Iannone [aut, cre] (<https://orcid.org/0000-0003-3925-190X>), Christophe Dervieux [ctb] (<https://orcid.org/0000-0003-4474-2498>), Winston Chang [ctb], Dave Gandy [ctb, cph] (Font-Awesome font), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Richard Iannone <rich@posit.co>",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "fontawesome",
-      "RemoteUsername": "rstudio",
-      "RemotePkgRef": "rstudio/fontawesome",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "dab378ea43cc9896466624d9cd30154463a9617c"
+      "Repository": "CRAN"
     },
     "forcats": {
       "Package": "forcats",
