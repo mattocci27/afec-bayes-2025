@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'bakefile.json'
+      - 'renv.lock'
       - '**/docker-build.yml'
       - '**/**/Dockerfile'
   workflow_dispatch:
