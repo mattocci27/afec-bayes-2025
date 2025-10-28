@@ -1,4 +1,7 @@
-FROM mattocci/afec-bayes:base
+# syntax=docker/dockerfile:1.4
+
+ARG TARGETARCH
+FROM mattocci/afec-bayes:base-${TARGETARCH}
 
 ENV DEBIAN_FRONTEND=noninteractive
 

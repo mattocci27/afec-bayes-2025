@@ -1,4 +1,7 @@
-FROM mattocci/afec-bayes:base
+# syntax=docker/dockerfile:1.4
+
+ARG TARGETARCH
+FROM mattocci/afec-bayes:base-${TARGETARCH}
 
 RUN R -q -e 'install.packages(c("renv"), repos="https://cloud.r-project.org")'
 
