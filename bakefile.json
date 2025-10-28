@@ -1,23 +1,28 @@
 {
-  "target": {
+  "group": {
     "default": {
-      "depends": [
-        "base",
-        "dev",
-        "prod"
+      "targets": [
+        "base-arm64",
+        "dev-arm64",
+        "prod-arm64",
+        "base-amd64",
+        "dev-amd64",
+        "prod-amd64"
       ]
-    },
-    "base": {
+    }
+  },
+  "target": {
+    "base-arm64": {
       "context": ".",
       "dockerfile": "docker/base/Dockerfile",
       "tags": [
-        "mattocci/afec-bayes:base"
+        "mattocci/afec-bayes:base-arm64"
       ],
       "platforms": [
         "linux/arm64"
       ],
       "cache-from": [
-        "docker.io/mattocci/afec-bayes:base"
+        "docker.io/mattocci/afec-bayes:base-arm64"
       ],
       "cache-to": [
         "type=inline"
@@ -26,20 +31,23 @@
         "type=registry,push=true"
       ]
     },
-    "dev": {
+    "dev-arm64": {
       "context": ".",
       "dockerfile": "docker/dev/Dockerfile",
       "depends": [
-        "base"
+        "base-arm64"
       ],
       "tags": [
-        "mattocci/afec-bayes:dev"
+        "mattocci/afec-bayes:dev-arm64"
       ],
       "platforms": [
         "linux/arm64"
       ],
+      "args": {
+        "BASE_IMAGE": "mattocci/afec-bayes:base-arm64"
+      },
       "cache-from": [
-        "docker.io/mattocci/afec-bayes:dev"
+        "docker.io/mattocci/afec-bayes:dev-arm64"
       ],
       "cache-to": [
         "type=inline"
@@ -48,20 +56,92 @@
         "type=registry,push=true"
       ]
     },
-    "prod": {
+    "prod-arm64": {
       "context": ".",
       "dockerfile": "docker/prod/Dockerfile",
       "depends": [
-        "base"
+        "base-arm64"
       ],
       "tags": [
-        "mattocci/afec-bayes:prod"
+        "mattocci/afec-bayes:prod-arm64"
       ],
       "platforms": [
         "linux/arm64"
       ],
+      "args": {
+        "BASE_IMAGE": "mattocci/afec-bayes:base-arm64"
+      },
       "cache-from": [
-        "docker.io/mattocci/afec-bayes:prod"
+        "docker.io/mattocci/afec-bayes:prod-arm64"
+      ],
+      "cache-to": [
+        "type=inline"
+      ],
+      "output": [
+        "type=registry,push=true"
+      ]
+    },
+    "base-amd64": {
+      "context": ".",
+      "dockerfile": "docker/base/Dockerfile",
+      "tags": [
+        "mattocci/afec-bayes:base-amd64"
+      ],
+      "platforms": [
+        "linux/amd64"
+      ],
+      "cache-from": [
+        "docker.io/mattocci/afec-bayes:base-amd64"
+      ],
+      "cache-to": [
+        "type=inline"
+      ],
+      "output": [
+        "type=registry,push=true"
+      ]
+    },
+    "dev-amd64": {
+      "context": ".",
+      "dockerfile": "docker/dev/Dockerfile",
+      "depends": [
+        "base-amd64"
+      ],
+      "tags": [
+        "mattocci/afec-bayes:dev-amd64"
+      ],
+      "platforms": [
+        "linux/amd64"
+      ],
+      "args": {
+        "BASE_IMAGE": "mattocci/afec-bayes:base-amd64"
+      },
+      "cache-from": [
+        "docker.io/mattocci/afec-bayes:dev-amd64"
+      ],
+      "cache-to": [
+        "type=inline"
+      ],
+      "output": [
+        "type=registry,push=true"
+      ]
+    },
+    "prod-amd64": {
+      "context": ".",
+      "dockerfile": "docker/prod/Dockerfile",
+      "depends": [
+        "base-amd64"
+      ],
+      "tags": [
+        "mattocci/afec-bayes:prod-amd64"
+      ],
+      "platforms": [
+        "linux/amd64"
+      ],
+      "args": {
+        "BASE_IMAGE": "mattocci/afec-bayes:base-amd64"
+      },
+      "cache-from": [
+        "docker.io/mattocci/afec-bayes:prod-amd64"
       ],
       "cache-to": [
         "type=inline"
