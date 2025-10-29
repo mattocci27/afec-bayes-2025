@@ -46,7 +46,7 @@ So, using a simple password like `123456` is fine and safe for local development
 
 # Setup
 
-```{r setup, mesasge=FALSE, warning=FALSE}
+```{r setup, message=FALSE, cache=FALSE, warning=FALSE}
 library(brms)
 library(cmdstanr)
 library(tidyverse)
@@ -57,19 +57,41 @@ cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 theme_set(theme_bw())
 ```
 
+```{r}
+library(tictoc)
+```
+
 
 # Normal model
+
+Leaf mass per are (LMA) is an important trait that reflects plant strategies.
+LMA for interspecifc data often shows log-normal distribution.
+
 $$
-y_i \sim N(\mu, \sigma)
+\text{log}(y_i) \sim N(\mu, \sigma)
 $$
+
+```{r, echo=FALSE}
+set.seed(123)
+n <- 100
+mu <- 4.6
+sigma <- 0.7
+y <- rnorm(n, mean = mu, sd = sigma)
+exp(y) |> hist(main = "", xlab = "LMA (g/m2)")
+```
+
+```{r, echo=FALSE}
+y |> hist(main = "", xlab = "log LMA (g/m2)")
+```
+
 
 ## Dummy data
 
 ```{r}
 set.seed(123)
 n <- 100
-mu <- 5
-sigma <- 2
+mu <- 4.6
+sigma <- 0.7
 y <- rnorm(n, mean = mu, sd = sigma)
 
 hist(y)
@@ -162,11 +184,14 @@ normal_fit$draws()
 
 
 Trace plots for diagnosing convergence and mixing of the chains.
-```{r}
+```{r hello}
 normal_draws <- as_draws_df(normal_fit$draws())
 
 color_scheme_set("viridis")
-mcmc_trace(normal_draws, pars = c("mu", "sigma"))
+mcmc_trace(normal_draws, pars = c("mu", "sigma")) +
+  theme(
+    axis.text = element_text(size = 24)
+    )
 ```
 
 Histograms of the posterior distributions of the parameters.
@@ -205,6 +230,7 @@ normal_fit_brm0 <- brm(y ~ 1, family = gaussian(), data = normal_df)
 ```
 
 ```{r normal-brm}
+tic()
 normal_fit_brm <- brm(
   y ~ 1,
   family = gaussian(),
@@ -214,6 +240,7 @@ normal_fit_brm <- brm(
     prior(cauchy(0, 2.5), class = "sigma")
   )
 )
+toc()
 ```
 
 ### Summary
@@ -775,6 +802,7 @@ priors <- c(
   prior(cauchy(0, 1),   class = sigma)
 )
 
+tic()
 slope_fit_brm <- brm(
   log(h) ~ log(dbh) + (1 + log(dbh) | sp),
   family = gaussian(),
@@ -786,6 +814,7 @@ slope_fit_brm <- brm(
     max_treedepth = 15    # default is 10
   )
 )
+toc()
 ```
 
 **Divergent transitions!**
@@ -856,12 +885,12 @@ p3 <- allo_df |>
 ```
 
 
-```{r}
+```{r hoge}
 allo_vslope_list$L <- 2 # number of group-level predictors (intercept and wd)
 allo_vslope_list$u <- matrix(1, nrow = allo_vslope_list$L, ncol = allo_vslope_list$J)
 ```
 
-```{r}
+```{r vgrp-cmstan, eval=FALSE}
 vgrp_fit <- vslope_mod$sample(
   data = allo_vslope_list,
   seed = 1234,
@@ -880,14 +909,13 @@ vgrp_fit$diagnostic_summary()
 
 ## brms
 
-```{r vgrp-brm}
+```{r vgrp-brm, eval=FALSE}
 priors <- c(
   prior(normal(0, 2.5), class = Intercept),
   prior(normal(0, 2.5),   class = b),
   prior(lkj(2), class = cor),                # Ω ~ LKJ(2)
   prior(cauchy(0, 1),   class = sigma)
 )
-
 vgrp_fit_brm <- brm(
   log(h) ~ log(dbh) * wd + (1 + log(dbh) | sp),
   family = gaussian(),
@@ -901,7 +929,7 @@ vgrp_fit_brm <- brm(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 summary(vgrp_fit_brm)
 ```
 

@@ -27,6 +27,7 @@ library(quarto)
 source("R/functions.R")
 source("R/mh.R")
 source("R/hmc.R")
+source("R/allo.R")
 
 # parallel computing on local or on the same node
 plan(multicore)
@@ -134,13 +135,36 @@ list(
       out = "images/rw_metropolis.gif"),
     format = "file"
   ),
+  tar_target(
+    allo_df,
+    generate_allo_data()
+  ),
+  tar_target(
+    allo_vslope_list,
+    generate_allo_list(allo_df)
+  ),
+  tar_stan_mcmc(
+    vgrp_fit,
+    "stan/vslope.stan",
+    data = allo_vslope_list,
+    seed = 1234,
+    chains = 4,
+    parallel_chains = 4,
+    iter_warmup = 1000, # number of warmup iterations
+    iter_sampling = 1000, # number of sampling iterations
+    adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
+    max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
+    refresh = 0 # don't print update
+  ),
   tar_quarto(
     main,
     "main.qmd"
   ),
   tar_quarto(
     exercise,
-    "exercise.qmd"
+    "exercise.qmd",
+    quiet = TRUE,
+    cache = TRUE
   ),
   NULL
 )
