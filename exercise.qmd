@@ -54,7 +54,12 @@ library(bayesplot)
 library(patchwork)
 cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 
-theme_set(theme_bw())
+my_theme <- theme_bw() + theme(
+    axis.text = element_text(size = 14),
+    strip.text = element_text(size = 14)
+  )
+
+theme_set(my_theme)
 ```
 
 ```{r}
@@ -70,6 +75,8 @@ LMA for interspecifc data often shows log-normal distribution.
 $$
 \text{log}(y_i) \sim N(\mu, \sigma)
 $$
+
+**Q:** What are the mean ($\mu$) and standard deviation ($\sigma$) of log LMA?
 
 ```{r, echo=FALSE}
 set.seed(123)
@@ -97,12 +104,16 @@ y <- rnorm(n, mean = mu, sd = sigma)
 hist(y)
 ```
 
+`cmdstan` uses list format for data input.
 ```{r}
 normal_list <- list(
   y = y,
   N = length(y)
 )
+```
 
+`brms` uses dataframe (tibble) format for data input like `lme4::lmer` and `stats::glm`.
+```{r}
 normal_df <- tibble(
   y = y,
   N = length(y)
@@ -111,9 +122,11 @@ normal_df <- tibble(
 
 ## CmdStan
 
+We need to write and save stan codes (.stan files).
+
 `stan/normal.stan`
 
-```{r, echo=FALSE, results='asis'}
+```{r, echo=FALSE, results='asis', cache=FALSE}
 cat("```stan\n", paste(readLines("stan/normal.stan"), collapse = "\n"), "\n```")
 ```
 
@@ -123,20 +136,28 @@ cat("```stan\n", paste(readLines("stan/normal.stan"), collapse = "\n"), "\n```")
 cat("```stan\n", paste(readLines("stan/normal_vague.stan"), collapse = "\n"), "\n```")
 ```
 
+These commands complie the models, translating Stan code to C++ and then into machine-executable files.
+This takes a while (about 20 secs to 1 min) the first time only.
+
 ```{r}
 normal_mod <- cmdstan_model("stan/normal.stan")
 normal_vague_mod <- cmdstan_model("stan/normal_vague.stan")
 ```
 
 ```{r}
+# Persist CSV outputs to avoid /tmp cleanup during render
+normal_out_dir <- file.path("assets", "cmdstan", "normal")
+if (!dir.exists(normal_out_dir)) dir.create(normal_out_dir, recursive = TRUE)
+
 normal_fit <- normal_mod$sample(
   data = normal_list,
   seed = 123,
   chains = 4,
   parallel_chains = 4,
-  iter_warmup = 1000, # number of warmup iterations
+  iter_warmup = 1000,  # number of warmup iterations
   iter_sampling = 1000, # number of sampling iterations
-  refresh = 500 # print update every 500 iters
+  refresh = 500,        # print update every 500 iters
+  output_dir = normal_out_dir
 )
 ```
 
@@ -152,7 +173,7 @@ normal_vague_fit <- normal_vague_mod$sample(
 
 ### Summary
 
-We use this to write in manuscripts and for diagnostics.
+We use this output when writing manuscripts and for model diagnostics.
 
 ```{r}
 normal_fit$summary()
@@ -188,10 +209,7 @@ Trace plots for diagnosing convergence and mixing of the chains.
 normal_draws <- as_draws_df(normal_fit$draws())
 
 color_scheme_set("viridis")
-mcmc_trace(normal_draws, pars = c("mu", "sigma")) +
-  theme(
-    axis.text = element_text(size = 24)
-    )
+mcmc_trace(normal_draws, pars = c("mu", "sigma"))
 ```
 
 Histograms of the posterior distributions of the parameters.
@@ -207,7 +225,7 @@ mcmc_hist(normal_draws, pars = c("mu", "sigma"))
 normal_fit$diagnostic_summary()
 ```
 
-- `num_divergent`: indicates the number of iterations (sampling transitions) where the Hamiltonian trajectory failed — meaning Stan detected a **divergent transition**.
+- `num_divergent`: indicates the number of iterations (sampling transitions) where the Hamiltonian trajectory failed (**divergent transition**).
   - Even 1-2 divergent transitions suggest that model may not be reliable, especially in hierarchical models.
   - We need reparameterization or increase `adapt_delta` to make the sampler take smaller steps.
 
@@ -225,9 +243,14 @@ normal_fit$diagnostic_summary()
 
 ## `brms`
 
+`brms` uses an `lme4`-like syntax.
+
 ```{r, eval=FALSE}
 normal_fit_brm0 <- brm(y ~ 1, family = gaussian(), data = normal_df)
 ```
+
+We can also speficy priors for the parameters.
+The prior argument can be a bit tricky, since it is not always obvious which parameter names correspond to which parts of the model, especially when the model becomes more complex.
 
 ```{r normal-brm}
 tic()
@@ -242,6 +265,7 @@ normal_fit_brm <- brm(
 )
 toc()
 ```
+
 
 ### Summary
 
@@ -269,20 +293,32 @@ rstan::check_hmc_diagnostics(normal_fit_brm$fit)
 
 # Poisson model
 
+Count data (e.g., species richness, seed counts, pollinator visits...) often follows Poisson distribution.
+
 $$
-y_i \sim \text{Poisson}(\lambda_i)
+y_i \sim \text{Poisson}(\lambda)
 $$
 
 $$
-y_i \sim \operatorname{Poisson\_log}(\log \lambda_i)
+y_i \sim \operatorname{Poisson\_log}(\log \lambda)
 $$
+
+**Q:** What are the mean and variance ($\lambda$) of species richnees per plot?
+
+
+```{r, echo=FALSE}
+set.seed(123)
+n <- 100
+y <- rpois(n, lambda = 12.3)
+hist(y, main = "", xlab = "Species richness")
+```
+
 
 ## Dummy data
 
 ```{r}
 set.seed(123)
-n <-  100
-y <- rpois(n, lambda = 5)
+y <- rpois(n, lambda = 12.3)
 
 pois_list <- list(
   y = y,
@@ -349,18 +385,24 @@ pois_re_fit$summary()
 ```
 
 
-# Multiple linear model
+# Linear model
+
+The simplest multiple linear regression model is the following, with two predictors ($x_1$ and $x_2$), two slopes ($\beta_1$ and $\beta_2$) and intercept coefficient ($\beta_0$), and normally distributed noise ($\sigma$).
+This model can be written using standard regression notation as
 
 $$
-y_i \sim N(\beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}, \sigma)
+y_i \sim N(\mu_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i}, \sigma)
 $$
+
 
 or
 
 $$
-y_i \sim N(\boldsymbol{\beta \cdot x}, \sigma)
+y_i \sim N(\mu_i = \boldsymbol{\beta \cdot x_i}, \sigma)
 $$
 
+where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficent matrix and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including intercept).
+We use $\boldsymbol{x}$ (3 $\times$ N) to compute the $\mu$ vector with length N.
 
 ```{r}
 set.seed(123)
@@ -376,7 +418,7 @@ y <- rnorm(n, mean = beta[1] + beta[2] * x1 + beta[3] * x2, sd = sigma)
 lm_list <- list(
   y = y,
   N = length(y),
-  x = rbind(1, x1, x2)
+  x = rbind(1, x1, x2) # 3 x N matrix
 )
 
 lm_df <- tibble(
@@ -489,7 +531,6 @@ dbh_hist <- allo_df |>
   ggplot(aes(dbh)) +
   geom_histogram() +
   xlab("DBH (cm)") +
-  theme_bw() +
   theme(
     legend.position = "none",
     plot.title = element_text(size = 24)
@@ -499,7 +540,6 @@ h_hist <- allo_df |>
   ggplot(aes(h)) +
   geom_histogram() +
   xlab("Height (m)") +
-  theme_bw() +
   theme(
     legend.position = "none",
     plot.title = element_text(size = 24)
@@ -510,7 +550,6 @@ p1 <- allo_df |>
   geom_point() +
   xlab("DBH (cm)") +
   ylab(expression("Height (m)")) +
-  theme_bw() +
   theme(
     legend.position = "none",
     plot.title = element_text(size = 24)
