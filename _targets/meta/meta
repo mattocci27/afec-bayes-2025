@@ -33,7 +33,7 @@ vgrp_fit_summary_vslope|stem|0a04ca24d5b15af9|37ccb2201b571ea4|aa058be0306e5038|
 vgrp_fit_draws_vslope|stem|8b814300b3ec9843|b65c32093d4cb35f|ce8a56368b0d647e|-119606907||t20390.1474662886s|s1617787b|1617787|fst_tbl|local|vector|||0.008||
 vgrp_fit_diagnostics_vslope|stem|b96f2b7fb55e6de0|38bed3cc5b1c0c58|ce8a56368b0d647e|-2138855771||t20390.1474664854s|s79725b|79725|fst_tbl|local|vector|||0||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|61f4b3cfb2d20ad9
+.Random.seed|object|736f448574bc1b76
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -68,4 +68,4 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-exercise|stem|f978a77e28b7984f|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20390.1673719025s|s5137705b|5137705|file|local|vector|||6.678||
+exercise|stem|e8deadb27bba3a7b|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20390.2675240459s|s4808001b|4808001|file|local|vector|||180.428||

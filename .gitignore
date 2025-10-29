@@ -13,3 +13,4 @@ test.md
 test.R
 .env
 .Rproj.user
+assets/cmdstan/*

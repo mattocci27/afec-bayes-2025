@@ -144,6 +144,7 @@ normal_mod <- cmdstan_model("stan/normal.stan")
 normal_vague_mod <- cmdstan_model("stan/normal_vague.stan")
 ```
 
+
 ```{r}
 # Persist CSV outputs to avoid /tmp cleanup during render
 normal_out_dir <- file.path("assets", "cmdstan", "normal")
@@ -160,6 +161,8 @@ normal_fit <- normal_mod$sample(
   output_dir = normal_out_dir
 )
 ```
+
+We don't have to re-compile the model when we want to change number iterations, chains, or data.
 
 ```{r, eval=FALSE}
 normal_vague_fit <- normal_vague_mod$sample(
@@ -249,11 +252,14 @@ normal_fit$diagnostic_summary()
 normal_fit_brm0 <- brm(y ~ 1, family = gaussian(), data = normal_df)
 ```
 
-We can also speficy priors for the parameters.
+We can also specify priors for the parameters.
 The prior argument can be a bit tricky, since it is not always obvious which parameter names correspond to which parts of the model, especially when the model becomes more complex.
 
+We can also control the number of warmup, iterations, ...
+
+The `cmdstanr` backend is generally faster than the default `rstan` backend.
+
 ```{r normal-brm}
-tic()
 normal_fit_brm <- brm(
   y ~ 1,
   family = gaussian(),
@@ -261,11 +267,14 @@ normal_fit_brm <- brm(
   prior = c(
     prior(normal(0, 5), class = "Intercept"),
     prior(cauchy(0, 2.5), class = "sigma")
-  )
+  ),
+  seed = 123,
+  iter = 2000, # total iterations (warmup + post-warmup)
+  warmup = 1000,
+  chains = 4, cores = 4,
+  backend = "cmdstanr"
 )
-toc()
 ```
-
 
 ### Summary
 
@@ -401,7 +410,7 @@ $$
 y_i \sim N(\mu_i = \boldsymbol{\beta \cdot x_i}, \sigma)
 $$
 
-where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficent matrix and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including intercept).
+where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficent matrix (or row vector) and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including intercept).
 We use $\boldsymbol{x}$ (3 $\times$ N) to compute the $\mu$ vector with length N.
 
 ```{r}
@@ -465,7 +474,8 @@ lm_fit_brm <- brm(
     prior(normal(0, 2.5), class = "b"),
     prior(cauchy(0, 2.5), class = "sigma")
   ),
-  refresh = 0 # don't print update
+  refresh = 0, # don't print update
+  backend = "cmdstanr"
 )
 
 summary(lm_fit_brm)
