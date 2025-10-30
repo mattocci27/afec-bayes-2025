@@ -24,7 +24,8 @@ transformed parameters {
 
 model {
   to_vector(z) ~ std_normal();
-  tau ~ cauchy(0, 2.5);
+  // tau ~ cauchy(0, 2.5);
+  tau ~ normal(0, 2.5);
   L_Omega ~ lkj_corr_cholesky(2);
   to_vector(gamma) ~ normal(0, 2.5);
   for (n in 1:N) {

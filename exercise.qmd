@@ -624,13 +624,19 @@ vint_fit_brm <- brm(
   family = gaussian(),
   data = allo_df,
   prior = priors,
-  refresh = 0 # don't print update
+  refresh = 0, # don't print update
+  backend = "cmdstanr"
 )
 
 summary(vint_fit_brm)
 
 print(vint_fit_brm)
+```
+```{r, fig.height=7}
 plot(vint_fit_brm)
+```
+
+```{r}
 pp_check(vint_fit_brm)
 ```
 
@@ -801,10 +807,6 @@ We usually use $\eta$  = 2 because we assume at least weak correlations among th
 
 `stan/vslope.stan`
 
-```{r}
-cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.36.0")
-```
-
 ```{r, echo=FALSE, results='asis'}
 cat("```stan\n", paste(readLines("stan/vslope.stan"), collapse = "\n"), "\n```")
 ```
@@ -834,7 +836,8 @@ vslope_fit <- vslope_mod$sample(
   iter_sampling = 1000, # number of sampling iterations
   adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
   max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
-  refresh = 0 # don't print update
+  refresh = 0, # don't print update
+  show_messages = FALSE   # suppress Stan’s “Informational Message” output
 )
 
 vslope_fit$summary()
@@ -861,7 +864,8 @@ slope_fit_brm <- brm(
   control = list(
     adapt_delta  = 0.95,  # default is 0.8
     max_treedepth = 15    # default is 10
-  )
+  ),
+  backend = "cmdstanr"
 )
 toc()
 ```
@@ -958,7 +962,7 @@ vgrp_fit$diagnostic_summary()
 
 ## brms
 
-```{r vgrp-brm, eval=FALSE}
+```{r vgrp-brm, eval=TRUE}
 priors <- c(
   prior(normal(0, 2.5), class = Intercept),
   prior(normal(0, 2.5),   class = b),
@@ -974,11 +978,12 @@ vgrp_fit_brm <- brm(
   control = list(
     adapt_delta  = 0.95,  # default is 0.8
     max_treedepth = 15    # default is 10
-  )
+  ),
+  backend = "cmdstanr"
 )
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 summary(vgrp_fit_brm)
 ```
 
