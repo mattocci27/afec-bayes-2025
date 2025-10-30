@@ -436,6 +436,9 @@ $$
 where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficent matrix (or row vector) and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including intercept).
 We use $\boldsymbol{x}$ (3 $\times$ N) to compute the $\mu$ vector with length N.
 
+**Q:**
+What are the posterir means and 95% credible intervals of the coefficents ($\beta_0$, $\beta_1$, $\beta_2$)?
+
 ```{r}
 set.seed(123)
 n <- 100
@@ -481,8 +484,19 @@ lm_fit <- lm_mod$sample(
   iter_sampling = 1000, # number of sampling iterations
   refresh = 0 # don't print update
 )
+```
 
-lm_fit$summary()
+Use `posterior::summarise_draws` to check more detailed summary statistics.
+
+```{r lm-summary}
+lm_summary <- posterior::summarise_draws(
+  lm_fit$draws(),
+  mean = ~mean(.x),
+  sd = ~sd(.x),
+  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
+)
+
+lm_summary
 ```
 
 ## brms
@@ -504,9 +518,23 @@ lm_fit_brm <- brm(
 summary(lm_fit_brm)
 ```
 
+```{r lm-summary-brm}
+lm_summary_brm <- posterior::summarise_draws(
+  posterior::as_draws_df(lm_fit_brm),
+  mean = ~mean(.x),
+  sd = ~sd(.x),
+  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
+)
+
+lm_summary_brm
+```
+
 # Varying intercepts
 
 There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
+
+**Q:**
+What are the species-level scaling factors ($\beta_{0j}$) and the global scaling exponent ($\beta_1$)?
 
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_1 x_{i}, \sigma)
@@ -661,6 +689,90 @@ plot(vint_fit_brm)
 
 ```{r}
 pp_check(vint_fit_brm)
+```
+
+```{r, fig.height=6}
+# Predicted DBH-height curves per species with 95% intervals
+pred_grid <- allo_df |>
+  dplyr::group_by(sp) |>
+  dplyr::summarise(
+    dbh = list(seq(min(dbh), max(dbh), length.out = 60)),
+    .groups = "drop"
+  ) |>
+  tidyr::unnest(dbh)
+
+pred_summary <- fitted(vint_fit_brm, newdata = pred_grid, re_formula = NULL) |>
+  tibble::as_tibble() |>
+  dplyr::bind_cols(pred_grid) |>
+  dplyr::mutate(
+    estimate = exp(Estimate),
+    lower = exp(Q2.5),
+    upper = exp(Q97.5)
+  )
+
+ggplot(pred_summary, aes(dbh, estimate, color = sp)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = sp), alpha = 0.15, colour = NA) +
+  geom_line() +
+  geom_point(
+    data = allo_df,
+    aes(dbh, h, colour = sp),
+    size = 1,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  guides(fill = "none") +
+  labs(
+    x = "Diameter at breast height (cm)",
+    y = "Height (m)",
+    colour = "Species"
+  )
+```
+
+```{r vint-cmdstan-vis, fig.height=6}
+# CmdStan predicted DBH-height curves per species
+cmd_draws <- posterior::as_draws_matrix(vint_fit$draws(c("beta1", "log_beta0")))
+beta1_draws <- cmd_draws[, "beta1"]
+log_beta0_cols <- grep("^log_beta0\\[", colnames(cmd_draws), value = TRUE)
+species_levels <- levels(allo_df$sp)
+
+pred_cmd_summary <- purrr::map_dfr(seq_along(species_levels), function(j) {
+  sp_name <- species_levels[j]
+  grid_sp <- pred_grid |>
+    dplyr::filter(sp == sp_name)
+  log_dbh_vals <- log(grid_sp$dbh)
+  log_beta0_draw <- cmd_draws[, log_beta0_cols[j]]
+  log_pred <- outer(beta1_draws, log_dbh_vals)
+  log_pred <- sweep(log_pred, 1, log_beta0_draw, "+")
+  pred_height <- exp(log_pred)
+  tibble::tibble(
+    sp = sp_name,
+    dbh = grid_sp$dbh,
+    estimate = apply(pred_height, 2, stats::median),
+    lower = apply(pred_height, 2, function(x) stats::quantile(x, 0.025)),
+    upper = apply(pred_height, 2, function(x) stats::quantile(x, 0.975))
+  )
+})
+
+ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = sp), alpha = 0.15, colour = NA) +
+  geom_line() +
+  geom_point(
+    data = allo_df,
+    aes(dbh, h, colour = sp),
+    size = 1,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  guides(fill = "none") +
+  labs(
+    x = "Diameter at breast height (cm)",
+    y = "Height (m)",
+    colour = "Species"
+  )
 ```
 
 
