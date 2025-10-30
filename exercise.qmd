@@ -737,23 +737,22 @@ beta1_draws <- cmd_draws[, "beta1"]
 log_beta0_cols <- grep("^log_beta0\\[", colnames(cmd_draws), value = TRUE)
 species_levels <- levels(allo_df$sp)
 
-pred_cmd_summary <- purrr::map_dfr(seq_along(species_levels), function(j) {
-  sp_name <- species_levels[j]
-  grid_sp <- pred_grid |>
-    dplyr::filter(sp == sp_name)
-  log_dbh_vals <- log(grid_sp$dbh)
-  log_beta0_draw <- cmd_draws[, log_beta0_cols[j]]
-  log_pred <- outer(beta1_draws, log_dbh_vals)
-  log_pred <- sweep(log_pred, 1, log_beta0_draw, "+")
-  pred_height <- exp(log_pred)
-  tibble::tibble(
-    sp = sp_name,
-    dbh = grid_sp$dbh,
-    estimate = apply(pred_height, 2, stats::median),
-    lower = apply(pred_height, 2, function(x) stats::quantile(x, 0.025)),
-    upper = apply(pred_height, 2, function(x) stats::quantile(x, 0.975))
+pred_cmd_summary <- dplyr::bind_cols(
+  pred_grid,
+  purrr::map2_dfr(
+    match(pred_grid$sp, species_levels),
+    log(pred_grid$dbh),
+    ~{
+      log_mu <- cmd_draws[, log_beta0_cols[.x]] + beta1_draws * .y
+      height_draws <- exp(log_mu)
+      tibble::tibble(
+        estimate = stats::median(height_draws),
+        lower = stats::quantile(height_draws, 0.025),
+        upper = stats::quantile(height_draws, 0.975)
+      )
+    }
   )
-})
+)
 
 ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = sp), alpha = 0.15, colour = NA) +
