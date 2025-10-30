@@ -244,6 +244,15 @@ normal_fit$diagnostic_summary()
     - 0.3 < `ebfmi` <= 1: Acceptable
     - `ebfmi` >= 1: Good
 
+### Methods text example
+
+"We estimated posterior distributions of all parameters using the Hamiltonian Monte Carlo (HMC) algorithm implemented in Stan (Carpenter et al., 2017) with weakly informative priors (Gelman et al., 2008).
+The HMC algorithm uses gradient information to propose new states in the Markov chain, leading to a more efficient exploration of the target distribution than traditional Markov chain Monte Carlo (MCMC) methods that rely on random proposals (Carpenter et al., 2017).
+This efficiency allows us to achieve convergence with fewer iterations than
+traditional MCMC methods.
+**Four independent chains** were run for **2000 iterations** for each model with a **warm-up of 1000 iterations**.
+Convergence of the posterior distribution was assessed using the **Gelman–Rubin statistic with a convergence threshold of 1.1** (Gelman et al., 2013), ensuring **effective sample sizes greater than 400** (Vehtari et al., 2021), and by **monitoring divergent transitions** (Betancourt, 2016) for all parameters."
+
 ## `brms`
 
 `brms` uses an `lme4`-like syntax.
@@ -391,6 +400,20 @@ pois_fit$summary()
 
 ```{r}
 pois_re_fit$summary()
+```
+
+## brms
+
+```{r}
+pois_fit_brm <- brm(y ~ 1,
+  family = poisson(),
+  data = pois_df,
+  refresh = 0,
+  backend = "cmdstanr")
+```
+
+```{r}
+summary(pois_fit_brm)
 ```
 
 

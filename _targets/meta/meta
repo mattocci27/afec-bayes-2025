@@ -27,13 +27,22 @@ vgrp_fit_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|8
 allo_vslope_list|stem|d832ea8277447a22|404c06338b99d0fb|cd8e25b7ba2034b8|-1379989717||t20390.1441630246s|s3288b|3288|rds|local|vector|||0||
 vgrp_fit_data|stem|935cffc029adbf0a|2778300b3ce38dc4|e26a4d154d19bed2|-17839051||t20390.1441631867s|s3288b|3288|qs|local|vector|||0||
 vgrp_fit_mcmc_logistic|stem||7ba191df14cf117b|96a96c72e7c9546c|2117008081||t20390.1441640818s||0|qs|local|vector|||0.058||Missing input data for the following data variables: I, suv, ii.
-vgrp_fit_file_vslope|stem|215848120ed17a8c|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20391.0688120024s|s1038b|1038|file|local|vector|||0||
-vgrp_fit_mcmc_vslope|stem|6e2ffe00e776aea5|f602eb1e1f19115c|08657375a0d33502|237848198||t20391.0710466749s|s1830161b|1830161|qs|local|vector|||184.192||
-vgrp_fit_summary_vslope|stem|d54991583c405d8f|37ccb2201b571ea4|1478fa56d73ab611|-1219751230||t20391.0710503324s|s5272b|5272|fst_tbl|local|vector|||0.27||
-vgrp_fit_draws_vslope|stem|089bc6c7ca7f7288|b65c32093d4cb35f|7648e25fe0564549|-119606907||t20391.0710506333s|s1617784b|1617784|fst_tbl|local|vector|||0.008||
-vgrp_fit_diagnostics_vslope|stem|bf259cf047f4eb9f|38bed3cc5b1c0c58|7648e25fe0564549|-2138855771||t20391.0710509227s|s79978b|79978|fst_tbl|local|vector|||0.001||
+vgrp_fit_file_vslope|stem|8647fb03ae17a17b|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20391.1003407115s|s1013b|1013|file|local|vector|||0||
+vgrp_fit2_data|stem|935cffc029adbf0a|2778300b3ce38dc4|e26a4d154d19bed2|-411470265||t20391.1074541942s|s3288b|3288|qs|local|vector|||0||
+vgrp_fit2_mcmc_vslope_reduce_sum|stem|d82ee5356494d54f|95a503b4ecc2f0a5|a26f000c10e8dd7f|1464781333||t20391.1129286928s|s1835959b|1835959|qs|local|vector|||196.623|'threads_per_chain' is set but the model was not compiled with 'cpp_options = list(stan_threads = TRUE)' so 'threads_per_chain' will have no effect!|
+vgrp_fit_mcmc_vslope|stem|8e8539a0e34ad504|f602eb1e1f19115c|c496b552e2f0cb59|237848198||t20391.1153433732s|s1822110b|1822110|qs|local|vector|||208.579||
+vgrp_fit2_summary_vslope_reduce_sum|stem|7a939a628507180d|1e8bd55946897771|78c06e4fd466d695|-49147908||t20391.1153470075s|s5272b|5272|fst_tbl|local|vector|||0.29||
+vgrp_fit2_draws_vslope_reduce_sum|stem|fc3d200892c9b192|ade67f3b50a47162|a7e7efc4a75bdd6d|1620341932||t20391.1153488131s|s1617774b|1617774|fst_tbl|local|vector|||0.138||
+vgrp_fit2_diagnostics_vslope_reduce_sum|stem|c2d6e5da84cfb70a|0e9f4cf3fb09e7fc|a7e7efc4a75bdd6d|-1219931705||t20391.1153490214s|s78503b|78503|fst_tbl|local|vector|||0||
+vgrp_fit_diagnostics_vslope|stem|8c138a45b55ccac6|38bed3cc5b1c0c58|bd5b0e8346e12e2e|-2138855771||t20391.1153492066s|s80447b|80447|fst_tbl|local|vector|||0.001||
+vgrp_fit_summary_vslope|stem|86a1f3359eea1c66|37ccb2201b571ea4|94fc5e082efd618f|-1219751230||t20391.1153521349s|s5272b|5272|fst_tbl|local|vector|||0.236||
+vgrp_fit_draws_vslope|stem|2ec773ccdd8e127f|b65c32093d4cb35f|bd5b0e8346e12e2e|-119606907||t20391.1153524358s|s1617777b|1617777|fst_tbl|local|vector|||0.009||
+vgrp_fit2_file_vslope_reduce_sum|stem|920972f155a5821b|9b35c8ad260d28f8|2c530c1562a7fbd1|-575655860|stan/vslope_reduce_sum.stan|t20391.1235465359s|s2223b|2223|file|local|vector|||0||
+exercise|stem|7ae47d3d2b1d3307|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20391.1074528053s||4962871|file|local|vector|||6.607||! Error running quarto CLI from R. Caused by error: ✖ Error returned by quarto CLI. ℹ Rerun with `quiet = FALSE` to see the full error message. Caused by error: ! System command 'quarto' failed
+vgrp_fit3_file_vslope_reduce_sum|stem|920972f155a5821b|9b35c8ad260d28f8|2c530c1562a7fbd1|-1515325620|stan/vslope_reduce_sum.stan|t20391.1235465359s|s2223b|2223|file|local|vector|||0||
+vgrp_fit3_data|stem|935cffc029adbf0a|2778300b3ce38dc4|e26a4d154d19bed2|-174720506||t20391.131708745s|s3288b|3288|qs|local|vector|||0||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|365c507b99f940e2
+.Random.seed|object|e39de6755d5f5534
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -68,4 +77,4 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-exercise|stem|94dc3cad0c2287bd|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20391.072357163s|s5371173b|5371173|file|local|vector|||100.03||
+vgrp_fit3_mcmc_vslope_reduce_sum|stem||509a4a2976d282ef|ae9d9920b56cd47b|-1849527859||t20391.1317264312s||0|qs|local|vector|||1.485|CmdStan's precompiled header (PCH) files may need to be rebuilt. If your model failed to compile please run rebuild_cmdstan(). If the issue persists please open a bug report.. CmdStan's precompiled header (PCH) files may need to be rebuilt. If your model failed to compile please run rebuild_cmdstan(). If the issue persists please open a bug report.. CmdStan's precompiled header (PCH) files may need to be rebuilt. If your model failed to compile please run rebuild_cmdstan(). If the issue persists please open a bug report.|An error occured during compilation! See the message above for more information.

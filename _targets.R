@@ -33,6 +33,11 @@ source("R/allo.R")
 plan(multicore)
 options(clustermq.scheduler = "multicore")
 cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
+# Enable threading and disable precompiled headers (PCH) to avoid writes
+# under the CmdStan install dir (permission issues on read-only paths).
+Sys.setenv(
+  MAKEFLAGS = paste(Sys.getenv("MAKEFLAGS"), "STAN_THREADS=true USE_PCH=false")
+)
 
 tar_option_set(
   packages = c(
@@ -156,15 +161,29 @@ list(
     max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
     refresh = 0 # don't print update
   ),
+  # tar_stan_mcmc(
+  #   vgrp_fit2 ,
+  #   "stan/vslope_reduce_sum.stan",
+  #   data = allo_vslope_list,
+  #   seed = 1234,
+  #   chains = 4,
+  #   parallel_chains = 4,
+  #   threads_per_chain = 4,
+  #   iter_warmup = 1000, # number of warmup iterations
+  #   iter_sampling = 1000, # number of sampling iterations
+  #   adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
+  #   max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
+  #   refresh = 0 # don't print update
+  # ),
   tar_quarto(
     main,
     "main.qmd"
   ),
-  tar_quarto(
-    exercise,
-    "exercise.qmd",
-    quiet = TRUE,
-    cache = TRUE
-  ),
+  # tar_quarto(
+  #   exercise,
+  #   "exercise.qmd",
+  #   quiet = TRUE,
+  #   cache = TRUE
+  # ),
   NULL
 )
