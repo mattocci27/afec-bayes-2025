@@ -531,6 +531,7 @@ lm_summary_brm
 
 # Varying intercepts
 
+**H:**
 There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
 
 ```{r vint-hypo, message=FALSE, echo=FALSE, fig.height=4}
@@ -941,6 +942,7 @@ We often use this parameterization when we have hierarchical models with varying
 
 # Varying slopes and intercepts
 
+**H:**
 There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the exponent $\beta_1$ vary among species.
 
 ```{r vslope-hypo, message=FALSE, echo=FALSE, fig.height=4}
@@ -1015,6 +1017,8 @@ $$
 \end{bmatrix}
 \Biggr)
 $$
+
+For reference, the multivariate normal (MVN) distribution looks like this:
 
 ```{r mvn, echo=FALSE}
 set.seed(123)
@@ -1098,7 +1102,10 @@ $$
 \boldsymbol{\Sigma} \sim \mathcal{W}^{-1}_p(\nu,\,\Psi)
 $$
 
-This parameterization using inverse-whishart distribution $\mathcal{W}^{-1}$ is **not recommended** for hierarchical models with varying slopes and intercepts.
+The inverse-whishart distribution $\mathcal{W}^{-1}$ is a conjugate for the covariance matrix $\boldsymbol{\Sigma}$ in MVN.
+However, despite conjugacy, inverse–Wishart priors are often computationally difficult to sample.
+
+Recommendation: use a Cholesky factorization with independent priors on scales and correlation (below).
 
 ## Non-Centered parameterization
 
@@ -1130,7 +1137,7 @@ $$
 $$
 
 
-Rather than sampling the correlation matrix $\Omega$ directly, sampling the Cholesky factor $L_\Omega$ is computationally more efficient and numerically stable.
+Rather than sampling the covariance matrix $\Sigma$ or correlation matrix $\Omega$ directly, sampling the Cholesky factor $L_\Omega$ is computationally more efficient and numerically stable.
 
 In the LKJ(\eta) prior:
 
@@ -1139,25 +1146,6 @@ In the LKJ(\eta) prior:
 - $\eta > 1$ indicates weaker correlations.
 
 We usually use $\eta = 2$ because we assume at least weak correlations among the parameters while still allowing moderate to strong correlations.
-
-A simple simulation from a bivariate normal prior highlights how correlation induces joint structure in $(\log \beta_{0j}, \beta_{1j})$.
-
-```{r mvn-illustration, fig.height=4}
-set.seed(123)
-Sigma_demo <- matrix(c(0.2, 0.15, 0.15, 0.3), nrow = 2)
-mu_demo <- c(-0.2, 0.6)
-mvn_draws <- MASS::mvrnorm(n = 400, mu = mu_demo, Sigma = Sigma_demo) |>
-  tibble::as_tibble(.name_repair = ~c("log_beta0", "beta1"))
-
-ggplot(mvn_draws, aes(x = log_beta0, y = beta1)) +
-  geom_point(alpha = 0.4, colour = "#1f78b4") +
-  labs(
-    x = expression(log(beta[0])),
-    y = expression(beta[1]),
-    title = "Simulated correlated effects from a bivariate normal prior"
-  ) +
-  theme_minimal(base_size = 14)
-```
 
 ## CmdStan
 
@@ -1196,7 +1184,18 @@ vslope_fit <- vslope_mod$sample(
   show_messages = FALSE   # suppress Stan’s “Informational Message” output
 )
 
-vslope_fit$summary()
+# vslope_fit$summary()
+vslope_summary <- posterior::summarise_draws(
+  vslope_fit$draws(),
+  mean = ~mean(.x),
+  sd = ~sd(.x),
+  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
+)
+
+vslope_summary
+```
+
+```{r}
 vslope_fit$diagnostic_summary()
 ```
 
@@ -1210,7 +1209,6 @@ priors <- c(
   prior(cauchy(0, 1),   class = sigma)
 )
 
-tic()
 slope_fit_brm <- brm(
   log(h) ~ log(dbh) + (1 + log(dbh) | sp),
   family = gaussian(),
@@ -1223,7 +1221,6 @@ slope_fit_brm <- brm(
   ),
   backend = "cmdstanr"
 )
-toc()
 ```
 
 **Divergent transitions!**
@@ -1252,8 +1249,68 @@ summary(slope_fit_lme)
 
 # Varying slopes and intercepts, and group-level predictors
 
+**H:**
 There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the exponent $\beta_1$ vary among species.
 Those species-level variations can be explained by wood density (group-level predictor: $u$) of each species.
+
+```{r vgrp-hypo, message=FALSE, echo=FALSE, fig.height=4}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- 0.6
+gamma1 <- 0.05
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+b0 <- rnorm(n_sp, 0.55, 0.05)
+y_fun <- function(beta0, beta1) beta0 + beta1 * log_xx
+log_xx <- seq(1, 100, length = n_rep) |> log()
+
+log_y <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(y = exp(log_y),
+              x = rep(exp(log_xx), n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(y == beta[0] * x^beta[1])) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 18)
+    )
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(log(y) == log(beta[0]) + beta[1] * log(x))) +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 16)
+    )
+
+p3 <- tmp2 |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_smooth(method = "lm", se = TRUE, lty = 2,
+    alpha = 0.2,
+    linewidth = 0.5, col = "black") +
+  geom_point(size = 3) +
+  xlab("Wood density (scaled)") +
+  ylab(expression(beta[1])) +
+  theme(legend.position = "none")
+
+p2 + p3
+```
 
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
@@ -1279,9 +1336,10 @@ $$
 \Biggr)
 $$
 
-The remainder of this section follows the setup from the varying slopes and intercepts section.
+**Q:**
+What are the coefficients for species-level regressions ($\gamma_{0}^{(\beta_0)}$, $\gamma_{1}^{(\beta_0}$, $\gamma_{0}^{(\beta_1)}$, and $\gamma_{1}^{(\beta_1}$)?
 
-```{r, eval=FALSE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE}
 p3 <- allo_df |>
   ggplot(aes(x = x, y = y, col = sp)) +
   geom_smooth(method = "lm", se = TRUE, lty = 2,
@@ -1293,13 +1351,20 @@ p3 <- allo_df |>
   theme(legend.position = "none")
 ```
 
+Now we have two group-level predictors (intercept and slope), and $u$ includes the intercept and wood density.
+The rest of this section follows the setup from the varying slopes and intercepts section.
+```{r vgrp-data}
+allo_vslope_list$L <- 2
 
-```{r hoge}
-allo_vslope_list$L <- 2 # number of group-level predictors (intercept and wd)
-allo_vslope_list$u <- matrix(1, nrow = allo_vslope_list$L, ncol = allo_vslope_list$J)
+allo_vslope_list$u <- rbind(
+  rep(1, allo_vslope_list$J),
+  trait
+)
+str(allo_vslope_list)
 ```
 
-```{r vgrp-cmstan, eval=FALSE}
+
+```{r vgrp-cmstan, eval=TRUE}
 vgrp_fit <- vslope_mod$sample(
   data = allo_vslope_list,
   seed = 1234,

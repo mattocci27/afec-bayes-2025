@@ -1,5 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-vgrp_fit_file_vslope|stem|8647fb03ae17a17b|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20391.1003407115s|s1013b|1013|file|local|vector|||0||
 simple_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|569763593|stan/logistic.stan|t20383.0857381573s|s643b|643|file|local|vector|||0||
 dummy_simple|stem|a413439b6a729e9b|62bd5aeb942a5882|aaefc4484af376c5|-888664837||t20392.0775096841s|s302b|302|rds|local|vector|||0.07||
 mh_df|stem|e6eb8251a933d53f|34bfa89f26652d8d|a2a61c3ab24d69f8|-1022243609||t20392.0775098345s|s2095b|2095|rds|local|vector|||0.08||
@@ -21,16 +20,11 @@ dummy_simple_re|stem|e7abcba218d151df|d6ae6656316743ec|23292f173b7c8e60|-1147551
 leapfrog_gif|stem|ea046ca70d37db0c|2f70d06688107411|5824f7e0b92756a3|-876472587|images/leapfrog.gif|t20392.0776424296s|s206340b|206340|file|local|vector|||11.006||
 traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|fbc0e4813ec7567d|1954173610|images/traj.gif|t20392.077695382s|s242097b|242097|file|local|vector|||15.741||
 rw_metropolis_gif|stem|27600ce048b6a4d7|8296b4da6c4531b9|a37c2f18aec8b2d2|1848927686|images/rw_metropolis.gif|t20392.0777155329s|s156881b|156881|file|local|vector|||17.082||
-main|stem|42ca34877d9d0929|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20392.0777613902s|s8339392b|8339392|file|local|vector|||10.539||
 hmc_gif|stem|32bde6327110366f|5c90438139064144|e80bc5d4693e75bc|636377848|images/hmc.gif|t20392.0778084976s|s221246b|221246|file|local|vector|||17.848||
 mh_trace_gif|stem|c69341eba409f493|78331365fc45c198|e0d30cfd6129f321|-705628236|images/mh_trace.gif|t20392.0778342851s|s673857b|673857|file|local|vector|||27.822||
 mh_post_gif|stem|24ddf8dbb021bd38|1fa21a6a0923dd5a|a50ad80b003ad201|-1467484502|images/mh_post.gif|t20392.0778370051s|s687893b|687893|file|local|vector|||27.948||
-vgrp_fit_mcmc_vslope|stem|416f08d8f110e035|f602eb1e1f19115c|c496b552e2f0cb59|237848198||t20392.0802309624s|s1814711b|1814711|qs|local|vector|||225.61||
-vgrp_fit_draws_vslope|stem|2ec773ccdd8e127f|b65c32093d4cb35f|89f43d106379e9f6|-119606907||t20392.0802353375s|s1617777b|1617777|fst_tbl|local|vector|||0.004||
-vgrp_fit_diagnostics_vslope|stem|8c138a45b55ccac6|38bed3cc5b1c0c58|89f43d106379e9f6|-2138855771||t20392.0802352796s|s80447b|80447|fst_tbl|local|vector|||0||
-vgrp_fit_summary_vslope|stem|86a1f3359eea1c66|37ccb2201b571ea4|70a88a882178f596|-1219751230||t20392.0802383468s|s5272b|5272|fst_tbl|local|vector|||0.269||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|2ec9b1f4f7cf4a00
+.Random.seed|object|78c76cc054013c6f
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -65,4 +59,10 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-exercise|stem|e835cab9d17166b0|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20392.0825381703s|s6098061b|6098061|file|local|vector|||120.974||
+exercise|stem|54be3ee957feb519|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20392.4223550701s|s7124469b|7124469|file|local|vector|||112.514||
+vgrp_fit_file_vslope|stem|fb4186df784cf728|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20392.4013134154s|s1033b|1033|file|local|vector|||0||
+vgrp_fit_mcmc_vslope|stem|40ad72289289f33b|f602eb1e1f19115c|02febc8e5beafb2d|237848198||t20392.4247881104s|s1822581b|1822581|qs|local|vector|||210.046||
+vgrp_fit_summary_vslope|stem|86a1f3359eea1c66|37ccb2201b571ea4|4f915073a8bfbdf0|-1219751230||t20392.4247925781s|s5272b|5272|fst_tbl|local|vector|||0.364||
+vgrp_fit_draws_vslope|stem|2ec773ccdd8e127f|b65c32093d4cb35f|9006f0dd91b6a7e7|-119606907||t20392.424792879s|s1617777b|1617777|fst_tbl|local|vector|||0.008||
+vgrp_fit_diagnostics_vslope|stem|8c138a45b55ccac6|38bed3cc5b1c0c58|9006f0dd91b6a7e7|-2138855771||t20392.42479318s|s80447b|80447|fst_tbl|local|vector|||0.001||
+main|stem|08f35ca4028670b3|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20392.424892429s|s8339401b|8339401|file|local|vector|||8.6||

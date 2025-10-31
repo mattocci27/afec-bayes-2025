@@ -19,6 +19,7 @@ parameters {
 
 transformed parameters {
   matrix[K, J] beta;
+  // mu = gamma * u
   beta = gamma * u + diag_pre_multiply(tau, L_Omega) * z;
 }
 

@@ -520,7 +520,7 @@ p3 <- tmp2 |>
     alpha = 0.2,
     linewidth = 0.5, col = "black") +
   geom_point(size = 3) +
-  xlab("Wood density") +
+  xlab("Wood density (scaled)") +
   ylab("b") +
   theme(legend.position = "none")
 
