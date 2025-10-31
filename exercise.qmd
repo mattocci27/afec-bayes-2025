@@ -52,7 +52,7 @@ library(cmdstanr)
 library(tidyverse)
 library(bayesplot)
 library(patchwork)
-cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
+# cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 
 my_theme <- theme_bw() + theme(
     axis.text = element_text(size = 14),
@@ -533,7 +533,7 @@ lm_summary_brm
 
 There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
 
-```{r, message=FALSE, echo=FALSE, fig.height=4}
+```{r vint-hypo, message=FALSE, echo=FALSE, fig.height=4}
 set.seed(12345)
 
 n_sp <- 10
@@ -745,8 +745,7 @@ vint_fit_lme <- lme4::lmer(
 summary(vint_fit_lme)
 ```
 
-
-## Visualization
+## Visualization and predictions
 
 ### CmdStan
 
@@ -767,6 +766,7 @@ species_levels <- levels(allo_df$sp)
 ```
 
 DBH for predicted lines for each species.
+
 ```{r}
 pred_grid
 ```
@@ -825,13 +825,15 @@ ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
   scale_y_log10() +
   guides(fill = "none") +
   labs(
-    x = "Diameter at breast height (cm)",
+    x = "DBH (cm)",
     y = "Height (m)",
     colour = "Species"
   )
 ```
 
 ### brms
+
+With `fitted()` available, preparing `pred_summary` is simpler than in the CmdStan workflow.
 
 ```{r, message=FALSE}
 pred_summary <- fitted(vint_fit_brm, newdata = pred_grid, re_formula = NULL) |>
@@ -857,13 +859,11 @@ ggplot(pred_summary, aes(dbh, estimate, color = sp)) +
   scale_y_log10() +
   guides(fill = "none") +
   labs(
-    x = "Diameter at breast height (cm)",
+    x = "DBH (cm)",
     y = "Height (m)",
     colour = "Species"
   )
 ```
-
-
 
 
 
@@ -943,6 +943,54 @@ We often use this parameterization when we have hierarchical models with varying
 
 There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the exponent $\beta_1$ vary among species.
 
+```{r vslope-hypo, message=FALSE, echo=FALSE, fig.height=4}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- 0.6
+gamma1 <- 0.05
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+b0 <- rnorm(n_sp, 0.55, 0.05)
+y_fun <- function(beta0, beta1) beta0 + beta1 * log_xx
+log_xx <- seq(1, 100, length = n_rep) |> log()
+
+log_y <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(y = exp(log_y),
+              x = rep(exp(log_xx), n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(y == beta[0] * x^beta[1])) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 18)
+    )
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(log(y) == log(beta[0]) + beta[1] * log(x))) +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 16)
+    )
+p1 + p2
+```
+
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
 $$
@@ -955,10 +1003,12 @@ $$
 \sim
 \mathrm{MVN}
 \Biggl(
+\boldsymbol{\mu} =
 \begin{bmatrix}
 \mu_{0} \\
 \mu_{1}
 \end{bmatrix},
+\boldsymbol{\Sigma} =
 \begin{bmatrix}
 \sigma_{0}^2  & \rho \sigma_{0} \sigma_{1} \\
 \rho \sigma_{0} \sigma_{1} & \sigma_{1}^2
@@ -966,15 +1016,86 @@ $$
 \Biggr)
 $$
 
+```{r mvn, echo=FALSE}
+set.seed(123)
+Sigma_demo <- matrix(c(0.2, 0.15, 0.15, 0.3), nrow = 2)
+mu_demo <- c(-0.2, 0.6)
+mvn_draws <- MASS::mvrnorm(n = 400, mu = mu_demo, Sigma = Sigma_demo) |>
+  tibble::as_tibble(.name_repair = ~c("log_beta0", "beta1"))
+grid_vals <- mvtnorm::dmvnorm(
+  expand.grid(
+    log_beta0 = seq(min(mvn_draws$log_beta0), max(mvn_draws$log_beta0), length.out = 80),
+    beta1 = seq(min(mvn_draws$beta1), max(mvn_draws$beta1), length.out = 80)
+  ),
+  mean = mu_demo,
+  sigma = Sigma_demo
+)
+contour_df <- expand.grid(
+  log_beta0 = seq(min(mvn_draws$log_beta0), max(mvn_draws$log_beta0), length.out = 80),
+  beta1 = seq(min(mvn_draws$beta1), max(mvn_draws$beta1), length.out = 80)
+) |>
+  dplyr::mutate(density = grid_vals)
+
+scatter_plot <- ggplot(mvn_draws, aes(x = log_beta0, y = beta1)) +
+  geom_point(alpha = 0.4, colour = "#1f78b4") +
+  geom_contour(data = contour_df, aes(z = density), colour = "grey40", alpha = 0.7) +
+  labs(
+    x = expression(log(beta[0])),
+    y = expression(beta[1]),
+    # title = "Simulated correlated effects from a bivariate normal prior"
+  ) +
+  theme_minimal(base_size = 14)
+
+hist_log_beta0 <- ggplot(mvn_draws, aes(x = log_beta0)) +
+  geom_histogram(fill = "#1f78b4", colour = "white", bins = 30, alpha = 0.75) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 10),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.margin = margin(b = 2, l = 10, r = 10)
+  )
+
+hist_beta1 <- ggplot(mvn_draws, aes(x = beta1)) +
+  geom_histogram(fill = "#1f78b4", colour = "white", bins = 30, alpha = 0.75) +
+  coord_flip() +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(size = 10),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.margin = margin(t = 10, l = 2, b = 10)
+  )
+
+top_row <- (hist_log_beta0 + plot_spacer()) +
+  plot_layout(widths = c(5, 1))   # widths for row 1
+
+bottom_row <- (scatter_plot | hist_beta1) +
+  plot_layout(widths = c(5, 1))   # widths for row 2
+
+top_row / bottom_row +
+  plot_layout(heights = c(1, 5))
+```
+
+**Q:**
+What are the species-level scaling factors ($\beta_{0j}$) and scaling exponent ($\beta_{0j}$)?
+What are the global scaling exponent ($\mu_0$) and scaling exponent ($\mu_1$)?
+
 ## Centered parameterization
 
 
 $$
-\boldsymbol\mu \sim N(0, 2.5)
+\boldsymbol{\mu} \sim N(0, 2.5)
 $$
 
 $$
-\boldsymbol\Sigma \sim \mathcal{W}^{-1}_p(\nu,\,\Psi)
+\boldsymbol{\Sigma} \sim \mathcal{W}^{-1}_p(\nu,\,\Psi)
 $$
 
 This parameterization using inverse-whishart distribution $\mathcal{W}^{-1}$ is **not recommended** for hierarchical models with varying slopes and intercepts.
@@ -984,11 +1105,11 @@ This parameterization using inverse-whishart distribution $\mathcal{W}^{-1}$ is 
 [Optimization through Cholesky factorization](https://mc-stan.org/docs/stan-users-guide/regression.html#hierarchical-priors.section)
 
 $$
-\boldsymbol z_j \sim \mathcal{N}(\mathbf0,\,I_2)
+\boldsymbol{z}_j \sim \mathcal{N}(\mathbf0,\,I_2)
 $$
 $$
 \begin{pmatrix}\log\beta_{0j}\\[3pt]\beta_{1j}\end{pmatrix}
-  = \boldsymbol\mu + L\, \boldsymbol z_j
+  = \boldsymbol{\mu} + L\, \boldsymbol{z}_j
 $$
 
 
@@ -1018,6 +1139,25 @@ In the LKJ(\eta) prior:
 - $\eta > 1$ indicates weaker correlations.
 
 We usually use $\eta = 2$ because we assume at least weak correlations among the parameters while still allowing moderate to strong correlations.
+
+A simple simulation from a bivariate normal prior highlights how correlation induces joint structure in $(\log \beta_{0j}, \beta_{1j})$.
+
+```{r mvn-illustration, fig.height=4}
+set.seed(123)
+Sigma_demo <- matrix(c(0.2, 0.15, 0.15, 0.3), nrow = 2)
+mu_demo <- c(-0.2, 0.6)
+mvn_draws <- MASS::mvrnorm(n = 400, mu = mu_demo, Sigma = Sigma_demo) |>
+  tibble::as_tibble(.name_repair = ~c("log_beta0", "beta1"))
+
+ggplot(mvn_draws, aes(x = log_beta0, y = beta1)) +
+  geom_point(alpha = 0.4, colour = "#1f78b4") +
+  labs(
+    x = expression(log(beta[0])),
+    y = expression(beta[1]),
+    title = "Simulated correlated effects from a bivariate normal prior"
+  ) +
+  theme_minimal(base_size = 14)
+```
 
 ## CmdStan
 
