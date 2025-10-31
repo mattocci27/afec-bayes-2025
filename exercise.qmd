@@ -69,8 +69,8 @@ library(tictoc)
 
 # Normal model
 
-Leaf mass per are (LMA) is an important trait that reflects plant strategies.
-LMA for interspecifc data often shows log-normal distribution.
+Leaf mass per area (LMA) is an important trait that reflects plant strategies.
+LMA for interspecific data often shows a log-normal distribution.
 
 $$
 \text{log}(y_i) \sim N(\mu, \sigma)
@@ -122,7 +122,7 @@ normal_df <- tibble(
 
 ## CmdStan
 
-We need to write and save stan codes (.stan files).
+We need to write and save Stan programs (.stan files).
 
 `stan/normal.stan`
 
@@ -136,7 +136,7 @@ cat("```stan\n", paste(readLines("stan/normal.stan"), collapse = "\n"), "\n```")
 cat("```stan\n", paste(readLines("stan/normal_vague.stan"), collapse = "\n"), "\n```")
 ```
 
-These commands complie the models, translating Stan code to C++ and then into machine-executable files.
+These commands compile the models, translating Stan code to C++ and then into machine-executable files.
 This takes a while (about 20 secs to 1 min) the first time only.
 
 ```{r}
@@ -162,7 +162,7 @@ normal_fit <- normal_mod$sample(
 )
 ```
 
-We don't have to re-compile the model when we want to change number iterations, chains, or data.
+We don't have to recompile the model when we want to change the number of iterations, chains, or data.
 
 ```{r, eval=FALSE}
 normal_vague_fit <- normal_vague_mod$sample(
@@ -264,7 +264,7 @@ normal_fit_brm0 <- brm(y ~ 1, family = gaussian(), data = normal_df)
 We can also specify priors for the parameters.
 The prior argument can be a bit tricky, since it is not always obvious which parameter names correspond to which parts of the model, especially when the model becomes more complex.
 
-We can also control the number of warmup, iterations, ...
+We can also control the number of warmup iterations, total iterations, and other sampling settings.
 
 The `cmdstanr` backend is generally faster than the default `rstan` backend.
 
@@ -311,7 +311,7 @@ rstan::check_hmc_diagnostics(normal_fit_brm$fit)
 
 # Poisson model
 
-Count data (e.g., species richness, seed counts, pollinator visits...) often follows Poisson distribution.
+Count data (e.g., species richness, seed counts, pollinator visits...) often follow a Poisson distribution.
 
 $$
 y_i \sim \text{Poisson}(\lambda)
@@ -321,7 +321,7 @@ $$
 y_i \sim \operatorname{Poisson\_log}(\log \lambda)
 $$
 
-**Q:** What are the mean and variance ($\lambda$) of species richnees per plot?
+**Q:** What are the mean and variance ($\lambda$) of species richness per plot?
 
 
 ```{r, echo=FALSE}
@@ -433,11 +433,11 @@ $$
 y_i \sim N(\mu_i = \boldsymbol{\beta \cdot x_i}, \sigma)
 $$
 
-where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficent matrix (or row vector) and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including intercept).
-We use $\boldsymbol{x}$ (3 $\times$ N) to compute the $\mu$ vector with length N.
+where $\boldsymbol{\beta}$ is a 1 $\times$ 3 coefficient matrix (or row vector) and $\boldsymbol{x_i}$ is a 3 $\times$ 1 predictor matrix (including the intercept).
+We use $\boldsymbol{x}$ (3 $\times$ N) to compute the $\mu$ vector with length $N$.
 
 **Q:**
-What are the posterir means and 95% credible intervals of the coefficents ($\beta_0$, $\beta_1$, $\beta_2$)?
+What are the posterior means and 95% credible intervals of the coefficients ($\beta_0$, $\beta_1$, $\beta_2$)?
 
 ```{r}
 set.seed(123)
@@ -533,7 +533,7 @@ lm_summary_brm
 
 There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
 
-```{r, messagen=FALSE, echo=FALSE, fig.height=4}
+```{r, message=FALSE, echo=FALSE, fig.height=4}
 set.seed(12345)
 
 n_sp <- 10
@@ -602,7 +602,7 @@ $$
 **Q:**
 What are the species-level scaling factors ($\beta_{0j}$) and the global scaling exponent ($\beta_1$)?
 
-## dummy data
+## Dummy data
 
 - We simulate a dataset with 10 species and 20 trees per species.
 - Each species has wood density (wd) values.
@@ -625,10 +625,10 @@ log_b0 <- rnorm(n_sp, 0.55, 0.05)
 allo_df <- tibble(
   sp     = factor(rep(paste0("sp", 1:n_sp), each = n_rep)),
   wd  = rep(wd, each = n_rep),
-  # now log_xx ~ Normal(mean log‐dbh, sd
+  # now log_xx ~ Normal(mean log-dbh, sd = 0.5)
   log_xx = rnorm(n_sp * n_rep, mean = log(40), sd = 0.5)) |>
   mutate(
-    # add observation‐level noise on log‐height
+    # add observation-level noise on log-height
     log_y = rnorm(
       n(),
       log_b0[as.integer(sp)] + b1[as.integer(sp)] * log_xx,
@@ -766,7 +766,7 @@ log_beta0_cols <- grep("^log_beta0\\[", colnames(cmd_draws), value = TRUE)
 species_levels <- levels(allo_df$sp)
 ```
 
-DBH for predcited lines for each species.
+DBH for predicted lines for each species.
 ```{r}
 pred_grid
 ```
@@ -777,7 +777,7 @@ Posterior draws of the slope parameter ($\beta_1$).
 str(beta1_draws)
 ```
 
-Colmun names for log-transformed species-level intercepts ($\log \beta_{0j}$).
+Column names for log-transformed species-level intercepts ($\log \beta_{0j}$).
 We use this to extract posterior draws for each species.
 
 ```{r}
@@ -898,7 +898,7 @@ schools_df <- tibble(
 )
 
 # Inspect
-# print(shools_dt)
+# print(schools_df)
 schools_df |> kableExtra::kbl()
 ```
 
@@ -941,7 +941,7 @@ We often use this parameterization when we have hierarchical models with varying
 
 # Varying slopes and intercepts
 
-There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the expoent $\beta_1$ vary among species.
+There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the exponent $\beta_1$ vary among species.
 
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
@@ -992,7 +992,7 @@ $$
 $$
 
 
-Some linear algebra (Cholesk decomposition):
+Some linear algebra (Cholesky decomposition):
 
 $$
 \Sigma \;=\;L\,L^\top
@@ -1009,15 +1009,15 @@ $$
 $$
 
 
-Rather than sampling the correlation matix $\Omega$ directly, sampling the Cholesky factor $L_\Omega$ is computationally more efficient and numerically stable.
+Rather than sampling the correlation matrix $\Omega$ directly, sampling the Cholesky factor $L_\Omega$ is computationally more efficient and numerically stable.
 
 In the LKJ(\eta) prior:
 
-- $\eta$ = 1 indicate flat prior (uniform distribution) over correlation matrices.
+- $\eta = 1$ indicates a flat prior (uniform distribution) over correlation matrices.
 
-- $\eta$  > 1 indicate weaker correlations.
+- $\eta > 1$ indicates weaker correlations.
 
-We usually use $\eta$  = 2 because we assume at least weak correlations among the parameters, but still allow moderate to strong correlations.
+We usually use $\eta = 2$ because we assume at least weak correlations among the parameters while still allowing moderate to strong correlations.
 
 ## CmdStan
 
@@ -1089,7 +1089,7 @@ toc()
 **Divergent transitions!**
 We need to increase `adapt_delta` and `max_treedepth` to avoid divergent transitions.
 We may also need to change the priors.
-Reparameterization is less  straightforward in `brms` than writing your own Stan code.
+Reparameterization is less straightforward in `brms` than writing your own Stan code.
 
 ```{r}
 summary(slope_fit_brm)
@@ -1112,8 +1112,8 @@ summary(slope_fit_lme)
 
 # Varying slopes and intercepts, and group-level predictors
 
-There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the expoent $\beta_1$ vary among species.
-Those species variation can be explained by wood density (group-level predictor: $u$) of each species.
+There is a power-law relationship ($y =\beta_0 x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and both the scaling factor $\beta_0$ and the exponent $\beta_1$ vary among species.
+Those species-level variations can be explained by wood density (group-level predictor: $u$) of each species.
 
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_{1j} x_{ij}, \sigma)
@@ -1139,7 +1139,7 @@ $$
 \Biggr)
 $$
 
-The rest of part is the same as the section Varying slopes and intercepts.
+The remainder of this section follows the setup from the varying slopes and intercepts section.
 
 ```{r, eval=FALSE, echo=FALSE}
 p3 <- allo_df |>
