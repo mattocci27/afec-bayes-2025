@@ -533,8 +533,55 @@ lm_summary_brm
 
 There is a power-law relationship ($y =\beta_0x^{\beta_1}$) between tree diameter (DBH) and tree maximum height, and the scaling factor $\beta_0$ varies among species.
 
-**Q:**
-What are the species-level scaling factors ($\beta_{0j}$) and the global scaling exponent ($\beta_1$)?
+```{r, messagen=FALSE, echo=FALSE, fig.height=4}
+set.seed(12345)
+
+n_sp <- 10
+n_rep <- 80
+trait <- rnorm(n_sp, 0, 1)
+gamma0 <- 0.6
+gamma1 <- 0.05
+b1_hat <- gamma1 * trait + gamma0
+b1 <- rnorm(n_sp, b1_hat, 0.01)
+b1 <- mean(b1)
+b0 <- rnorm(n_sp, 0.55, 0.05)
+y_fun <- function(beta0, beta1) beta0 + beta1 * log_xx
+log_xx <- seq(1, 100, length = n_rep) |> log()
+
+log_y <- map2(as.list(b0), as.list(b1), y_fun) |> unlist()
+
+tmp <- tibble(y = exp(log_y),
+              x = rep(exp(log_xx), n_sp),
+              sp = rep(paste0("sp", 1:n_sp), each = n_rep))
+
+tmp2 <- tibble(x = trait, y = b1, sp = rep(paste0("sp", 1:n_sp)))
+
+p1 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(y == beta[0] * x^beta[1])) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 18)
+    )
+
+p2 <- tmp |>
+  ggplot(aes(x = x, y = y, col = sp)) +
+  geom_line() +
+  xlab("DBH (cm)") +
+  ylab(expression("Height (m)")) +
+  ggtitle(expression(log(y) == log(beta[0]) + beta[1] * log(x))) +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 16)
+    )
+p1 + p2
+```
+
 
 $$
 \text{log}\; y_{ij} \sim N(\text{log}\; \beta_{0j} + \beta_1 x_{i}, \sigma)
@@ -552,13 +599,15 @@ $$
 \tau \sim \text{Half-Cauchy}(0, 1)
 $$
 
+**Q:**
+What are the species-level scaling factors ($\beta_{0j}$) and the global scaling exponent ($\beta_1$)?
 
 ## dummy data
 
 - We simulate a dataset with 10 species and 20 trees per species.
 - Each species has wood density (wd) values.
 
-```{r, fig.height=6}
+```{r, message=FALSE, fig.height=6}
 set.seed(12345)
 
 n_sp <- 10
@@ -675,23 +724,33 @@ vint_fit_brm <- brm(
   family = gaussian(),
   data = allo_df,
   prior = priors,
+  seed = 123,
   refresh = 0, # don't print update
   backend = "cmdstanr"
 )
 
 summary(vint_fit_brm)
-
-print(vint_fit_brm)
 ```
 ```{r, fig.height=7}
 plot(vint_fit_brm)
 ```
 
-```{r}
-pp_check(vint_fit_brm)
+## lme4
+
+```{r vint-lme4}
+vint_fit_lme <- lme4::lmer(
+  log(h) ~ log(dbh) + (1 | sp),
+  data = allo_df)
+
+summary(vint_fit_lme)
 ```
 
-```{r, fig.height=6}
+
+## Visualization
+
+### CmdStan
+
+```{r vint-cmdstan-vis, fig.height=6}
 # Predicted DBH-height curves per species with 95% intervals
 pred_grid <- allo_df |>
   dplyr::group_by(sp) |>
@@ -701,6 +760,80 @@ pred_grid <- allo_df |>
   ) |>
   tidyr::unnest(dbh)
 
+cmd_draws <- posterior::as_draws_matrix(vint_fit$draws(c("beta1", "log_beta0")))
+beta1_draws <- cmd_draws[, "beta1"]
+log_beta0_cols <- grep("^log_beta0\\[", colnames(cmd_draws), value = TRUE)
+species_levels <- levels(allo_df$sp)
+```
+
+DBH for predcited lines for each species.
+```{r}
+pred_grid
+```
+
+Posterior draws of the slope parameter ($\beta_1$).
+
+```{r}
+str(beta1_draws)
+```
+
+Colmun names for log-transformed species-level intercepts ($\log \beta_{0j}$).
+We use this to extract posterior draws for each species.
+
+```{r}
+str(log_beta0_cols)
+```
+
+```{r}
+pred_cmd_summary <- dplyr::bind_cols(
+  pred_grid,
+  purrr::map2_dfr(
+    match(pred_grid$sp, species_levels),
+    log(pred_grid$dbh),
+    ~{
+      log_mu <- cmd_draws[, log_beta0_cols[.x]] + beta1_draws * .y
+      height_draws <- exp(log_mu)
+      tibble::tibble(
+        estimate = stats::median(height_draws),
+        lower = stats::quantile(height_draws, 0.025),
+        upper = stats::quantile(height_draws, 0.975)
+      )
+    }
+  )
+)
+
+```
+
+Compute predicted height summary for each species and DBH.
+
+```{r}
+pred_cmd_summary
+```
+
+```{r}
+ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = sp), alpha = 0.15, colour = NA) +
+  geom_line() +
+  geom_point(
+    data = allo_df,
+    aes(dbh, h, colour = sp),
+    size = 1,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  guides(fill = "none") +
+  labs(
+    x = "Diameter at breast height (cm)",
+    y = "Height (m)",
+    colour = "Species"
+  )
+```
+
+### brms
+
+```{r, message=FALSE}
 pred_summary <- fitted(vint_fit_brm, newdata = pred_grid, re_formula = NULL) |>
   tibble::as_tibble() |>
   dplyr::bind_cols(pred_grid) |>
@@ -730,60 +863,9 @@ ggplot(pred_summary, aes(dbh, estimate, color = sp)) +
   )
 ```
 
-```{r vint-cmdstan-vis, fig.height=6}
-# CmdStan predicted DBH-height curves per species
-cmd_draws <- posterior::as_draws_matrix(vint_fit$draws(c("beta1", "log_beta0")))
-beta1_draws <- cmd_draws[, "beta1"]
-log_beta0_cols <- grep("^log_beta0\\[", colnames(cmd_draws), value = TRUE)
-species_levels <- levels(allo_df$sp)
-
-pred_cmd_summary <- dplyr::bind_cols(
-  pred_grid,
-  purrr::map2_dfr(
-    match(pred_grid$sp, species_levels),
-    log(pred_grid$dbh),
-    ~{
-      log_mu <- cmd_draws[, log_beta0_cols[.x]] + beta1_draws * .y
-      height_draws <- exp(log_mu)
-      tibble::tibble(
-        estimate = stats::median(height_draws),
-        lower = stats::quantile(height_draws, 0.025),
-        upper = stats::quantile(height_draws, 0.975)
-      )
-    }
-  )
-)
-
-ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = sp), alpha = 0.15, colour = NA) +
-  geom_line() +
-  geom_point(
-    data = allo_df,
-    aes(dbh, h, colour = sp),
-    size = 1,
-    alpha = 0.6,
-    inherit.aes = FALSE
-  ) +
-  scale_x_log10() +
-  scale_y_log10() +
-  guides(fill = "none") +
-  labs(
-    x = "Diameter at breast height (cm)",
-    y = "Height (m)",
-    colour = "Species"
-  )
-```
 
 
-## lme4
 
-```{r vint-lme4}
-vint_fit_lme <- lme4::lmer(
-  log(h) ~ log(dbh) + (1 | sp),
-  data = allo_df)
-
-summary(vint_fit_lme)
-```
 
 # Reparameterization for multilevel models
 
