@@ -32,9 +32,7 @@ source("R/allo.R")
 # parallel computing on local or on the same node
 plan(multicore)
 options(clustermq.scheduler = "multicore")
-cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
-# Enable threading and disable precompiled headers (PCH) to avoid writes
-# under the CmdStan install dir (permission issues on read-only paths).
+# cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
 Sys.setenv(
   MAKEFLAGS = paste(Sys.getenv("MAKEFLAGS"), "STAN_THREADS=true USE_PCH=false")
 )
@@ -46,7 +44,6 @@ tar_option_set(
     "ggrepel",
     "patchwork",
     "janitor",
-    # "showtext",
     "gganimate",
     "loo",
     "gifski"
@@ -149,7 +146,7 @@ list(
     generate_allo_list(allo_df)
   ),
   tar_stan_mcmc(
-    vgrp_fit,
+    vgrp_fit3,
     "stan/vslope.stan",
     data = allo_vslope_list,
     seed = 1234,
@@ -162,13 +159,14 @@ list(
     refresh = 0 # don't print update
   ),
   # tar_stan_mcmc(
-  #   vgrp_fit2 ,
+  #   vgrp_fit2,
   #   "stan/vslope_reduce_sum.stan",
   #   data = allo_vslope_list,
   #   seed = 1234,
   #   chains = 4,
   #   parallel_chains = 4,
-  #   threads_per_chain = 4,
+  #   threads_per_chain = 2,
+  #   cpp_options = list(stan_threads = TRUE),
   #   iter_warmup = 1000, # number of warmup iterations
   #   iter_sampling = 1000, # number of sampling iterations
   #   adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
