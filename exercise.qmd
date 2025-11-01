@@ -1247,6 +1247,149 @@ slope_fit_lme <- lme4::lmer(
 summary(slope_fit_lme)
 ```
 
+## Visualization
+
+To visualise the varying slopes and intercepts, start by peeking at the posterior draws of the species-level coefficients and then plot the implied DBH–height curves.
+
+### CmdStan
+
+```{r}
+vslope_matrix <- posterior::as_draws_matrix(vslope_fit$draws("beta"))
+intercept_cols <- grep("^beta\\[1,", colnames(vslope_matrix), value = TRUE)
+slope_cols <- grep("^beta\\[2,", colnames(vslope_matrix), value = TRUE)
+
+str(vslope_matrix)
+str(intercept_cols)
+str(slope_cols)
+```
+
+```{r vslope-cmdstan-curves, fig.height=5.5}
+pred_cmd_summary <- dplyr::bind_cols(
+  pred_grid,
+  purrr::map2_dfr(
+    match(pred_grid$sp, species_levels),
+    pred_grid$log_dbh,
+    ~{
+      intercept_draws <- vslope_matrix[, intercept_cols[.x]]
+      slope_draws <- vslope_matrix[, slope_cols[.x]]
+      log_mu <- intercept_draws + slope_draws * .y
+      height_draws <- exp(log_mu)
+      tibble::tibble(
+        estimate = stats::median(height_draws),
+        lower = stats::quantile(height_draws, 0.025),
+        upper = stats::quantile(height_draws, 0.975)
+      )
+    }
+  )
+)
+
+ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper, fill = sp),
+    alpha = 0.15,
+    colour = NA
+  ) +
+  geom_line() +
+  geom_point(
+    data = allo_df,
+    aes(dbh, h, colour = sp),
+    size = 1,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  guides(fill = "none", colour = guide_legend(title = "Species")) +
+  labs(
+    x = "Diameter at breast height (cm)",
+    y = "Height (m)",
+    title = "Posterior predictive curves from CmdStan model"
+  )
+```
+
+### brms
+
+```{r vslope-brm-coefs, fig.height=4.5, message=FALSE, eval=FALSE}
+brm_coef_array <- coef(slope_fit_brm)$sp
+find_stat_col <- function(stat_names, candidates) {
+  match <- intersect(candidates, stat_names)
+  if (length(match) == 0) NA_character_ else match[1]
+}
+brm_summary_wide <- brm_coef_array |>
+  as.data.frame.table(responseName = "value") |>
+  dplyr::rename(sp = Var1, coefficient = Var2, stat = Var3) |>
+  tidyr::pivot_wider(names_from = stat, values_from = value)
+
+stat_names <- names(brm_summary_wide)
+estimate_col <- find_stat_col(stat_names, c("Estimate", "Est.", "Mean", "Average"))
+lower_col <- find_stat_col(stat_names, c("Q2.5", "l-95% CI", "2.5%", "Lower", "Lower 95%"))
+upper_col <- find_stat_col(stat_names, c("Q97.5", "u-95% CI", "97.5%", "Upper", "Upper 95%"))
+
+brm_summary <- brm_summary_wide |>
+  dplyr::mutate(
+    estimate = if (!is.na(.env$estimate_col)) .data[[.env$estimate_col]] else NA_real_,
+    lower = if (!is.na(.env$lower_col)) .data[[.env$lower_col]] else NA_real_,
+    upper = if (!is.na(.env$upper_col)) .data[[.env$upper_col]] else NA_real_
+  ) |>
+  dplyr::transmute(
+    sp = factor(sp, levels = species_levels),
+    coefficient = dplyr::recode(coefficient, "Intercept" = "intercept", "log(dbh)" = "slope"),
+    estimate,
+    lower,
+    upper
+  )
+
+ggplot(brm_summary, aes(x = estimate, y = sp)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.2) +
+  facet_wrap(~coefficient, scales = "free_x") +
+  labs(
+    x = "Posterior estimate (log scale)",
+    y = NULL,
+    title = "Species-specific coefficients from brms"
+  )
+```
+
+```{r vslope-brm-curves, fig.height=5.5, message=FALSE, eval=FALSE}
+pred_brm_summary <- fitted(
+  slope_fit_brm,
+  newdata = pred_grid,
+  re_formula = NULL
+) |>
+  tibble::as_tibble() |>
+  dplyr::bind_cols(pred_grid) |>
+  dplyr::mutate(
+    estimate = exp(Estimate),
+    lower = exp(Q2.5),
+    upper = exp(Q97.5)
+  )
+
+ggplot(pred_brm_summary, aes(dbh, estimate, colour = sp)) +
+  geom_ribbon(
+    aes(ymin = lower, ymax = upper, fill = sp),
+    alpha = 0.15,
+    colour = NA
+  ) +
+  geom_line() +
+  geom_point(
+    data = allo_df,
+    aes(dbh, h, colour = sp),
+    size = 1,
+    alpha = 0.6,
+    inherit.aes = FALSE
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  guides(fill = "none", colour = guide_legend(title = "Species")) +
+  labs(
+    x = "Diameter at breast height (cm)",
+    y = "Height (m)",
+    title = "Posterior predictive curves from brms model"
+  )
+```
+
+
+
 # Varying slopes and intercepts, and group-level predictors
 
 **H:**
