@@ -1859,7 +1859,7 @@ hoge
 
 - CmdStan: Command line interface (you write Stan code and run it via terminal).
 
-- `rstan`, `cmdstanr`: R interface to Stan/Cmdstan (you write Stan code and run it within R).
+- `rstan`, `cmdstanr`: R interface to Stan/CmdStan (you write Stan code and run it within R).
 
 - `brms`, `rstanarm`: Higher-level R packages that depend on `rstan` (you write R code and run models within R, without writing Stan code).
 
@@ -1884,6 +1884,5 @@ CmdStan is based on the latest version of Stan, whereas `rstan` is based on an o
 - [Stan Functions Reference](https://mc-stan.org/docs/functions-reference/index.html)
 
 - [AIcia Solid Project](https://youtu.be/mX_NpDD7wwg) (in Japanese and Math)
-
 
 

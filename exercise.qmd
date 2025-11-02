@@ -1231,7 +1231,7 @@ summary(slope_fit_lme)
 
 ## Visualization
 
-Almost same as before, but now we have varying slopes as well as intercepts.
+Almost the same as before, but now we have varying slopes as well as intercepts.
 
 ### CmdStan
 
@@ -1468,13 +1468,9 @@ vgrp_fit <- vslope_mod$sample(
   max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
   refresh = 0 # don't print update
 )
-```
 
-```{r, cache=FALSE}
 my_summary(vgrp_fit$draws())
-```
 
-```{r, cache=FALSE}
 vgrp_fit$diagnostic_summary()
 ```
 
