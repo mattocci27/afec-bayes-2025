@@ -62,7 +62,7 @@ my_theme <- theme_bw() + theme(
 theme_set(my_theme)
 ```
 
-```{r}
+```{r,include=FALSE}
 library(tictoc)
 ```
 
