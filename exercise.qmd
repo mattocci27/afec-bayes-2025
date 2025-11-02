@@ -21,7 +21,7 @@ library(knitr)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  message = FALSE,
+  # message = FALSE,
   cache = FALSE,
   fig.align = "center",
   fig.show = "hold"
@@ -489,19 +489,21 @@ lm_fit <- lm_mod$sample(
 Use `posterior::summarise_draws` to check more detailed summary statistics.
 
 ```{r lm-summary}
-lm_summary <- posterior::summarise_draws(
-  lm_fit$draws(),
-  mean = ~mean(.x),
-  sd = ~sd(.x),
-  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
-)
+my_summary <- function(draws, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975)) {
+  posterior::summarise_draws(
+    draws,
+    mean = ~mean(.x),
+    sd   = ~sd(.x),
+    ~posterior::quantile2(.x, probs = probs)
+  )
+}
 
-lm_summary
+my_summary(lm_fit$draws())
 ```
 
 ## brms
 
-```{r lm-brm}
+```{r lm-brm, message=FALSE}
 lm_fit_brm <- brm(
   y ~ x1 + x2,
   family = gaussian(),
@@ -516,17 +518,6 @@ lm_fit_brm <- brm(
 )
 
 summary(lm_fit_brm)
-```
-
-```{r lm-summary-brm}
-lm_summary_brm <- posterior::summarise_draws(
-  posterior::as_draws_df(lm_fit_brm),
-  mean = ~mean(.x),
-  sd = ~sd(.x),
-  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
-)
-
-lm_summary_brm
 ```
 
 # Varying intercepts
@@ -706,13 +697,15 @@ vint_fit <- vint_mod$sample(
   refresh = 0 # don't print update
 )
 
-vint_fit$summary()
+#vint_fit$summary()
+my_summary(vint_fit$draws())
+
 vint_fit$diagnostic_summary()
 ```
 
 ## brms
 
-```{r vint-brm}
+```{r vint-brm, message=FALSE}
 priors <- c(
   prior(normal(0, 2.5), class = Intercept),
   prior(normal(0, 2.5),   class = b),
@@ -1168,45 +1161,37 @@ allo_vslope_list <- list(
 allo_vslope_list$u <- matrix(1, nrow = allo_vslope_list$L, ncol = allo_vslope_list$J)
 ```
 
-```{r}
+```{r vslope-cmdstan}
 vslope_mod <- cmdstan_model("stan/vslope.stan")
 
 vslope_fit <- vslope_mod$sample(
   data = allo_vslope_list,
-  seed = 1234,
+  seed = 123,
   chains = 4,
   parallel_chains = 4,
   iter_warmup = 1000, # number of warmup iterations
   iter_sampling = 1000, # number of sampling iterations
-  adapt_delta = 0.95, # increase adapt_delta to avoid divergent transitions
+  adapt_delta = 0.99, # increase adapt_delta to avoid divergent transitions
   max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
   refresh = 0, # don't print update
   show_messages = FALSE   # suppress Stan’s “Informational Message” output
 )
 
-# vslope_fit$summary()
-vslope_summary <- posterior::summarise_draws(
-  vslope_fit$draws(),
-  mean = ~mean(.x),
-  sd = ~sd(.x),
-  ~posterior::quantile2(.x, probs = c(0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975))
-)
-
-vslope_summary
+my_summary(vslope_fit$draws())
 ```
 
-```{r}
+```{r, cache=FALSE}
 vslope_fit$diagnostic_summary()
 ```
 
 ## brms
 
-```{r vslope-brm}
+```{r vslope-brm, message=FALSE}
 priors <- c(
   prior(normal(0, 2.5), class = Intercept),
   prior(normal(0, 2.5),   class = b),
   prior(lkj(2), class = cor),                # Ω ~ LKJ(2)
-  prior(cauchy(0, 1),   class = sigma)
+  prior(cauchy(0, 2.5), class = sigma)
 )
 
 slope_fit_brm <- brm(
@@ -1215,20 +1200,18 @@ slope_fit_brm <- brm(
   data = allo_df,
   prior = priors,
   refresh = 0, # don't print update
+  seed = 123,
+  chains = 4, cores = 4,
   control = list(
-    adapt_delta  = 0.95,  # default is 0.8
+    adapt_delta  = 0.99,  # default is 0.8
     max_treedepth = 15    # default is 10
   ),
   backend = "cmdstanr"
 )
 ```
 
-**Divergent transitions!**
-We need to increase `adapt_delta` and `max_treedepth` to avoid divergent transitions.
-We may also need to change the priors.
-Reparameterization is less straightforward in `brms` than writing your own Stan code.
 
-```{r}
+```{r, cache=FALSE}
 summary(slope_fit_brm)
 ```
 
@@ -1241,7 +1224,6 @@ slope_fit_lme <- lme4::lmer(
   data = allo_df)
 ```
 
-**Not convergent!**
 
 ```{r}
 summary(slope_fit_lme)
@@ -1249,7 +1231,7 @@ summary(slope_fit_lme)
 
 ## Visualization
 
-To visualise the varying slopes and intercepts, start by peeking at the posterior draws of the species-level coefficients and then plot the implied DBH–height curves.
+Almost same as before, but now we have varying slopes as well as intercepts.
 
 ### CmdStan
 
@@ -1264,11 +1246,14 @@ str(slope_cols)
 ```
 
 ```{r vslope-cmdstan-curves, fig.height=5.5}
+pred_grid_vslope <- pred_grid |>
+  dplyr::mutate(log_dbh = log(dbh))
+
 pred_cmd_summary <- dplyr::bind_cols(
-  pred_grid,
+  pred_grid_vslope,
   purrr::map2_dfr(
-    match(pred_grid$sp, species_levels),
-    pred_grid$log_dbh,
+    match(pred_grid_vslope$sp, species_levels),
+    pred_grid_vslope$log_dbh,
     ~{
       intercept_draws <- vslope_matrix[, intercept_cols[.x]]
       slope_draws <- vslope_matrix[, slope_cols[.x]]
@@ -1309,48 +1294,7 @@ ggplot(pred_cmd_summary, aes(dbh, estimate, colour = sp)) +
 
 ### brms
 
-```{r vslope-brm-coefs, fig.height=4.5, message=FALSE, eval=FALSE}
-brm_coef_array <- coef(slope_fit_brm)$sp
-find_stat_col <- function(stat_names, candidates) {
-  match <- intersect(candidates, stat_names)
-  if (length(match) == 0) NA_character_ else match[1]
-}
-brm_summary_wide <- brm_coef_array |>
-  as.data.frame.table(responseName = "value") |>
-  dplyr::rename(sp = Var1, coefficient = Var2, stat = Var3) |>
-  tidyr::pivot_wider(names_from = stat, values_from = value)
-
-stat_names <- names(brm_summary_wide)
-estimate_col <- find_stat_col(stat_names, c("Estimate", "Est.", "Mean", "Average"))
-lower_col <- find_stat_col(stat_names, c("Q2.5", "l-95% CI", "2.5%", "Lower", "Lower 95%"))
-upper_col <- find_stat_col(stat_names, c("Q97.5", "u-95% CI", "97.5%", "Upper", "Upper 95%"))
-
-brm_summary <- brm_summary_wide |>
-  dplyr::mutate(
-    estimate = if (!is.na(.env$estimate_col)) .data[[.env$estimate_col]] else NA_real_,
-    lower = if (!is.na(.env$lower_col)) .data[[.env$lower_col]] else NA_real_,
-    upper = if (!is.na(.env$upper_col)) .data[[.env$upper_col]] else NA_real_
-  ) |>
-  dplyr::transmute(
-    sp = factor(sp, levels = species_levels),
-    coefficient = dplyr::recode(coefficient, "Intercept" = "intercept", "log(dbh)" = "slope"),
-    estimate,
-    lower,
-    upper
-  )
-
-ggplot(brm_summary, aes(x = estimate, y = sp)) +
-  geom_point() +
-  geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.2) +
-  facet_wrap(~coefficient, scales = "free_x") +
-  labs(
-    x = "Posterior estimate (log scale)",
-    y = NULL,
-    title = "Species-specific coefficients from brms"
-  )
-```
-
-```{r vslope-brm-curves, fig.height=5.5, message=FALSE, eval=FALSE}
+```{r vslope-brm-curves, fig.height=5.5, message=FALSE, eval=TRUE}
 pred_brm_summary <- fitted(
   slope_fit_brm,
   newdata = pred_grid,
@@ -1468,10 +1412,12 @@ $$
 \mathrm{MVN}
 \Biggl(
 \underbrace{
+\boldsymbol{\mu} =
 \begin{bmatrix}
 \gamma_{0}^{(\beta_0)} + \gamma_{1}^{(\beta_0)}u_{j}  \\
 \gamma_{0}^{(\beta_1)} + \gamma_{1}^{(\beta_1)}u_{j}
 \end{bmatrix}}_{\text{mean depends on }u_j},
+\boldsymbol{\Sigma} =
 \begin{bmatrix}
 \sigma_{0}^2  & \rho \sigma_{0} \sigma_{1} \\
 \rho \sigma_{0} \sigma_{1} & \sigma_{1}^2
@@ -1494,8 +1440,11 @@ p3 <- allo_df |>
   theme(legend.position = "none")
 ```
 
+## CmdStan
+
 Now we have two group-level predictors (intercept and slope), and $u$ includes the intercept and wood density.
 The rest of this section follows the setup from the varying slopes and intercepts section.
+
 ```{r vgrp-data}
 allo_vslope_list$L <- 2
 
@@ -1519,8 +1468,13 @@ vgrp_fit <- vslope_mod$sample(
   max_treedepth = 15, # increase max_treedepth to avoid max treedepth errors
   refresh = 0 # don't print update
 )
+```
 
-vgrp_fit$summary()
+```{r, cache=FALSE}
+my_summary(vgrp_fit$draws())
+```
+
+```{r, cache=FALSE}
 vgrp_fit$diagnostic_summary()
 ```
 
@@ -1529,9 +1483,9 @@ vgrp_fit$diagnostic_summary()
 ```{r vgrp-brm, eval=TRUE}
 priors <- c(
   prior(normal(0, 2.5), class = Intercept),
-  prior(normal(0, 2.5),   class = b),
+  prior(normal(0, 2.5), class = b),
   prior(lkj(2), class = cor),                # Ω ~ LKJ(2)
-  prior(cauchy(0, 1),   class = sigma)
+  prior(cauchy(0, 2.5), class = sigma)
 )
 vgrp_fit_brm <- brm(
   log(h) ~ log(dbh) * wd + (1 + log(dbh) | sp),
@@ -1539,6 +1493,8 @@ vgrp_fit_brm <- brm(
   data = allo_df,
   prior = priors,
   refresh = 0, # don't print update
+  seed = 1234,
+  chains = 4, cores = 4,
   control = list(
     adapt_delta  = 0.95,  # default is 0.8
     max_treedepth = 15    # default is 10
@@ -1546,6 +1502,11 @@ vgrp_fit_brm <- brm(
   backend = "cmdstanr"
 )
 ```
+
+**Divergent transitions!**
+We need to increase `adapt_delta` and `max_treedepth` to avoid divergent transitions.
+We may also need to change the priors.
+Reparameterization is less straightforward in `brms` than writing your own Stan code.
 
 ```{r, eval=TRUE}
 summary(vgrp_fit_brm)
@@ -1558,6 +1519,9 @@ grp_fit_lme <- lme4::lmer(
   log(h) ~ log(dbh) * wd + (1 + log(dbh) | sp),
   data = allo_df)
 ```
+
+**Not convergent!**
+It's hard to fit this kind of complex multilevel model with MLE framework like `lme4`.
 
 
 # References

@@ -1,30 +1,6 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-simple_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|569763593|stan/logistic.stan|t20383.0857381573s|s643b|643|file|local|vector|||0||
-dummy_simple|stem|a413439b6a729e9b|62bd5aeb942a5882|aaefc4484af376c5|-888664837||t20392.0775096841s|s302b|302|rds|local|vector|||0.07||
-mh_df|stem|e6eb8251a933d53f|34bfa89f26652d8d|a2a61c3ab24d69f8|-1022243609||t20392.0775098345s|s2095b|2095|rds|local|vector|||0.08||
-simple_hmc_list|stem|707c6c0a2d27ddef|935638e084186e20|e7250daab41f2c14|1193945633||t20392.0775100313s|s217580b|217580|rds|local|vector|||0.106|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
-allo_df|stem|716495cd67d9eb63|f24c74d03b764b63|83c26e0dad2bd534|887309600||t20392.0775105984s|s3426b|3426|rds|local|vector|||0.08||
-leapfrog_list|stem|c2a3c9c0158ad411|9c7eb4c6c82dd209|35c75f774a3e2b5b|1598672164||t20392.077511154s|s211441b|211441|rds|local|vector|||0.192|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
-dummy_simple_stan|stem|90df21918e16da59|de4b58a69c07002f|cf3b2f990416418c|1981477967||t20392.0775119526s|s180b|180|rds|local|vector|||0||
-rw_metropolis_df|stem|4091bfe1d1956dad|fd3fe7070fc2b973|cd9525b777c09c5e|1577384420||t20392.0775130869s|s173772b|173772|rds|local|vector|||0.142||
-allo_vslope_list|stem|d832ea8277447a22|404c06338b99d0fb|cd8e25b7ba2034b8|-1379989717||t20392.0775142096s|s3288b|3288|rds|local|vector|||0.001||
-simple_data|stem|3f960229fbac18d2|d3cd90b2fca9421b|355a83c5694605ff|-1645633210||t20392.0775159458s|s222b|222|qs|local|vector|||0||
-hmc_df|stem|08f757b47543b946|db93016b03830cb6|cfce8182910e9fef|582158721||t20392.0775475899s|s226640b|226640|rds|local|vector|||3.106||
-vgrp_fit_data|stem|935cffc029adbf0a|2778300b3ce38dc4|e26a4d154d19bed2|-17839051||t20392.077549083s|s3288b|3288|qs|local|vector|||0||
-simple_mcmc_logistic|stem|807c879a83b55e79|3cef4e085a5a9bef|7380f73c077a5b70|-856359403||t20392.0776172903s|s1379088b|1379088|qs|local|vector|||5.728||
-pot_eng_gif|stem|ae564e6bbf6470b8|c67da689dcb95741|50f837e239775ef3|-544675296|images/pot_eng.gif|t20392.0776260173s|s267954b|267954|file|local|vector|||9.788||
-simple_draws_logistic|stem|804fcec60f9ec1ed|a860147a3d4c035a|e995f6fb3c774f79|733771483||t20392.077628147s|s1134404b|1134404|fst_tbl|local|vector|||0.003||
-simple_summary_logistic|stem|5e7f83ae5c11ef34|75fbf76fb7fc6a11|2731914fa71294ad|1352529849||t20392.0776339457s|s3832b|3832|fst_tbl|local|vector|||0.332||
-simple_diagnostics_logistic|stem|fd77f2f22594fd2b|f67bebf8751797bc|e995f6fb3c774f79|-1129186995||t20392.0776360638s|s82916b|82916|fst_tbl|local|vector|||0.001||
-dummy_simple_re|stem|e7abcba218d151df|d6ae6656316743ec|23292f173b7c8e60|-1147551103||t20392.0776380198s|s380b|380|rds|local|vector|||0.003||
-leapfrog_gif|stem|ea046ca70d37db0c|2f70d06688107411|5824f7e0b92756a3|-876472587|images/leapfrog.gif|t20392.0776424296s|s206340b|206340|file|local|vector|||11.006||
-traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|fbc0e4813ec7567d|1954173610|images/traj.gif|t20392.077695382s|s242097b|242097|file|local|vector|||15.741||
-rw_metropolis_gif|stem|27600ce048b6a4d7|8296b4da6c4531b9|a37c2f18aec8b2d2|1848927686|images/rw_metropolis.gif|t20392.0777155329s|s156881b|156881|file|local|vector|||17.082||
-hmc_gif|stem|32bde6327110366f|5c90438139064144|e80bc5d4693e75bc|636377848|images/hmc.gif|t20392.0778084976s|s221246b|221246|file|local|vector|||17.848||
-mh_trace_gif|stem|c69341eba409f493|78331365fc45c198|e0d30cfd6129f321|-705628236|images/mh_trace.gif|t20392.0778342851s|s673857b|673857|file|local|vector|||27.822||
-mh_post_gif|stem|24ddf8dbb021bd38|1fa21a6a0923dd5a|a50ad80b003ad201|-1467484502|images/mh_post.gif|t20392.0778370051s|s687893b|687893|file|local|vector|||27.948||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|78c76cc054013c6f
+.Random.seed|object|031545c4708a5e88
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -59,10 +35,25 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-exercise|stem|54be3ee957feb519|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20392.4223550701s|s7124469b|7124469|file|local|vector|||112.514||
-vgrp_fit_file_vslope|stem|fb4186df784cf728|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20392.4013134154s|s1033b|1033|file|local|vector|||0||
-vgrp_fit_mcmc_vslope|stem|40ad72289289f33b|f602eb1e1f19115c|02febc8e5beafb2d|237848198||t20392.4247881104s|s1822581b|1822581|qs|local|vector|||210.046||
-vgrp_fit_summary_vslope|stem|86a1f3359eea1c66|37ccb2201b571ea4|4f915073a8bfbdf0|-1219751230||t20392.4247925781s|s5272b|5272|fst_tbl|local|vector|||0.364||
-vgrp_fit_draws_vslope|stem|2ec773ccdd8e127f|b65c32093d4cb35f|9006f0dd91b6a7e7|-119606907||t20392.424792879s|s1617777b|1617777|fst_tbl|local|vector|||0.008||
-vgrp_fit_diagnostics_vslope|stem|8c138a45b55ccac6|38bed3cc5b1c0c58|9006f0dd91b6a7e7|-2138855771||t20392.42479318s|s80447b|80447|fst_tbl|local|vector|||0.001||
-main|stem|08f35ca4028670b3|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20392.424892429s|s8339401b|8339401|file|local|vector|||8.6||
+simple_hmc_list|stem|707c6c0a2d27ddef|935638e084186e20|e7250daab41f2c14|1193945633||t20393.4506124063s|s217580b|217580|rds|local|vector|||0.168|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
+leapfrog_list|stem|7da53fa10a6f84cb|9c7eb4c6c82dd209|35c75f774a3e2b5b|1598672164||t20393.4506132436s|s211440b|211440|rds|local|vector|||0.222|The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0. ℹ Using compatibility `.name_repair`.|
+dummy_simple|stem|a413439b6a729e9b|62bd5aeb942a5882|aaefc4484af376c5|-888664837||t20393.4506141761s|s302b|302|rds|local|vector|||0||
+mh_df|stem|e6eb8251a933d53f|34bfa89f26652d8d|a2a61c3ab24d69f8|-1022243609||t20393.4506153179s|s2095b|2095|rds|local|vector|||0.007||
+vgrp_fit_file_vslope|stem|fb4186df784cf728|2aa0bf0b112d4cc0|2c530c1562a7fbd1|1471038475|stan/vslope.stan|t20393.4147707531s|s1033b|1033|file|local|vector|||0||
+allo_df|stem|4e2f171e0f03f6c6|f24c74d03b764b63|83c26e0dad2bd534|887309600||t20393.4506191209s|s3426b|3426|rds|local|vector|||0.002||
+simple_file_logistic|stem|22bc965b04d8b87a|442428681bffca3b|2c530c1562a7fbd1|569763593|stan/logistic.stan|t20382.5194549483s|s643b|643|file|local|vector|||0.001||
+rw_metropolis_df|stem|e7409aff23ff5d04|fd3fe7070fc2b973|cd9525b777c09c5e|1577384420||t20393.4506237699s|s173763b|173763|rds|local|vector|||0.038||
+hmc_df|stem|37c298ea384a458f|db93016b03830cb6|cfce8182910e9fef|582158721||t20393.4506565582s|s226638b|226638|rds|local|vector|||2.689||
+pot_eng_gif|stem|ae564e6bbf6470b8|c67da689dcb95741|50f837e239775ef3|-544675296|images/pot_eng.gif|t20393.4507543584s|s267954b|267954|file|local|vector|||8.291||
+traj_gif|stem|e70705a5a6c471e4|30ee899dabb986d7|fbc0e4813ec7567d|1954173610|images/traj.gif|t20393.4509159692s|s242097b|242097|file|local|vector|||13.796||
+leapfrog_gif|stem|ea046ca70d37db0c|2f70d06688107411|20cf940bd986ffe0|-876472587|images/leapfrog.gif|t20393.4510350463s|s206340b|206340|file|local|vector|||10.125||
+dummy_simple_stan|stem|90df21918e16da59|de4b58a69c07002f|cf3b2f990416418c|1981477967||t20393.4510371422s|s180b|180|rds|local|vector|||0||
+mh_trace_gif|stem|c69341eba409f493|78331365fc45c198|e0d30cfd6129f321|-705628236|images/mh_trace.gif|t20393.4512999709s|s673857b|673857|file|local|vector|||22.516||
+mh_post_gif|stem|24ddf8dbb021bd38|1fa21a6a0923dd5a|a50ad80b003ad201|-1467484502|images/mh_post.gif|t20393.4515519984s|s687893b|687893|file|local|vector|||21.604||
+allo_vslope_list|stem|f0005e5a0dac3afd|404c06338b99d0fb|757bbc0235ec26ed|-1379989717||t20393.4515543825s|s3288b|3288|rds|local|vector|||0||
+rw_metropolis_gif|stem|27600ce048b6a4d7|8296b4da6c4531b9|3f92763486c74e1f|1848927686|images/rw_metropolis.gif|t20393.4517362153s|s156881b|156881|file|local|vector|||15.496||
+hmc_gif|stem|75080dedc4152cf0|5c90438139064144|527fa99a9d3fcee8|636377848|images/hmc.gif|t20393.4518995947s|s221246b|221246|file|local|vector|||13.947||
+simple_data|stem|3f960229fbac18d2|d3cd90b2fca9421b|355a83c5694605ff|-1645633210||t20393.4519014843s|s222b|222|qs|local|vector|||0||
+vgrp_fit_data|stem|3f5b52ef7f87387a|2778300b3ce38dc4|f26c5482a6ad1514|-17839051||t20393.4519032372s|s3288b|3288|qs|local|vector|||0||
+simple_mcmc_logistic|stem|2848a03de1e127ff|3cef4e085a5a9bef|7380f73c077a5b70|-856359403||t20393.4519572056s|s1382712b|1382712|qs|local|vector|||4.479||
+exercise|stem||2e6f110eb652e543|2c530c1562a7fbd1|1662158168||t20393.4520389348s||0|file|local|vector|||122.762||! Error running quarto CLI from R. Caused by error: ✖ Error returned by quarto CLI. ℹ Rerun with `quiet = FALSE` to see the full error message. Caused by error: ! System command 'quarto' failed
