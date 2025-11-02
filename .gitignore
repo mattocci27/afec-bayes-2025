@@ -14,3 +14,4 @@ test.R
 .env
 .Rproj.user
 assets/cmdstan/*
+.Rhistory

@@ -413,18 +413,24 @@ logistic <- function(z) 1 / (1 + exp(-z))
 p1 <- tmp |>
   ggplot(aes(x = x, y = logistic(z), col = sp)) +
   geom_line() +
-  xlab("Conspecific density") +
+  xlab("Conspecific density \n (scaled)") +
   ylab("Survival rates") +
   ggtitle("p = logistic(ax + b)") +
-  theme(legend.position = "none")
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
 
 p2 <- tmp |>
   ggplot(aes(x = x, y = z, col = sp)) +
   geom_line() +
-  xlab("Conspecific density") +
+  xlab("Conspecific density \n (scaled)") +
   ylab("logit(Survival rates)") +
   ggtitle("logit(p) = ax + b") +
-  theme(legend.position = "none")
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
 
 p3 <- tmp2 |>
   ggplot(aes(x = x, y = y, col = sp)) +
@@ -432,9 +438,12 @@ p3 <- tmp2 |>
     alpha = 0.2,
     linewidth = 0.5, col = "black") +
   geom_point(size = 3) +
-  xlab("Abundance") +
-  ylab("Strength of NDD") +
-  theme(legend.position = "none")
+  xlab("Abundance (scaled)") +
+  ylab("Strength of NDD \n (slope a)") +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(size = 24)
+    )
 
 p1 + p2 + p3
 ```
@@ -521,7 +530,7 @@ p3 <- tmp2 |>
     linewidth = 0.5, col = "black") +
   geom_point(size = 3) +
   xlab("Wood density (scaled)") +
-  ylab("b") +
+  ylab("Scaling exponent b") +
   theme(legend.position = "none")
 
 p1 + p2 + p3
@@ -552,7 +561,9 @@ fit_ind <- lme4::glmer(
   data = dummy, family = binomial)
 ```
 
-We need to extract the slope coefficients for each species from `fit_ind` and make `new_data`.
+- `(1 + cons | sp)` — random intercept and slope across species.
+
+- We need to extract the slope coefficients for each species from `fit_ind` and make `new_data`.
 
 ::: fragment
 ### Group-level model: LM
@@ -582,6 +593,8 @@ fit_mle <- lme4::glmer(
 ```
 
 ::: incremental
+- `cons:abund` —  species-level predictor (abundance) modifying NDD strength.
+- `(1 + cons | sp)` — random intercept and slope across species.
 - Combines both levels into a single model.
 - Often work for simple models and data.
 :::
@@ -993,7 +1006,7 @@ We compare two coins, A and B, with the same prior but different likelihood (due
 - $\textcolor{#1b9e77}{L_B = {}_{100}C_{60} p^{60} (1-p)^{40}}$
 
 - $\textcolor{#7570b3}{\mathrm{Prior} \propto  p^{50} (1-p)^{50}}$
-  - Beta distribution with mean 0.5 and small variance
+  - Beta distribution with mean 0.5 and small variance (strong prior example).
 
 :::
 
@@ -1097,8 +1110,8 @@ p1
 
 ::: incremental
 - We consider variables *x* = {-3, ..., 3} and *y* = {-6, ..., 4}. We don't yet know if there is a correlation (*y = ax + b*).
-- However, given the similar scales of *x* and *y*, it's reasonable to guess that *a* falls within a narrow range (e.g., **strongly informative prior**: -5 to 5, **weakly informative prior**: $a \sim \mathcal{N}(0,  2.5)$).
-- In contrast, a slope like *a* = 100 (blue line) clearly doesn't match the data (i.e., **uninformative prior**: $a \sim \mathcal{N}(0,  10^4)$).
+- However, a slope like *a* = 100 (blue line) clearly doesn't match the data (i.e., **uninformative prior**: $a \sim \mathcal{N}(0,  10^4)$).
+- Given the similar scales of *x* and *y*, it's reasonable to guess that *a* falls within a narrow range (e.g., **strongly informative prior**: -5 to 5, **weakly informative prior**: $a \sim \mathcal{N}(0,  2.5)$).
 :::
 
 :::

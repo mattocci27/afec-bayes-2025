@@ -563,7 +563,10 @@
 <span id="cb11-2"><a href=""></a>  <span class="fu">cbind</span>(suv, n <span class="sc">-</span> suv) <span class="sc">~</span>  cons <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> cons <span class="sc">|</span> sp),</span>
 <span id="cb11-3"><a href=""></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We need to extract the slope coefficients for each species from <code>fit_ind</code> and make <code>new_data</code>.</p>
+<ul>
+<li><p><code>(1 + cons | sp)</code> — random intercept and slope across species.</p></li>
+<li><p>We need to extract the slope coefficients for each species from <code>fit_ind</code> and make <code>new_data</code>.</p></li>
+</ul>
 <div class="fragment">
 <h3 id="group-level-model-lm">Group-level model: LM</h3>
 <div class="cell" data-layout-align="center">
@@ -585,6 +588,8 @@
 <span id="cb13-3"><a href=""></a>  <span class="at">data =</span> dummy, <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
+<li class="fragment"><code>cons:abund</code> — species-level predictor (abundance) modifying NDD strength.</li>
+<li class="fragment"><code>(1 + cons | sp)</code> — random intercept and slope across species.</li>
 <li class="fragment">Combines both levels into a single model.</li>
 <li class="fragment">Often work for simple models and data.</li>
 </ul>
@@ -906,7 +911,7 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 <li class="fragment"><p><span class="math inline">\(\textcolor{#1b9e77}{L_B = {}_{100}C_{60} p^{60} (1-p)^{40}}\)</span></p></li>
 <li class="fragment"><p><span class="math inline">\(\textcolor{#7570b3}{\mathrm{Prior} \propto  p^{50} (1-p)^{50}}\)</span></p>
 <ul>
-<li class="fragment">Beta distribution with mean 0.5 and small variance</li>
+<li class="fragment">Beta distribution with mean 0.5 and small variance (strong prior example).</li>
 </ul></li>
 </ul>
 </div><div class="column" style="width:50%;">
@@ -968,8 +973,8 @@ P(A \mid B) = \frac{P(B \mid A) \times P(A)}{P(B)}
 </div><div class="column" style="width:60%;">
 <ul>
 <li class="fragment">We consider variables <em>x</em> = {-3, …, 3} and <em>y</em> = {-6, …, 4}. We don’t yet know if there is a correlation (<em>y = ax + b</em>).</li>
-<li class="fragment">However, given the similar scales of <em>x</em> and <em>y</em>, it’s reasonable to guess that <em>a</em> falls within a narrow range (e.g., <strong>strongly informative prior</strong>: -5 to 5, <strong>weakly informative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  2.5)\)</span>).</li>
-<li class="fragment">In contrast, a slope like <em>a</em> = 100 (blue line) clearly doesn’t match the data (i.e., <strong>uninformative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  10^4)\)</span>).</li>
+<li class="fragment">However, a slope like <em>a</em> = 100 (blue line) clearly doesn’t match the data (i.e., <strong>uninformative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  10^4)\)</span>).</li>
+<li class="fragment">Given the similar scales of <em>x</em> and <em>y</em>, it’s reasonable to guess that <em>a</em> falls within a narrow range (e.g., <strong>strongly informative prior</strong>: -5 to 5, <strong>weakly informative prior</strong>: <span class="math inline">\(a \sim \mathcal{N}(0,  2.5)\)</span>).</li>
 </ul>
 </div></div>
 </section>
