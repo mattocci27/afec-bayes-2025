@@ -5,8 +5,8 @@
 Workshop materials for the AFEC program session on 2025-11-03 at XTBG.
 The repository contains Quarto slide decks, guided exercises, and supporting Stan/R code for Bayesian modeling demonstrations.
 
-- View the accompanying slides [here](https://forest-canopy.github.io/afec-bayes-2025/main.html).
-- View the accompanying exercise [here](https://forest-canopy.github.io/afec-bayes-2025/exercise.html).
+- View the accompanying slides [here](https://forest-canopy.github.io/assets/afec-bayes-2025/main.html).
+- View the accompanying exercise [here](https://forest-canopy.github.io/assets/afec-bayes-2025/exercise.html).
 
 ## References
 
