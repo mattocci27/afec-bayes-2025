@@ -33,8 +33,10 @@ knitr::opts_chunk$set(
 Run this on your terminal to start an RStudio Server with all the necessary packages installed.
 
 ```
+# run in afec-bayes-2025 directory
 docker run -d -p 8787:8787 \
   -e PASSWORD=123456  \
+  -v $(pwd):/home/rstudio/workspace \
   mattocci/afec-bayes:prod
 ```
 
@@ -44,6 +46,18 @@ Access `127.0.0.1:8787` and log in with the username `rstudio` and the password 
 Because you’re running this container on your own machine and mapping only to 127.0.0.1:8787, the RStudio Server isn’t accessible from outside your computer.
 So, using a simple password like `123456` is fine and safe for local development.
 
+# renv settings (Optional)
+
+Comment out the following lines in `.Rprofile` if you are not using `renv`.
+
+```{bash}
+# source("renv/activate.R")
+# Sys.setenv(RENV_DOWNLOAD_METHOD = "curl")
+# options(renv.install.staged = FALSE)
+# renv::settings$use.cache(TRUE)
+# Sys.setenv(RENV_INSTALL_PAK_ENABLED = "TRUE")
+```
+
 # Setup
 
 ```{r setup, message=FALSE, cache=FALSE, warning=FALSE}
@@ -52,7 +66,7 @@ library(cmdstanr)
 library(tidyverse)
 library(bayesplot)
 library(patchwork)
-# cmdstanr::set_cmdstan_path("/opt/cmdstan/cmdstan-2.37.0")
+cmdstanr::cmdstan_path()
 
 my_theme <- theme_bw() + theme(
     axis.text = element_text(size = 14),
@@ -208,7 +222,7 @@ normal_fit$draws()
 
 
 Trace plots for diagnosing convergence and mixing of the chains.
-```{r hello}
+```{r hello, cache=FALSE}
 normal_draws <- as_draws_df(normal_fit$draws())
 
 color_scheme_set("viridis")

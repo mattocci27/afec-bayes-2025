@@ -28,8 +28,9 @@ vgrp_fit_summary_vslope|stem|a73cb74bf94f216a|37ccb2201b571ea4|90ef21cfb226e4d3|
 vgrp_fit_draws_vslope|stem|8f8032f548a34d65|b65c32093d4cb35f|3e92846d2be489cb|-119606907||t20394.2325347222s|s1617785b|1617785|fst_tbl|local|vector|||0.014||
 vgrp_fit_diagnostics_vslope|stem|2e774b9cc974eaaf|38bed3cc5b1c0c58|3e92846d2be489cb|-2138855771||t20394.2325347222s|s78997b|78997|fst_tbl|local|vector|||0.001||
 dummy_simple_re|stem|e7abcba218d151df|d6ae6656316743ec|df2f5f7ca715ff0e|-1147551103||t20394.2325347222s|s380b|380|rds|local|vector|||0.01||
+main|stem|2b87bc8cdb810fe4|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20395.1256657685s|s8340524b|8340524|file|local|vector|||16.065||
 ensure_dir_exists|function|4ebaf0c821babc54
-.Random.seed|object|7e3bbbba9bf36350
+.Random.seed|object|eaf957c067360fa6
 logistic|function|66a19cdf8a52e92e
 logit|function|3f63c419c72bc2de
 h|function|1d64ebc561b14060
@@ -64,5 +65,4 @@ make_hmc_gif|function|8169c399f588cfb7
 generate_mh_df|function|9d5934f671318dca
 generate_leapfrog_list|function|59b89ded31bf958b
 generate_simple_hmc_list|function|a342535814a26553
-exercise|stem|182e82ccd5ec393c|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20394.4560178955s|s5372336b|5372336|file|local|vector|||10.451||
-main|stem|2b87bc8cdb810fe4|7187dea1a1a6ab53|28bdb1a12eb5f8e4|-1244813022|main_files*main.html*main.qmd*assets/custom.css|t20395.1256657685s|s8340524b|8340524|file|local|vector|||16.065||
+exercise|stem|fdaedfda4b4f213e|2e6f110eb652e543|2c530c1562a7fbd1|1662158168|exercise_files*exercise.html*exercise.qmd|t20395.5752004322s|s8200568b|8200568|file|local|vector|||128.558||
