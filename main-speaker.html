@@ -1574,7 +1574,7 @@ r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
 <section id="mle-vs.-bayesian-estimation" class="slide level2">
 <h2>MLE vs.&nbsp;Bayesian estimation</h2>
 <h3 id="mle-e.g.-lme4">MLE (e.g., <code class="small">lme4</code>)</h3>
-<p><span class="math inline">\(L(\mu, \sigma) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i\)</span></p>
+<p><span class="math inline">\(L(\mu, \sigma \mid S_i, N_i) = \prod_i \int_{-\infty}^{\infty} \mathcal{B}(S_i \mid N_i, p_i) \times \mathcal{N}(\mathrm{logit}(p_i) \mid \mu, \sigma) dp_i\)</span></p>
 <ul>
 <li class="fragment"><p>Analytically (or numerically) find <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> that maximize <span class="math inline">\(L\)</span>.</p></li>
 <li class="fragment"><p>MLE often requires numerical integration, and this becomes difficult for complex models.</p></li>
