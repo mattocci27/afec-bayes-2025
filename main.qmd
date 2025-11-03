@@ -1302,7 +1302,8 @@ What is the survival rate?
 ::: columns
 ::: {.column width="40%"}
 ```{r}
-dummy_simple <- tar_read(dummy_simple)
+dummy_simple <- tar_read(dummy_simple) |>
+  rename(id = sp)
 dummy_simple |>
   knitr::kable(format = "html") |>
   kable_material(c("striped", "hover"), full_width = FALSE)
