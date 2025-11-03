@@ -1745,7 +1745,7 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 
 - $H(\theta, r) = U(\theta) + r^2/2$ (Hamiltonian: potential energy + kinetic energy = constant)
 
-  - $U(\theta) = -\text{log}\; p(\theta \mid \text{data})$
+  - $U(\theta) = -\text{log}\; p(\theta \mid \text{data})$ ()
 
 - Instead of sampling from $p(\theta \mid \text{data})$, HMC samples from a joint distribution over both $\theta$ and $r$.
 
@@ -1759,6 +1759,9 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 :::
 :::
 
+::: footer
+True $\theta \approx$ 0.77.
+:::
 
 ## MCMC: Hamiltonian Monte Carlo (HMC)
 
@@ -1784,6 +1787,10 @@ ggplot(samples_long, aes(x = iter, y = value, color = param)) +
 
 :::
 :::
+:::
+
+::: footer
+True $\theta \approx$ 0.77.
 :::
 
 <!-- ## MCMC: HMC vs. Metropolis-Hastings (MH)

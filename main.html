@@ -1696,7 +1696,7 @@ r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
 <ul>
 <li class="fragment"><p><span class="math inline">\(H(\theta, r) = U(\theta) + r^2/2\)</span> (Hamiltonian: potential energy + kinetic energy = constant)</p>
 <ul>
-<li class="fragment"><span class="math inline">\(U(\theta) = -\text{log}\; p(\theta \mid \text{data})\)</span></li>
+<li class="fragment"><span class="math inline">\(U(\theta) = -\text{log}\; p(\theta \mid \text{data})\)</span> ()</li>
 </ul></li>
 <li class="fragment"><p>Instead of sampling from <span class="math inline">\(p(\theta \mid \text{data})\)</span>, HMC samples from a joint distribution over both <span class="math inline">\(\theta\)</span> and <span class="math inline">\(r\)</span>.</p>
 <ul>
@@ -1706,6 +1706,9 @@ r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
 <li class="fragment"><p>HMS explores very different <span class="math inline">\(\theta\)</span> along the same trajectory (i.e.&nbsp;leapfrog path), which is much more efficient than random sampling.</p></li>
 </ul>
 </div></div>
+<div class="footer">
+<p>True <span class="math inline">\(\theta \approx\)</span> 0.77.</p>
+</div>
 </section>
 <section id="mcmc-hamiltonian-monte-carlo-hmc-1" class="slide level2">
 <h2>MCMC: Hamiltonian Monte Carlo (HMC)</h2>
@@ -1723,6 +1726,9 @@ r_{m-1,n-1} + r_{m-1,n} + r_{m-1,n+1} + \\
 <li class="fragment"><p>Only the final parameter <span class="math inline">\(\theta\)</span> of each trajectory is kept as a posterior sample.</p></li>
 </ul>
 </div></div>
+<div class="footer">
+<p>True <span class="math inline">\(\theta \approx\)</span> 0.77.</p>
+</div>
 </section>
 <section id="mcmc-hmc-vs.-metropolis-hastings-mh" class="slide level2">
 <h2>MCMC: HMC vs.&nbsp;Metropolis-Hastings (MH)</h2>
