@@ -1883,7 +1883,7 @@ CmdStan is based on the latest version of Stan, whereas `rstan` is based on an o
 
 ## References
 
-- Slides & code: <https://github.com/mattocci27/bayes-workshop-xtbg>
+- Slides & code: <https://github.com/mattocci27/afec-bayes-2025>
 
 - [Gelman, A. et al. Bayesian Data Analysis, Third Edition. (Chapman & Hall/CRC, 2013)](http://www.stat.columbia.edu/~gelman/book/)
 
